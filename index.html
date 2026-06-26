@@ -1,0 +1,2477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>亲子桥 · 温暖沟通训练</title>
+<style>
+/* ===== RESET & ROOT ===== */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --mint:#52b788;
+  --mint-2:#40916c;
+  --mint-pale:#d8f3dc;
+  --mint-light:#b7e4c7;
+  --coral:#f4978e;
+  --coral-pale:#ffddd2;
+  --lavender:#c8b6e2;
+  --lavender-pale:#ede4ff;
+  --peach:#ffb4a2;
+  --sky:#7ec8e3;
+  --sky-pale:#d8f0f8;
+  --sun:#f0c040;
+  --sun-pale:#fff5dc;
+  --rose:#e8a0bf;
+  --rose-pale:#fde8f0;
+  --bg:#f6faf8;
+  --card:#ffffff;
+  --text-dark:#2d3a35;
+  --text-mid:#5a7a6e;
+  --text-soft:#9bbdaf;
+  --shadow:0 4px 24px rgba(0,60,40,0.08);
+  --r:20px;--rs:12px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;
+  background:var(--bg);color:var(--text-dark);min-height:100vh;overflow-x:hidden;}
+
+/* ===== LAYOUT ===== */
+.app{max-width:500px;margin:0 auto;min-height:100vh;position:relative;}
+.screen{display:none;min-height:100vh;padding:24px 20px;flex-direction:column;animation:fadeUp .35s ease;}
+.screen.on{display:flex;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideRight{from{opacity:0;transform:translateX(-16px)}to{opacity:1;transform:translateX(0)}}
+@keyframes popIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+/* ===== HEADER ===== */
+.hdr{display:flex;align-items:center;gap:12px;margin-bottom:28px;}
+.back{width:40px;height:40px;border-radius:50%;background:var(--card);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 2px 10px rgba(0,0,0,.06);flex-shrink:0;}
+.hdr-title{font-size:19px;font-weight:700;}
+.hdr-sub{margin-left:auto;font-size:13px;color:var(--text-soft);}
+
+/* ===== PROGRESS BAR ===== */
+.pbar{height:5px;background:var(--mint-pale);border-radius:3px;margin-bottom:26px;overflow:hidden;}
+.pfill{height:100%;background:linear-gradient(90deg,var(--mint),var(--coral),var(--sky));border-radius:3px;transition:width .4s ease;}
+
+/* ===== BUTTONS ===== */
+.btn{width:100%;border:none;cursor:pointer;font-size:15px;font-weight:600;border-radius:50px;transition:all .25s;font-family:inherit;}
+.btn-g{background:linear-gradient(135deg,var(--mint),#3c9d70);color:#fff;padding:16px;
+  box-shadow:0 6px 20px rgba(64,145,108,.28);}
+.btn-g:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(64,145,108,.36);}
+.btn-o{background:var(--card);color:var(--mint);border:2px solid var(--mint-light);padding:14px;}
+.btn-o:hover{background:var(--mint-pale);}
+.btn-ghost{background:transparent;color:var(--text-soft);font-size:13px;padding:10px;text-decoration:underline;width:auto;}
+.btn-sm{padding:10px 22px;font-size:13px;width:auto;border-radius:30px;}
+
+/* ===== CARDS ===== */
+.card{background:var(--card);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);margin-bottom:14px;}
+.card-g{background:linear-gradient(135deg,var(--mint-pale) 0%,var(--lavender-pale) 100%);border-radius:var(--r);padding:20px;margin-bottom:14px;}
+.card-g2{background:linear-gradient(135deg,var(--sky-pale) 0%,var(--sun-pale) 100%);border-radius:var(--r);padding:20px;margin-bottom:14px;}
+.card-g3{background:linear-gradient(135deg,var(--rose-pale) 0%,var(--lavender-pale) 100%);border-radius:var(--r);padding:20px;margin-bottom:14px;}
+
+/* ===== TAGS ===== */
+.tag{background:var(--card);padding:6px 15px;border-radius:20px;font-size:13px;color:var(--text-mid);
+  box-shadow:0 2px 8px rgba(0,0,0,.05);}
+.tag-mint{background:var(--mint-pale);color:var(--mint);padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;}
+.tag-sky{background:var(--sky-pale);color:#387a96;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;}
+.tag-rose{background:var(--rose-pale);color:#b86d8a;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;}
+.tag-sun{background:var(--sun-pale);color:#b08020;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;}
+
+/* ===== OPTION ITEMS ===== */
+.opt{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:var(--rs);background:var(--bg);
+  cursor:pointer;border:2px solid transparent;transition:all .2s;margin-bottom:9px;}
+.opt:last-child{margin-bottom:0;}
+.opt.sel,.opt:hover{background:var(--mint-pale);border-color:var(--mint-light);}
+.opt-ico{font-size:22px;flex-shrink:0;}
+.opt-txt{font-size:14px;color:var(--text-dark);flex:1;line-height:1.45;}
+
+/* ===== SCENE CHIPS ===== */
+.scenes{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.chip{padding:14px 10px;border-radius:var(--rs);background:var(--bg);border:2px solid transparent;cursor:pointer;
+  text-align:center;font-size:13px;color:var(--text-mid);transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.chip-ico{font-size:24px;}
+.chip.sel{background:var(--mint-pale);border-color:var(--mint);color:var(--text-dark);}
+
+/* ===== IDENTITY CARDS ===== */
+.id-card{background:var(--card);border-radius:var(--r);padding:22px;display:flex;align-items:center;gap:18px;
+  cursor:pointer;box-shadow:var(--shadow);border:2px solid transparent;transition:all .28s;margin-bottom:14px;}
+.id-card:hover,.id-card.sel{border-color:var(--mint);box-shadow:0 6px 28px rgba(82,183,136,.18);transform:translateY(-2px);}
+.id-ico{width:62px;height:62px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;}
+.id-ico.p{background:linear-gradient(135deg,var(--sky-pale),var(--mint-pale));}
+.id-ico.c{background:linear-gradient(135deg,var(--sun-pale),var(--coral-pale));}
+.id-info h3{font-size:17px;font-weight:700;margin-bottom:5px;}
+.id-info p{font-size:13px;color:var(--text-mid);line-height:1.5;}
+
+/* ===== MODE CARDS ===== */
+.mode-card{background:var(--card);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);cursor:pointer;
+  transition:all .28s;display:flex;gap:16px;align-items:flex-start;border-left:4px solid transparent;margin-bottom:12px;}
+.mode-card:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.10);}
+.mode-card.rec{border-left-color:var(--mint);}
+.mode-ico{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.mi1{background:linear-gradient(135deg,#fff5f3,#ffe8e0);} .mi2{background:linear-gradient(135deg,#f0f5ff,#e0edff);} .mi3{background:linear-gradient(135deg,var(--mint-pale),#c8edd8);}
+.mode-name{font-size:15px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:7px;}
+.rec-badge{background:linear-gradient(135deg,var(--mint),var(--mint-2));color:#fff;font-size:10px;padding:2px 8px;border-radius:10px;}
+.mode-desc{font-size:13px;color:var(--text-mid);line-height:1.55;margin-bottom:8px;}
+.mode-meta{display:flex;gap:12px;}
+.meta{font-size:12px;color:var(--text-soft);}
+
+/* ===== DIALOGUE BUBBLES ===== */
+.dlg{display:flex;gap:9px;animation:slideRight .3s ease;margin-bottom:12px;}
+.dlg.r{flex-direction:row-reverse;}
+.ava{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.ava.p{background:linear-gradient(135deg,var(--sky-pale),var(--mint-pale));}
+.ava.c{background:linear-gradient(135deg,var(--sun-pale),var(--coral-pale));}
+.bbl-wrap{}
+.bbl-role{font-size:11px;color:var(--text-soft);margin-bottom:4px;}
+.bbl-role.r-align{text-align:right;}
+.bbl{max-width:250px;padding:11px 15px;border-radius:18px;font-size:14px;line-height:1.6;}
+.bbl.p{background:var(--mint-pale);border-top-left-radius:4px;}
+.bbl.c{background:var(--coral-pale);border-top-right-radius:4px;}
+.bbl.user{background:linear-gradient(135deg,#d8f0f8,#e8f4f8);border-top-right-radius:4px;}
+.bbl.sys{background:transparent;color:var(--text-soft);font-style:italic;font-size:12px;text-align:center;padding:6px 10px;max-width:300px;}
+
+/* ===== TYPING INDICATOR ===== */
+.typing{display:flex;gap:5px;padding:11px 16px;background:var(--bg);border-radius:18px;width:fit-content;}
+.tdot{width:8px;height:8px;border-radius:50%;background:var(--mint-light);animation:tpulse 1.2s infinite;}
+.tdot:nth-child(2){animation-delay:.2s} .tdot:nth-child(3){animation-delay:.4s}
+@keyframes tpulse{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-7px);opacity:1}}
+
+/* ===== TIMER ===== */
+.timer-block{background:var(--card);border-radius:var(--r);padding:16px 20px;box-shadow:var(--shadow);
+  display:flex;align-items:center;gap:14px;margin-bottom:14px;}
+.timer-val{font-size:30px;font-weight:700;color:var(--mint);font-variant-numeric:tabular-nums;letter-spacing:2px;}
+.phase-bar{display:flex;gap:4px;margin-bottom:14px;}
+.pb{height:6px;border-radius:3px;flex:1;background:var(--mint-pale);transition:background .4s;}
+.pb.on{background:linear-gradient(90deg,var(--mint),var(--sky));}
+.pb.on2{background:linear-gradient(90deg,var(--coral),var(--rose));}
+.pb.on3{background:linear-gradient(90deg,var(--sun),var(--peach));}
+
+/* ===== INPUT ===== */
+.textarea{width:100%;border:2px solid var(--mint-pale);border-radius:var(--rs);padding:12px 14px;font-size:14px;
+  resize:none;outline:none;font-family:inherit;color:var(--text-dark);transition:border-color .2s;line-height:1.55;}
+.textarea:focus{border-color:var(--mint);}
+
+/* ===== CHAT AREA ===== */
+.chat-box{flex:1;background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);
+  margin-bottom:14px;overflow-y:auto;max-height:300px;max-height:40vh;display:flex;flex-direction:column;}
+
+/* ===== WELCOME ===== */
+#s-welcome{background:linear-gradient(160deg,#e0f5e9 0%,#e8f0ff 30%,#fff0eb 55%,#fff8e8 80%,#f0e8ff 100%);
+  justify-content:center;align-items:center;text-align:center;gap:24px;position:relative;overflow:hidden;}
+#s-welcome::before{content:'';position:absolute;width:160px;height:160px;border-radius:50%;
+  background:radial-gradient(circle,rgba(82,183,136,.12) 0%,transparent 70%);top:-40px;right:-40px;}
+#s-welcome::after{content:'';position:absolute;width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,rgba(200,150,220,.10) 0%,transparent 70%);bottom:-60px;left:-60px;}
+.logo-box{width:100px;height:100px;background:linear-gradient(135deg,var(--mint),var(--sky),var(--coral));border-radius:28px;
+  display:flex;align-items:center;justify-content:center;font-size:48px;box-shadow:0 12px 36px rgba(82,183,136,.30);position:relative;z-index:1;}
+.welcome-tags{display:flex;gap:9px;flex-wrap:wrap;justify-content:center;position:relative;z-index:1;}
+.welcome-floats{position:absolute;inset:0;pointer-events:none;z-index:0;}
+.wf{position:absolute;font-size:22px;opacity:.25;animation:float 4s ease-in-out infinite;}
+.wf:nth-child(1){top:8%;left:10%;animation-delay:0s;}
+.wf:nth-child(2){top:12%;right:12%;animation-delay:.8s;}
+.wf:nth-child(3){bottom:15%;left:8%;animation-delay:1.6s;}
+.wf:nth-child(4){bottom:10%;right:10%;animation-delay:2.4s;}
+.wf:nth-child(5){top:45%;left:5%;animation-delay:.4s;}
+.wf:nth-child(6){bottom:40%;right:6%;animation-delay:2s;}
+
+/* ===== PERSONALITY ===== */
+.pers-badge{width:80px;height:80px;border-radius:24px;margin:0 auto 15px;display:flex;align-items:center;justify-content:center;font-size:40px;}
+.pers-name{font-size:22px;font-weight:700;margin-bottom:8px;}
+.pers-desc{font-size:14px;color:var(--text-mid);line-height:1.8;margin-bottom:18px;}
+.traits-wrap{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;}
+
+/* ===== TIER CARDS ===== */
+.tier-card{background:var(--card);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);cursor:pointer;
+  transition:all .25s;border:2px solid transparent;margin-bottom:12px;}
+.tier-card:hover{border-color:var(--mint-light);}
+.tier-card.feat{background:linear-gradient(135deg,var(--mint-pale),var(--lavender-pale));border-color:var(--mint-light);}
+.tier-hdr{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.tier-time{font-size:12px;color:var(--text-soft);background:rgba(255,255,255,.7);padding:3px 10px;border-radius:10px;margin-left:auto;}
+
+/* ===== OBSERVER TOGGLE ===== */
+.phase-tabs{display:flex;gap:10px;margin-bottom:14px;}
+.ptab{padding:10px 20px;border-radius:30px;border:2px solid var(--mint-light);background:var(--card);
+  color:var(--mint);font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit;}
+.ptab.err-on{background:var(--coral-pale);border-color:var(--coral);color:#b34c42;}
+.ptab.ok-on{background:var(--mint-pale);border-color:var(--mint);color:#2d6a4f;}
+
+/* ===== INSIGHT ===== */
+.ins-item{display:flex;gap:10px;margin-bottom:10px;font-size:13px;color:var(--text-mid);line-height:1.6;}
+.ins-no{width:22px;height:22px;border-radius:50%;background:var(--mint);color:#fff;font-size:12px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:700;margin-top:1px;}
+
+/* ===== FEEDBACK BOX ===== */
+.fb-box{background:linear-gradient(135deg,#e0f5e9,var(--lavender-pale));border-radius:var(--r);padding:20px;
+  margin-bottom:14px;animation:popIn .3s ease;}
+.score-row{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.score-c{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--mint),var(--mint-2));
+  color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0;}
+.better-box{background:rgba(255,255,255,.8);border-radius:var(--rs);padding:14px;margin-top:12px;}
+
+/* ===== SUMMARY ===== */
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:18px;}
+.stat-c{background:var(--card);border-radius:var(--rs);padding:16px 10px;text-align:center;box-shadow:var(--shadow);}
+.stat-v{font-size:24px;font-weight:700;color:var(--mint);margin-bottom:3px;}
+.stat-l{font-size:12px;color:var(--text-soft);}
+
+/* ===== DASHBOARD ===== */
+.usr-badges{display:flex;gap:9px;margin-bottom:22px;flex-wrap:wrap;}
+.ubadge{background:var(--card);border-radius:30px;padding:8px 15px;font-size:13px;display:flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+
+/* ===== TOAST ===== */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(30,50,40,.85);color:#fff;
+  padding:10px 24px;border-radius:30px;font-size:14px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;}
+.toast.show{opacity:1;}
+
+/* ===== CHALLENGE INPUT ===== */
+.chal-box{background:var(--bg);border-radius:var(--rs);padding:14px 16px;border-left:3px solid var(--coral);
+  font-size:15px;line-height:1.7;color:var(--text-dark);}
+.chal-box.p{border-left-color:var(--sky);}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--mint-light);border-radius:2px}
+
+/* ===== DECO DOTS ===== */
+.deco-row{display:flex;gap:6px;justify-content:center;margin-bottom:16px;}
+.deco-d{width:8px;height:8px;border-radius:50%;}
+.deco-d:nth-child(1){background:var(--mint);} .deco-d:nth-child(2){background:var(--sky);}
+.deco-d:nth-child(3){background:var(--coral);} .deco-d:nth-child(4){background:var(--sun);}
+.deco-d:nth-child(5){background:var(--lavender);}
+
+/* ===== SECTION ICON BADGES ===== */
+.sec-icon{width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.si-mint{background:var(--mint-pale);} .si-sky{background:var(--sky-pale);}
+.si-rose{background:var(--rose-pale);} .si-sun{background:var(--sun-pale);}
+.si-lav{background:var(--lavender-pale);}
+
+/* ===== UTILS ===== */
+.mt{margin-top:auto} .mb8{margin-bottom:8px} .mb14{margin-bottom:14px} .mb22{margin-bottom:22px}
+.sec-title{font-size:15px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.q-label{font-size:12px;color:var(--mint);font-weight:600;letter-spacing:.5px;margin-bottom:8px;}
+.q-text{font-size:16px;font-weight:600;color:var(--text-dark);margin-bottom:16px;line-height:1.5;}
+.txt-soft{color:var(--text-soft);font-size:13px;}
+.txt-center{text-align:center;}
+.row{display:flex;gap:10px;align-items:center;}
+.flex1{flex:1;}
+.ctrl-row{display:flex;gap:8px;margin-top:10px;align-items:center;}
+.ctrl-btn{background:var(--bg);border:none;padding:9px 15px;border-radius:20px;font-size:13px;cursor:pointer;
+  color:var(--text-mid);font-family:inherit;display:flex;align-items:center;gap:5px;}
+.ctrl-danger{background:#fff0ef;color:var(--coral);}
+.send-btn{background:linear-gradient(135deg,var(--mint),var(--mint-2));color:#fff;border:none;padding:10px 22px;
+  border-radius:20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;}
+
+/* ===== DIVIDER ===== */
+.divider{display:flex;align-items:center;gap:12px;margin:18px 0;color:var(--text-soft);font-size:12px;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--mint-pale);}
+
+/* ===== PARTNER SETUP ===== */
+.partner-btn-wrap{display:flex;gap:12px;margin-top:12px;}
+.partner-btn{flex:1;border:2px solid var(--mint-light);background:var(--card);border-radius:var(--r);
+  padding:20px 10px;font-size:18px;font-family:inherit;cursor:pointer;text-align:center;transition:all .2s;
+  color:var(--text-dark);line-height:1.5;}
+.partner-btn span{display:block;font-size:13px;color:var(--text-soft);margin-top:4px;}
+.partner-btn:hover,.partner-btn.sel{border-color:var(--mint);background:var(--mint-pale);transform:translateY(-2px);}
+.style-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+.style-chip{border:2px solid var(--mint-light);background:var(--card);border-radius:20px;padding:8px 16px;
+  font-size:13px;font-family:inherit;cursor:pointer;transition:all .2s;color:var(--text-dark);}
+.style-chip.sel{border-color:var(--mint);background:var(--mint-pale);color:var(--mint-2);font-weight:600;}
+
+/* ===== SCENE SWITCH ===== */
+.scene-switch-btn{background:var(--sky-pale);border:1px solid var(--sky);border-radius:20px;padding:7px 16px;
+  font-size:12px;color:#387a96;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap;}
+.scene-switch-btn:hover{background:var(--sky);color:#fff;}
+.reset-profile-link{background:transparent;border:none;color:var(--text-soft);font-size:12px;cursor:pointer;
+  font-family:inherit;padding:6px 0;text-decoration:underline;}
+
+/* ===== M3 SETUP ===== */
+.setup-step{font-size:12px;color:var(--mint);font-weight:700;letter-spacing:.5px;margin-bottom:5px;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ===================== WELCOME ===================== -->
+<div id="s-welcome" class="screen on">
+  <div class="welcome-floats">
+    <span class="wf">🌸</span><span class="wf">🍃</span><span class="wf">✨</span>
+    <span class="wf">🫧</span><span class="wf">🌼</span><span class="wf">💫</span>
+  </div>
+  <div class="logo-box" style="position:relative;z-index:1;">🕊️</div>
+  <div style="position:relative;z-index:1;">
+    <div style="font-size:30px;font-weight:800;">亲子桥</div>
+    <div style="font-size:14px;color:var(--text-soft);margin-top:5px;">温暖每一次对话</div>
+  </div>
+  <div style="font-size:15px;color:var(--text-mid);line-height:1.9;position:relative;z-index:1;">
+    那些没说出口的话<br>这里，我们慢慢练习
+  </div>
+  <div class="welcome-tags" style="position:relative;z-index:1;">
+    <span class="tag">🎭 AI角色扮演</span>
+    <span class="tag">🫶 话术点评</span>
+    <span class="tag">🧠 沟通诊断</span>
+    <span class="tag">🔒 完全私密</span>
+  </div>
+  <div style="width:100%;margin-top:8px;position:relative;z-index:1;">
+    <button class="btn btn-g" onclick="go('s-identity')">开始吧 →</button>
+    <div class="txt-center" style="margin-top:11px;"><span class="txt-soft">10秒建档，马上就能用</span></div>
+  </div>
+</div>
+
+<!-- ===================== IDENTITY ===================== -->
+<div id="s-identity" class="screen">
+  <div class="hdr">
+    <button class="back" onclick="go('s-welcome')">←</button>
+    <span class="hdr-title">你是谁？</span>
+  </div>
+  <div class="deco-row"><span class="deco-d"></span><span class="deco-d"></span><span class="deco-d"></span><span class="deco-d"></span><span class="deco-d"></span></div>
+  <div style="font-size:22px;font-weight:700;text-align:center;margin-bottom:6px;">你在家庭中是哪一方？</div>
+  <div class="txt-soft txt-center mb22">这样AI才能站在对的角度跟你练</div>
+
+  <div class="id-card" onclick="pickId('parent',this)">
+    <div class="id-ico p">👨‍👩‍👧</div>
+    <div class="id-info">
+      <h3>我是爸爸 / 妈妈</h3>
+      <p>想说又说不好，想改又老是忍不住发火…来练练怎么和孩子好好说话</p>
+    </div>
+  </div>
+  <div class="id-card" onclick="pickId('child',this)">
+    <div class="id-ico c">🌻</div>
+    <div class="id-info">
+      <h3>我是孩子 / 青少年</h3>
+      <p>不知道爸妈为什么总是不理解我…想有人帮我练练怎么让他们听进去</p>
+    </div>
+  </div>
+  <div class="txt-center" style="margin-top:10px;">
+    <button class="btn-ghost btn" onclick="pickId('explore',null)">先逛逛再说</button>
+  </div>
+</div>
+
+<!-- ===================== QUICK PROFILE ===================== -->
+<div id="s-qprofile" class="screen">
+  <div class="hdr">
+    <button class="back" onclick="go('s-identity')">←</button>
+    <span class="hdr-title">极速建档</span>
+    <span class="hdr-sub">约10秒</span>
+  </div>
+  <div class="pbar"><div class="pfill" id="qpbar" style="width:20%"></div></div>
+
+  <div class="card mb14" style="border-top:3px solid var(--sky);">
+    <div class="q-label">情绪沟通题</div>
+    <div class="q-text">家里吵起来的时候，你一般会……？</div>
+    <div class="opt" onclick="pickEmo(this,'blame')"><span class="opt-ico">😤</span><span class="opt-txt">忍不住怼回去，火气上头了就吼出来</span></div>
+    <div class="opt" onclick="pickEmo(this,'avoid')"><span class="opt-ico">😶</span><span class="opt-txt">算了懒得吵，自己走开冷静冷静</span></div>
+    <div class="opt" onclick="pickEmo(this,'please')"><span class="opt-ico">🥺</span><span class="opt-txt">先忍一忍吧，别把气氛搞得更僵</span></div>
+    <div class="opt" onclick="pickEmo(this,'analyze')"><span class="opt-ico">🧐</span><span class="opt-txt">先把事情捋清楚，讲道理总能说明白</span></div>
+  </div>
+
+  <div class="card mb14" style="border-top:3px solid var(--coral);">
+    <div class="q-label">高频冲突场景（多选）</div>
+    <div class="q-text">啥事儿最容易点着你们家的火药桶？</div>
+    <div class="scenes">
+      <div class="chip" onclick="tScene(this,'study')"><span class="chip-ico">📖</span>学习/成绩</div>
+      <div class="chip" onclick="tScene(this,'phone')"><span class="chip-ico">📱</span>手机/游戏</div>
+      <div class="chip" onclick="tScene(this,'freedom')"><span class="chip-ico">🦋</span>自由/管教</div>
+      <div class="chip" onclick="tScene(this,'compare')"><span class="chip-ico">⚖️</span>被拿来比较</div>
+      <div class="chip" onclick="tScene(this,'money')"><span class="chip-ico">💸</span>花钱/消费</div>
+      <div class="chip" onclick="tScene(this,'future')"><span class="chip-ico">🧭</span>未来/选专业</div>
+      <div class="chip" onclick="tScene(this,'tone')"><span class="chip-ico">🗯️</span>说话太冲</div>
+      <div class="chip" onclick="tScene(this,'other')"><span class="chip-ico">💭</span>别的糟心事</div>
+    </div>
+    <div id="scene-hint" style="font-size:13px;color:var(--text-soft);margin-top:12px;">至少选1个哦</div>
+  </div>
+
+  <button class="btn btn-g" onclick="genPersonality()">看看我的沟通风格 →</button>
+</div>
+
+<!-- ===================== PERSONALITY RESULT ===================== -->
+<div id="s-pers" class="screen" style="background:linear-gradient(160deg,#f6faf8 0%,#f8f4ff 50%,#fff8f4 100%);">
+  <div class="hdr">
+    <button class="back" onclick="go('s-qprofile')">←</button>
+    <span class="hdr-title">你的沟通画像</span>
+  </div>
+
+  <div class="card txt-center mb14" id="pers-card" style="border-top:3px solid var(--lavender);"><!-- filled by JS --></div>
+
+  <div class="card mb14" style="border-top:3px solid var(--coral);">
+    <div class="sec-title"><span class="sec-icon si-rose">⚠️</span>你最容易踩的坑</div>
+    <div id="pers-traps" style="font-size:13px;color:var(--text-mid);line-height:1.9;"></div>
+  </div>
+
+  <div class="card-g2 mb14">
+    <div class="sec-title"><span class="sec-icon si-sky">💡</span>专门为你定制的练习方向</div>
+    <div id="pers-focus" style="font-size:13px;color:var(--text-mid);line-height:1.9;"></div>
+  </div>
+
+  <button class="btn btn-g mb8" onclick="go('s-tier')">完善更多信息 →</button>
+  <button class="btn btn-o mb8" onclick="toDashboard()">直接开始训练</button>
+  <div class="txt-center"><button class="reset-profile-link" onclick="resetProfile()">重新建档 ↺</button></div>
+</div>
+
+<!-- ===================== TIER SELECT ===================== -->
+<div id="s-tier" class="screen">
+  <div class="hdr">
+    <button class="back" onclick="go('s-pers')">←</button>
+    <span class="hdr-title">建档深度</span>
+  </div>
+  <div class="txt-soft mb22">填得越细，AI越懂你家，随便，不强制</div>
+
+  <div class="tier-card" onclick="toDashboard()">
+    <div class="tier-hdr">
+      <span style="font-size:24px;">⚡</span>
+      <span style="font-size:16px;font-weight:700;flex:1;">极速档 · 已搞定</span>
+      <span class="tier-time">已完成</span>
+    </div>
+    <div style="font-size:13px;color:var(--text-mid);line-height:1.6;">AI模拟训练、话术点评、基础报告 全部开放了</div>
+  </div>
+
+  <div class="tier-card feat" onclick="go('s-std-profile')">
+    <div class="tier-hdr">
+      <span style="font-size:24px;">📋</span>
+      <span style="font-size:16px;font-weight:700;flex:1;">标准档</span>
+      <span class="tier-time">约3分钟</span>
+    </div>
+    <div style="font-size:13px;color:var(--text-mid);line-height:1.6;">补上年龄段和沟通习惯 → AI更像"你家那位"</div>
+  </div>
+
+  <div class="tier-card" onclick="go('s-deep-profile')">
+    <div class="tier-hdr">
+      <span style="font-size:24px;">🔬</span>
+      <span style="font-size:16px;font-weight:700;flex:1;">深度档</span>
+      <span class="tier-time">约8分钟</span>
+    </div>
+    <div style="font-size:13px;color:var(--text-mid);line-height:1.6;">矛盾根源、冲突模式、孩子性格 → 私人订制训练方案</div>
+  </div>
+
+  <div class="txt-center" style="margin-top:8px;">
+    <button class="btn-ghost btn" onclick="toDashboard()">先训练再说</button>
+  </div>
+</div>
+
+<!-- ===================== STANDARD PROFILE ===================== -->
+<div id="s-std-profile" class="screen">
+  <div class="hdr">
+    <button class="back" onclick="go('s-tier')">←</button>
+    <span class="hdr-title">标准建档</span>
+    <span class="hdr-sub">约3分钟</span>
+  </div>
+  <div class="pbar"><div class="pfill" style="width:60%"></div></div>
+
+  <div class="card mb14" style="border-left:3px solid var(--sun);">
+    <div class="q-label">孩子的年纪</div>
+    <div class="q-text">孩子现在上几年级？</div>
+    <div class="opt" onclick="pickOpt(this,'age')"><span class="opt-ico">🎒</span><span class="opt-txt">小学（6-12岁）</span></div>
+    <div class="opt" onclick="pickOpt(this,'age')"><span class="opt-ico">📖</span><span class="opt-txt">初中（12-15岁）</span></div>
+    <div class="opt" onclick="pickOpt(this,'age')"><span class="opt-ico">📐</span><span class="opt-txt">高中（15-18岁）</span></div>
+    <div class="opt" onclick="pickOpt(this,'age')"><span class="opt-ico">🏢</span><span class="opt-txt">成年了（18岁以上）</span></div>
+  </div>
+
+  <div class="card mb14" style="border-left:3px solid var(--sky);">
+    <div class="q-label">你平时的沟通方式</div>
+    <div class="q-text">哪种更接近你？</div>
+    <div class="opt" onclick="pickOpt(this,'style')"><span class="opt-ico">⚡</span><span class="opt-txt">有啥说啥型：心里想啥就说啥</span></div>
+    <div class="opt" onclick="pickOpt(this,'style')"><span class="opt-ico">🫶</span><span class="opt-txt">在乎感受型：怕说重了伤人</span></div>
+    <div class="opt" onclick="pickOpt(this,'style')"><span class="opt-ico">📐</span><span class="opt-txt">讲逻辑型：凡事要论个对错</span></div>
+    <div class="opt" onclick="pickOpt(this,'style')"><span class="opt-ico">🌊</span><span class="opt-txt">看情况型：时好时坏说不准</span></div>
+  </div>
+
+  <div class="card mb14" style="border-left:3px solid var(--rose);">
+    <div class="q-label">你们平时怎么交流</div>
+    <div class="q-text">日常沟通是这样的……</div>
+    <div class="opt" onclick="pickOpt(this,'habit')"><span class="opt-ico">🗣️</span><span class="opt-txt">面对面聊，但聊着聊着就吵</span></div>
+    <div class="opt" onclick="pickOpt(this,'habit')"><span class="opt-ico">📲</span><span class="opt-txt">基本靠微信，很少当面说</span></div>
+    <div class="opt" onclick="pickOpt(this,'habit')"><span class="opt-ico">🚪</span><span class="opt-txt">不怎么聊，各过各的</span></div>
+    <div class="opt" onclick="pickOpt(this,'habit')"><span class="opt-ico">🎢</span><span class="opt-txt">好的时候挺好，一翻脸就完蛋</span></div>
+  </div>
+
+  <button class="btn btn-g mb8" onclick="toDashboard()">好了，开始练 →</button>
+  <div class="txt-center"><button class="btn-ghost btn" onclick="go('s-deep-profile')">再填多点</button></div>
+</div>
+
+<!-- ===================== DEEP PROFILE ===================== -->
+<div id="s-deep-profile" class="screen">
+  <div class="hdr">
+    <button class="back" onclick="go('s-tier')">←</button>
+    <span class="hdr-title">深度建档</span>
+    <span class="hdr-sub">约8分钟</span>
+  </div>
+  <div class="pbar"><div class="pfill" style="width:90%"></div></div>
+
+  <div class="card mb14" style="border-left:3px solid var(--coral);">
+    <div class="q-label">矛盾的根儿在哪儿（可多选）</div>
+    <div class="q-text">你们家闹别扭，说到底是为什么？</div>
+    <div class="opt" onclick="this.classList.toggle('sel')"><span class="opt-ico">🔒</span><span class="opt-txt">管太多 vs 想自由</span></div>
+    <div class="opt" onclick="this.classList.toggle('sel')"><span class="opt-ico">📊</span><span class="opt-txt">期望太高，够不着</span></div>
+    <div class="opt" onclick="this.classList.toggle('sel')"><span class="opt-ico">🗯️</span><span class="opt-txt">说话方式太伤人</span></div>
+    <div class="opt" onclick="this.classList.toggle('sel')"><span class="opt-ico">💔</span><span class="opt-txt">信任出了问题</span></div>
+    <div class="opt" onclick="this.classList.toggle('sel')"><span class="opt-ico">⚖️</span><span class="opt-txt">想法完全不一样</span></div>
+  </div>
+
+  <div class="card mb14" style="border-left:3px solid var(--sky);">
+    <div class="q-label">吵完架之后</div>
+    <div class="q-text">一般怎么收场？</div>
+    <div class="opt" onclick="pickOpt(this,'aftermath')"><span class="opt-ico">🧊</span><span class="opt-txt">谁也不理谁，能冷好几天</span></div>
+    <div class="opt" onclick="pickOpt(this,'aftermath')"><span class="opt-ico">💥</span><span class="opt-txt">大吵一顿，各自散开</span></div>
+    <div class="opt" onclick="pickOpt(this,'aftermath')"><span class="opt-ico">🤝</span><span class="opt-txt">有人先服软，表面翻篇</span></div>
+    <div class="opt" onclick="pickOpt(this,'aftermath')"><span class="opt-ico">🔄</span><span class="opt-txt">假装没事，下次再来</span></div>
+  </div>
+
+  <div class="card mb14" style="border-left:3px solid var(--sun);">
+    <div class="q-label">孩子的性子（可多选）</div>
+    <div class="q-text">孩子平时偏哪种？</div>
+    <div class="opt" onclick="this.classList.toggle('sel')"><span class="opt-ico">🌋</span><span class="opt-txt">脾气来得快，容易炸</span></div>
+    <div class="opt" onclick="this.classList.toggle('sel')"><span class="opt-ico">🐚</span><span class="opt-txt">不爱说，什么都闷着</span></div>
+    <div class="opt" onclick="this.classList.toggle('sel')"><span class="opt-ico">🌪️</span><span class="opt-txt">你让往东偏往西</span></div>
+    <div class="opt" onclick="this.classList.toggle('sel')"><span class="opt-ico">🌸</span><span class="opt-txt">特别懂事，委屈自己</span></div>
+  </div>
+
+  <button class="btn btn-g" onclick="toDashboard()">搞定，生成专属方案 →</button>
+</div>
+
+<!-- ===================== DASHBOARD ===================== -->
+<div id="s-dashboard" class="screen">
+  <div style="padding-top:8px;">
+    <div style="font-size:22px;font-weight:700;margin-bottom:3px;" id="dash-greeting">下午好 👋</div>
+    <div class="txt-soft mb22">来，今天练练怎么好好说话</div>
+
+    <div class="usr-badges">
+      <div class="ubadge" id="badge-id" style="background:var(--sky-pale);">🧒 孩子</div>
+      <div class="ubadge" id="badge-pers" style="background:var(--rose-pale);">💬 指责型</div>
+      <div class="ubadge" style="margin-left:auto;background:var(--sun-pale);">🔥 今日第1练</div>
+    </div>
+
+    <div style="background:linear-gradient(135deg,var(--sky-pale),var(--sun-pale));border-radius:var(--r);padding:15px 18px;margin-bottom:22px;box-shadow:var(--shadow);display:flex;align-items:center;gap:13px;">
+      <div style="font-size:26px;">🎯</div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:2px;">今日推荐练习</div>
+        <div style="font-size:12px;color:var(--text-soft);">手机时间冲突 · 根据你的画像推荐</div>
+      </div>
+      <div style="background:var(--mint-pale);border-radius:12px;padding:9px 16px;font-size:12px;color:var(--mint);font-weight:600;cursor:pointer;white-space:nowrap;" onclick="showMode2()">开练 →</div>
+    </div>
+
+    <div class="sec-title"><span class="sec-icon si-mint">🎮</span>选个模式开始</div>
+
+    <div class="mode-card rec" onclick="showMode1()">
+      <div class="mode-ico mi1">👀</div>
+      <div class="flex1">
+        <div class="mode-name">旁观学习 <span class="rec-badge">零压力</span></div>
+        <div class="mode-desc">不用说话，AI演给你看"错的"和"对的"两种沟通，看完直接拿走话术</div>
+        <div class="mode-meta"><span class="meta">⏱ 约3分钟</span><span class="meta">😌 纯看就行</span></div>
+      </div>
+    </div>
+
+    <div class="mode-card" onclick="showMode2()" style="border-left-color:var(--sky);">
+      <div class="mode-ico mi2">💬</div>
+      <div class="flex1">
+        <div class="mode-name">短句轻互动</div>
+        <div class="mode-desc">AI抛一句话过来，你只回一句就行，马上给你点评和替换说法</div>
+        <div class="mode-meta"><span class="meta">⏱ 随时退出</span><span class="meta">✍️ 回一句就够了</span></div>
+      </div>
+    </div>
+
+    <div class="mode-card" onclick="showM3Setup()" style="border-left-color:var(--sun);">
+      <div class="mode-ico mi3">⏰</div>
+      <div class="flex1">
+        <div class="mode-name">5分钟实战</div>
+        <div class="mode-desc">铺垫→交锋→和解，三阶段完整对话，深练一把沟通功夫</div>
+        <div class="mode-meta"><span class="meta">⏱ 固定5分钟</span><span class="meta">💪 沉浸式练习</span></div>
+      </div>
+    </div>
+
+    <div class="txt-center" style="margin-top:14px;">
+      <button class="reset-profile-link" onclick="resetProfile()">重新建档 ↺ 换个沟通风格</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODE 1: OBSERVER ===================== -->
+<div id="s-mode1" class="screen" style="background:linear-gradient(160deg,#f6faf8 0%,#fff5f3 100%);">
+  <div class="hdr">
+    <button class="back" onclick="go('s-dashboard')">←</button>
+    <span class="hdr-title">旁观学习</span>
+    <button class="scene-switch-btn" onclick="nextM1Scene()" style="margin-left:auto;">换一个场景 🔄</button>
+  </div>
+
+  <div style="font-size:13px;color:var(--text-soft);margin-bottom:13px;" id="m1-scene-label">📱 场景：加载中……</div>
+  <div style="font-size:11px;color:var(--text-soft);margin-top:-8px;margin-bottom:12px;" id="m1-scene-counter"></div>
+
+  <div class="phase-tabs">
+    <button class="ptab err-on" id="tab-err" onclick="switchObserver('error')">❌ 反面教材</button>
+    <button class="ptab" id="tab-ok" onclick="switchObserver('correct')">✅ 正确示范</button>
+  </div>
+
+  <div id="obs-err">
+    <div class="card mb14" style="border-left:3px solid var(--coral);">
+      <div style="font-size:12px;font-weight:700;color:#b34c42;display:flex;align-items:center;gap:7px;margin-bottom:14px;">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--coral);"></div>这样说话，事情只会更糟……
+      </div>
+      <div id="err-dlg"></div>
+    </div>
+  </div>
+
+  <div id="obs-ok" style="display:none;">
+    <div class="card mb14" style="border-left:3px solid var(--mint);">
+      <div style="font-size:12px;font-weight:700;color:#2d6a4f;display:flex;align-items:center;gap:7px;margin-bottom:14px;">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--mint);"></div>换成这样说……
+      </div>
+      <div id="ok-dlg"></div>
+    </div>
+
+    <div class="card-g mb14">
+      <div class="sec-title"><span class="sec-icon si-rose">🔍</span>3个容易踩的坑</div>
+      <div id="obs-insights">
+        <div class="ins-item"><div class="ins-no">1</div><div>加载中……</div></div>
+      </div>
+    </div>
+
+    <div class="card mb14" style="border-left:3px solid var(--sky);">
+      <div class="sec-title"><span class="sec-icon si-sky">💬</span>下次试试这样说</div>
+      <div id="obs-phrases">
+        <div style="background:var(--sky-pale);border-radius:var(--rs);padding:12px 14px;font-size:13px;color:var(--text-dark);line-height:1.7;margin-bottom:9px;">加载中……</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-g flex1" onclick="go('s-dashboard')">学到了 ✓</button>
+      <button class="btn btn-o" style="width:auto;padding:14px 18px;font-size:13px;" onclick="nextM1Scene()">下一个场景 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODE 2: SHORT SENTENCE ===================== -->
+<div id="s-mode2" class="screen">
+  <div class="hdr">
+    <button class="back" onclick="go('s-dashboard')">←</button>
+    <span class="hdr-title">短句轻互动</span>
+  </div>
+
+  <div class="card mb14" style="border-left:3px solid var(--coral);">
+    <div style="display:flex;align-items:center;gap:11px;margin-bottom:14px;">
+      <div style="width:44px;height:44px;border-radius:50%;background:var(--sky-pale);display:flex;align-items:center;justify-content:center;font-size:22px;" id="m2-avatar">🧑</div>
+      <div>
+        <div style="font-size:14px;font-weight:600;" id="m2-name">AI · 扮演：爸妈</div>
+        <div style="font-size:12px;color:var(--text-soft);" id="m2-scene">📌 场景：手机时间</div>
+      </div>
+      <div style="margin-left:auto;">
+        <button class="ctrl-btn" onclick="nextChal()" style="font-size:12px;">换一题 🔄</button>
+      </div>
+    </div>
+    <div class="chal-box" id="m2-text" style="border-left-color:var(--sky);"></div>
+  </div>
+
+  <div id="m2-pers-hint" style="background:var(--rose-pale);border-radius:var(--rs);padding:10px 14px;font-size:12px;color:#8b5e6a;margin-bottom:12px;line-height:1.6;display:none;"></div>
+
+  <div id="m2-fb" style="display:none;"></div>
+
+  <div class="card" id="m2-input" style="border-left:3px solid var(--mint);">
+    <div style="font-size:13px;color:var(--text-soft);margin-bottom:9px;" id="m2-role-hint">你会怎么回？</div>
+    <textarea class="textarea" id="m2-resp" rows="3" placeholder="敲下你想说的话…"></textarea>
+    <div class="ctrl-row">
+      <button class="btn btn-g btn-sm" onclick="submitM2()">发过去</button>
+      <button class="ctrl-btn" onclick="go('s-dashboard')">不练了</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== M3 PARTNER SETUP ===================== -->
+<div id="s-m3-setup" class="screen" style="background:linear-gradient(160deg,#f6faf8 0%,#fff8f0 100%);">
+  <div class="hdr">
+    <button class="back" onclick="go('s-dashboard')">←</button>
+    <span class="hdr-title">实战设置</span>
+    <span class="hdr-sub">开始前先配置一下</span>
+  </div>
+
+  <div style="font-size:13px;color:var(--text-soft);margin-bottom:18px;line-height:1.7;">
+    稍微告诉我你的练习对象是谁，AI 会尽量模拟对应的风格。
+  </div>
+
+  <!-- 对话对象 -->
+  <div class="card mb14" style="border-left:3px solid var(--sky);">
+    <div class="setup-step">STEP 1</div>
+    <div class="q-text" id="m3-setup-q1">你想练习跟谁沟通？</div>
+    <div class="partner-btn-wrap" id="partner-btns">
+      <!-- buttons filled by JS based on identity -->
+    </div>
+  </div>
+
+  <!-- 对方的性格 -->
+  <div class="card mb14" style="border-left:3px solid var(--rose);" id="partner-style-card" style="display:none;">
+    <div class="setup-step">STEP 2</div>
+    <div class="q-text" id="m3-setup-q2">用几个词描述一下他/她？</div>
+    <div style="font-size:12px;color:var(--text-soft);margin-bottom:10px;margin-top:-8px;">可以多选，也可以跳过</div>
+    <div class="style-chips" id="partner-style-chips"></div>
+  </div>
+
+  <div id="m3-setup-tip" style="background:var(--mint-pale);border-radius:var(--rs);padding:11px 14px;font-size:12px;color:var(--text-mid);line-height:1.7;margin-bottom:18px;display:none;">
+    💡 AI 会根据你的设置调整对话风格，但不必完全一样——重要的是你的沟通练习。
+  </div>
+
+  <button class="btn btn-g" id="m3-start-btn" onclick="startMode3WithSetup()" style="display:none;">开始练习 →</button>
+  <div class="txt-center mt" style="margin-top:12px;">
+    <button class="btn-ghost btn" onclick="showMode3()">跳过设置，直接开练</button>
+  </div>
+</div>
+
+<!-- ===================== MODE 3: 5-MINUTE PRACTICE ===================== -->
+<div id="s-mode3" class="screen">
+  <div class="hdr">
+    <button class="back" onclick="exitM3()">←</button>
+    <span class="hdr-title">5分钟实战</span>
+  </div>
+
+  <div class="timer-block" style="border-left:3px solid var(--sun);">
+    <div style="font-size:28px;">⏰</div>
+    <div class="flex1">
+      <div style="font-size:14px;font-weight:700;margin-bottom:2px;" id="m3-phase">场景铺垫</div>
+      <div style="font-size:12px;color:var(--text-soft);" id="m3-phase-desc">把气氛搭起来</div>
+    </div>
+    <div class="timer-val" id="m3-timer">05:00</div>
+  </div>
+
+  <div class="phase-bar" id="m3-pbar">
+    <div class="pb on" id="pb1"></div><div class="pb on" id="pb2"></div>
+    <div class="pb" id="pb3"></div><div class="pb" id="pb4"></div><div class="pb" id="pb5"></div>
+    <div class="pb" id="pb6"></div><div class="pb" id="pb7"></div>
+    <div class="pb" id="pb8"></div><div class="pb" id="pb9"></div><div class="pb" id="pb10"></div>
+  </div>
+
+  <div class="chat-box" id="m3-chat"></div>
+
+  <div class="card" style="padding:14px;border-left:3px solid var(--mint);">
+    <textarea class="textarea" id="m3-input" rows="2" placeholder="说点什么…" style="min-height:56px;"></textarea>
+    <div class="ctrl-row">
+      <button class="ctrl-btn" id="pause-btn" onclick="togglePause()">⏸️ 暂停</button>
+      <button class="ctrl-btn" onclick="switchTone()">🔄 换语气</button>
+      <button class="ctrl-btn ctrl-danger" onclick="exitM3()">✕ 不练了</button>
+      <button class="send-btn" style="margin-left:auto;" onclick="sendM3()">发送</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== SUMMARY ===================== -->
+<div id="s-summary" class="screen" style="background:linear-gradient(160deg,#e0f5e9 0%,var(--lavender-pale) 40%,var(--sun-pale) 100%);">
+  <div class="hdr">
+    <button class="back" onclick="go('s-dashboard')">←</button>
+    <span class="hdr-title">训练总结</span>
+  </div>
+
+  <div class="txt-center mb22">
+    <div style="font-size:60px;margin-bottom:14px;">🎉</div>
+    <div style="font-size:22px;font-weight:700;margin-bottom:6px;">完成啦！</div>
+    <div class="txt-soft">说一句也是进步 别小看自己</div>
+  </div>
+
+  <div class="stats">
+    <div class="stat-c" style="border-top:3px solid var(--mint);"><div class="stat-v" id="sum-turns">8</div><div class="stat-l">对话轮次</div></div>
+    <div class="stat-c" style="border-top:3px solid var(--sky);"><div class="stat-v" id="sum-score">76</div><div class="stat-l">沟通评分</div></div>
+    <div class="stat-c" style="border-top:3px solid var(--sun);"><div class="stat-v">5m</div><div class="stat-l">训练时长</div></div>
+  </div>
+
+  <div class="card mb14" style="border-left:3px solid var(--mint);">
+    <div class="sec-title"><span class="sec-icon si-mint">📈</span>这次有进步的地方</div>
+    <div id="sum-improve" style="font-size:13px;color:var(--text-mid);line-height:1.9;"></div>
+  </div>
+
+  <div class="card-g3 mb22">
+    <div class="sec-title"><span class="sec-icon si-rose">💬</span>下次可以试这样说</div>
+    <div id="sum-phrases" style="font-size:13px;color:var(--text-mid);line-height:1.9;"></div>
+  </div>
+
+  <button class="btn btn-g mb8" onclick="go('s-dashboard')">回主页</button>
+  <button class="btn btn-o" onclick="showMode3()">再来一局</button>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+</div><!-- .app -->
+
+<script>
+// ==================== STATE ====================
+const S = {
+  identity: 'parent',
+  emotion: '',
+  scenes: [],
+  personality: null,
+  timerSec: 300,
+  timerInt: null,
+  isPaused: false,
+  toneSharp: true,
+  m3Phase: 0,
+  m3AiIdx: 0,
+  m2ChalIdx: 0,
+  m2Submitted: false,
+  m1SceneIdx: 0,        // which Mode1 scenario is showing
+  partnerGender: '',    // 'father'|'mother'|'son'|'daughter'
+  partnerDescs: [],     // 4-char style descriptors (multi-select)
+  m3LastUserMsg: '',    // for adaptive AI
+  m3ConvLen: 0,         // conversation length tracker
+};
+function isParent() { return S.identity === 'parent'; }
+function isChild() { return S.identity === 'child'; }
+
+// ==================== PERSONALITIES ====================
+const PERS = {
+  blame: {
+    ico:'😤', bg:'#ffddd2', name:'火力全开型',
+    desc:'气头上啥狠话都往外蹦。其实过后也后悔——知道那话说重了，但当时就是忍不住。你心里比谁都在乎这个家，就是嘴上不饶人。',
+    traits:['心直口快','有原则','情绪上头快','想要掌控感'],
+    traps:'• 一上来就是"你每次都这样""跟你说多少遍了"，人家直接拒收<br>• 道理讲得越多，对方心门关得越死<br>• 一句话把人家怼到墙角，后面说啥都没用了',
+    focus:'✦ 多练：把"你又……"换成"我感觉……"<br>✦ 火上来之前先停两秒，深呼吸<br>✦ 不用每次都赢，有时候"对"不如"亲"'
+  },
+  avoid: {
+    ico:'😶', bg:'#d0e8ff', name:'闷葫芦型',
+    desc:'吵不起来就先躲开。不是不在乎——是不会吵，一吵就难受。可你越不说话，对方越觉得你冷暴力，小矛盾攒成大疙瘩。',
+    traits:['不爱争','需要冷静','默默观察','心里门清'],
+    traps:'• 你不吭声，人家以为你不当回事<br>• 今天忍一点明天忍一点，忍到最后全崩了<br>• 越不说话越不知道怎么说，恶性循环',
+    focus:'✦ 多练：先开口说"我现在脑子有点乱，让我缓缓"<br>✦ 小事先试着说，别等大事才张嘴<br>✦ 你不一定非得吵，但得让对方知道你还在乎'
+  },
+  please: {
+    ico:'🥺', bg:'#f0d8ff', name:'委屈求全型',
+    desc:'为了家里太平，啥都自己抗。你特别好，好到把自己弄丢了。可忍久了会憋出内伤——而且对方根本不知道你想要什么。',
+    traits:['善解人意','怕伤害人','什么都往心里搁','说好的是你，委屈的也是你'],
+    traps:'• 嘴上说行心里不行，哪天就全部炸了<br>• 你越忍，对方越觉得没问题<br>• 牺牲自己换来的和气，早晚撑不住',
+    focus:'✦ 多练：温温柔柔地说"我也有点不舒服"<br>✦ 你的感受和别人的感受一样重要<br>✦ 从小事儿开始试试说"不"'
+  },
+  analyze: {
+    ico:'🧐', bg:'#e8f0d8', name:'讲道理型',
+    desc:'你习惯先分析再开口，说的都对——可人家要的不是对错，是先被理解。道理说了一百句，不如一句"我知道你挺难受的"。',
+    traits:['逻辑清楚','问题导向','不容易激动','凡事想分析明白'],
+    traps:'• 你开始讲道理，人家已经关耳朵了<br>• "正确的废话"说在错的时机，等于白说<br>• 把对方当问题来解，而不是当人来听',
+    focus:'✦ 多练：先说"我听到了"再想怎么回应<br>✦ 评判之前先问"你怎么想的"<br>✦ 有时候不分析，陪着就行'
+  }
+};
+
+// ==================== MODE 2 CHALLENGES (personality-aware, expanded) ====================
+const M2_CHALS = {
+  child: {
+    blame: [
+      { scene:'家长讲道理', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么不炸回去？',
+        text:'我不是要骂你。你看看你这态度，我好好跟你说话，你倒好，一开口就顶。我是你爸，你就这态度？' },
+      { scene:'翻旧账', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么回她？',
+        text:'你上次也是这样说的！每次都"下次一定"，我说你多少次了？你的话有哪句算数？' },
+      { scene:'被比较', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么回她？',
+        text:'你看人家小胖，成绩好还听话。你怎么就不能让我省点心？' },
+      { scene:'被质疑努力', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么回他？',
+        text:'你说你努力了，可这成绩摆在这儿。你是不是在骗我？还是你去学校光玩了？' },
+      { scene:'嫌你说谎', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么回她？',
+        text:'你上次跟我说去图书馆，后来我才知道你去打球了！你是不是学会骗人了？！' },
+      { scene:'威胁', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么回他？',
+        text:'你再这样，以后别想要手机！我说到做到！你试试！' },
+      { scene:'情绪爆发', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么回她？',
+        text:'你让我说什么好？！我说了你不听，我不说你不改，我到底该怎么办？！' },
+      { scene:'早起催催催', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么回他？',
+        text:'你看看几点了！我叫你多少次了！你这习惯我真的受不了！迟到了怨我？！' },
+      { scene:'质疑交友', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么回她？',
+        text:'你最近跟那个谁鬼混，我看了就不顺眼。你有没有点分辨能力？！' },
+      { scene:'学习态度', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么回他？',
+        text:'你学习的时候眼神都不对劲！你是在发呆还是在学习？！' },
+      { scene:'生活习惯', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么回她？',
+        text:'房间乱得像猪窝！你这孩子怎么能这么懒？！我是你的保姆吗？！' },
+      { scene:'吃饭催促', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么回他？',
+        text:'吃饭了还要催多少次？！饭都凉了！你到底有没有把家里人当回事？！' },
+      { scene:'要零花钱', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么回她？',
+        text:'你知道家里现在多不容易吗？你还好意思说要钱！你知道钱从哪儿来的吗？！' },
+      { scene:'被说自私', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么回他？',
+        text:'你就只想着自己！从来不体谅家里人！你是我见过最自私的孩子！' },
+      { scene:'否定计划', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么回她？',
+        text:'你那个计划根本不现实！我说你一句你有十句还回来！你是觉得你比我聪明？！' },
+    ],
+    avoid: [
+      { scene:'家长主动聊天', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么开口说点什么？',
+        text:'（轻声）宝贝，你最近好像不太开心。是不是学校里有什么事？你跟妈说说，好不好？' },
+      { scene:'家长问考试', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么开口说说情况？',
+        text:'（看了你一眼）这次考得怎么样？不说我也不知道。你就给我个准话，到底是好是坏？' },
+      { scene:'家长问你跟谁玩', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么说说你的朋友？',
+        text:'你最近老是一个人关在屋里。你到底跟谁玩呢？你跟我说说，我又不笑话你。' },
+      { scene:'家长等你开口', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么打破沉默？',
+        text:'（坐在你旁边，等了很久）……你就不打算跟我说点什么？' },
+      { scene:'家长发现你不开心', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么不只说"没事"？',
+        text:'我看你回来脸色就不对。怎么了？学校发生什么了？你说说嘛。' },
+      { scene:'家长知道你受委屈了', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么说说真实感受？',
+        text:'我听说你今天在学校不太顺。没关系，你跟爸说说——发生什么了？爸在这儿。' },
+      { scene:'家长问你朋友关系', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么说说你的烦恼？',
+        text:'你跟你最好的朋友最近怎么样？感觉你们很久没一起玩了——是闹矛盾了吗？' },
+      { scene:'家长直接问你喜不喜欢她', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么开口说你的感受？',
+        text:'我知道你心里有事，但就是不说。你到底是不是信任我？你告诉我，我不骂你。' },
+      { scene:'家长说他想了解你', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么给他一个机会？',
+        text:'我感觉你越来越不愿意跟我说话了。我也不知道哪里做错了——你能告诉我吗？' },
+      { scene:'家长说你变了', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么解释你的改变？',
+        text:'你最近变了很多，不像以前那么爱说话了。我有点担心——你还好吗？' },
+      { scene:'家长给你空间', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么接住这个机会？',
+        text:'我不强迫你说。但如果你想说，我一直在。你知道妈妈不会评判你的，对吧？' },
+      { scene:'家长说想跟你更亲近', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么说出你的需求？',
+        text:'爸也不知道怎么跟你沟通。你能告诉我，你希望我怎么做，才能让你愿意开口？' },
+      { scene:'吃饭时的沉默', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么打破尴尬的沉默？',
+        text:'（吃饭时）咱们家吃饭有时候好安静。你有什么想聊的吗？随便什么都行。' },
+      { scene:'家长问你有没有烦恼', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么说出一个真实的烦恼？',
+        text:'你有没有什么烦恼？学习的，朋友的，什么都行——你跟爸说说。' },
+      { scene:'家长主动道歉', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么接住这个道歉？',
+        text:'宝贝，上次我对你发脾气——我错了。我想说对不起。你愿意跟我说说你当时的感受吗？' },
+    ],
+    please: [
+      { scene:'家长安排课外班', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么表达你真实的想法？',
+        text:'我给你报了个数学提高班，周六上午的。你反正也没事，去听听课，对你有好处。' },
+      { scene:'家长批评你的朋友', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么维护你的朋友？',
+        text:'你那个朋友我不喜欢。整天吊儿郎当的，学不到好。以后少跟他来往。' },
+      { scene:'家长催你道歉', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么说出你的感受？',
+        text:'你刚才对你奶奶那态度不对。去，跟奶奶道个歉。别让我说第二遍。' },
+      { scene:'家长否定你的兴趣', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么表达这个爱好对你的意义？',
+        text:'画画能当饭吃吗？你别整天搞这些没用的。有这时间多刷两套题。' },
+      { scene:'家长替你做决定', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么说出你也有想法？',
+        text:'暑假我帮你报了夏令营，下周就出发，很好的机会——你去就行了。' },
+      { scene:'家长要你让着弟弟妹妹', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么说出你的委屈？',
+        text:'你是哥哥/姐姐，就要让着点弟弟/妹妹。你一个大孩子还跟他/她计较什么？' },
+      { scene:'家长要你放弃你的计划', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么说出你的坚持？',
+        text:'你那个什么乐队/比赛……别搞了。先把成绩提上去，其他的以后再说。' },
+      { scene:'家长要你承认错误', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么说清楚事情的来龙去脉？',
+        text:'你知不知道你错在哪儿了？你说！你哪里错了你说！我等你说！' },
+      { scene:'家长要你改变性格', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么表达你对自己的理解？',
+        text:'你能不能活泼一点？出去也不说话，人家以为我们家孩子有问题！以后多表现一点！' },
+      { scene:'家长质疑你的感受', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么坚持你的感受是真实的？',
+        text:'就那点事你还难受？你太脆弱了吧？以后出社会怎么办？锻炼锻炼自己！' },
+      { scene:'家长给你安排相亲/联谊', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么温柔而坚定地说不？',
+        text:'周末你表姑家有个孩子也是大学生，你们见一面认识认识——我都说好了。' },
+      { scene:'家长批评你说话太少', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么说出你不说话的原因？',
+        text:'你怎么这么没有礼貌？见到亲戚一句话也不说，站在那儿像根木头一样！' },
+      { scene:'家长要你立刻决定', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么争取一点思考时间？',
+        text:'我现在问你，要不要去？不去的话这个机会就没了。你快说，我等你！' },
+      { scene:'家长嫌你花钱太多', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么解释这笔钱的用途？',
+        text:'你这个月用了多少钱？我看了一下，比上个月多了好多！你钱都花哪儿了？！' },
+      { scene:'家长叫你别发脾气', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么表达你真正需要什么？',
+        text:'你这性格要改！脾气这么大干什么？家里人都被你弄得不开心！你去冷静一下！' },
+    ],
+    analyze: [
+      { scene:'家长情绪崩溃', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么先回应情绪，不是道理？',
+        text:'（突然哭了）我到底做错了什么？！我天天为你操心，你就这样对我？！' },
+      { scene:'家长不讲理', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么不用道理对道理？',
+        text:'我说不行就是不行！你别跟我讲那么多！我吃的盐比你吃的饭还多！' },
+      { scene:'家长翻旧账', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么不列清单，先接住情绪？',
+        text:'你看看你，哪次听我的了？从小到大，我说东你说西，你就是跟我拧着来！' },
+      { scene:'家长先入为主', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么不急着解释，先问他为什么这样想？',
+        text:'你肯定又跟那些不三不四的人混在一起了。我一看你那样子就知道！' },
+      { scene:'家长指责你不懂感恩', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么不讲道理地回应她的感受？',
+        text:'你知不知道我为你付出多少？！你一点都不感激！你让我太失望了！' },
+      { scene:'家长情绪失控', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么帮他先平静下来？',
+        text:'（摔了东西）我已经说了多少次了！你为什么就是听不进去！这个家我没法待了！' },
+      { scene:'家长说你变了', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么先问她感受而不解释自己？',
+        text:'你以前不是这样的！现在变了，变得我都不认识了。你怎么了？你告诉我！' },
+      { scene:'家长哭着说累了', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么先陪着他，不急着说"你不累"？',
+        text:'（坐在那里，有点沉默，眼眶红了）……我真的很累，我不知道还能怎么办。' },
+      { scene:'家长说不公平', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么不立刻讲道理，先问她什么让她觉得不公平？',
+        text:'你知道吗，有时候我真的觉得很不公平。我做那么多，你们都不珍惜。' },
+      { scene:'家长说担心你的未来', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么先回应他的担心而不是反驳？',
+        text:'我就是怕你以后没出路。我现在逼你，是因为我怕你以后后悔。你能不能理解？' },
+      { scene:'家长说他孤独', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么回应这种感受？',
+        text:'你爸出差，你不理我，我一个人在家真的很寂寞。有时候我觉得家里没人需要我了。' },
+      { scene:'家长质问你的选择', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么先说"我理解你担心"再讲你的想法？',
+        text:'你为什么要选这个专业？你知不知道你选的这个出来能干嘛？你怎么想的？！' },
+      { scene:'家长说你让她失望', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么先问清楚哪里让她失望了？',
+        text:'你知道吗，我真的很失望。不是因为成绩——我就是觉得你不在乎我了。' },
+      { scene:'家长对你要求极高', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么说出你需要什么支持？',
+        text:'你能做到的不只这些！你要求自己高一点！我对你要求高，是因为我知道你有能力！' },
+      { scene:'家长偷看了你的日记', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么表达感受而不爆发？',
+        text:'我担心你所以看了你的日记……我知道这样不对。但你能跟我说说里面写的是什么吗？' },
+    ],
+  },
+  parent: {
+    blame: [
+      { scene:'孩子顶嘴', ava:'👦', role:'儿子（14岁）', hint:'你（家长）怎么回他？',
+        text:'你别老拿我跟别人比行不行！我朋友他们爸妈都不管，就你成天叨叨。我心里有数！' },
+      { scene:'孩子摔门', ava:'👧', role:'女儿（15岁）', hint:'你（家长）怎么回她？',
+        text:'你又来了！我说你一句你有十句等着！你就不能好好听我说完？！' },
+      { scene:'孩子说不想学习', ava:'👦', role:'儿子（13岁）', hint:'你（家长）怎么回他？',
+        text:'学习学习！你除了让我学习还会干啥？！我就是你拿出去炫耀的工具是不是？！' },
+      { scene:'孩子翻旧账', ava:'👧', role:'女儿（16岁）', hint:'你（家长）怎么回她？',
+        text:'你从小到大就偏心！什么都向着我哥！你以为我不知道？！' },
+      { scene:'孩子说你不懂他', ava:'👦', role:'儿子（15岁）', hint:'你（家长）怎么不跟他争？',
+        text:'你根本不懂我！你以为你了解我？！你什么都不知道！' },
+      { scene:'孩子挑战规则', ava:'👧', role:'女儿（14岁）', hint:'你（家长）怎么不马上开骂？',
+        text:'凭什么要有宵禁？我朋友都可以随便的！就你们管那么多！不合理！' },
+      { scene:'孩子嫌家里管太多', ava:'👦', role:'儿子（16岁）', hint:'你（家长）怎么听进他说的话？',
+        text:'你们就是不让我喘气！你们管的是我的生活，不是你们自己的！' },
+      { scene:'孩子吼了你', ava:'👧', role:'女儿（13岁）', hint:'你（家长）怎么回她？',
+        text:'你烦死了！你讲的这些我早就听腻了！你能不能不要说了！！' },
+      { scene:'孩子说你控制欲强', ava:'👦', role:'儿子（17岁）', hint:'你（家长）怎么回他？',
+        text:'你就是控制狂！什么都要管！我以后绝对不告诉你任何事情！' },
+      { scene:'孩子质疑你的权威', ava:'👧', role:'女儿（15岁）', hint:'你（家长）怎么回她？',
+        text:'你说的就一定是对的？你也会错的！你凭什么觉得你什么都是对的？！' },
+      { scene:'孩子威胁你', ava:'👦', role:'儿子（16岁）', hint:'你（家长）怎么冷静处理？',
+        text:'你再这样，我就离家出走！你管得了我吗？！你管不了！' },
+      { scene:'孩子说你没有爱过他', ava:'👧', role:'女儿（14岁）', hint:'你（家长）怎么回她？',
+        text:'你根本不爱我！你爱的只是那个你想要的我！你从来没见过真正的我！' },
+      { scene:'孩子骂你', ava:'👦', role:'儿子（15岁）', hint:'你（家长）怎么控制自己？',
+        text:'你就是个自私的人！你只想着你自己！你从来没想过我！！' },
+      { scene:'孩子扔东西', ava:'👧', role:'女儿（13岁）', hint:'你（家长）怎么先停战？',
+        text:'（把书本扔到地上）我不念了！就这样！你来打我啊！打啊！' },
+      { scene:'孩子说宁愿没生在这个家', ava:'👦', role:'儿子（16岁）', hint:'你（家长）怎么不失控？',
+        text:'我真希望我不是生在这个家里！你们一点都不理解我！这个家让我窒息！' },
+    ],
+    avoid: [
+      { scene:'孩子说心里话', ava:'👦', role:'儿子（15岁）', hint:'你（家长）怎么接住这个机会？',
+        text:'（低着头）爸……我最近是不是挺让你丢人的？我也不知道怎么了，就是学不进去。' },
+      { scene:'孩子问感情问题', ava:'👧', role:'女儿（17岁）', hint:'你（家长）怎么回她？',
+        text:'（小心翼翼）妈……我最近好像，有点喜欢我们班一个男生。你说这正常吗？' },
+      { scene:'孩子主动道歉', ava:'👦', role:'儿子（14岁）', hint:'你（家长）怎么不只点头接受？',
+        text:'（小声）爸，昨天的事……对不起。我不该跟你吼。' },
+      { scene:'孩子问你的想法', ava:'👧', role:'女儿（16岁）', hint:'你（家长）怎么真的给个看法？',
+        text:'你觉得我以后学什么专业好？……你倒是说啊，你怎么什么都不发表意见？' },
+      { scene:'孩子说被孤立了', ava:'👦', role:'儿子（13岁）', hint:'你（家长）怎么陪他说说？',
+        text:'爸……我最近在学校好像没什么朋友了……大家都不跟我玩。我不知道为什么。' },
+      { scene:'孩子说考砸了', ava:'👧', role:'女儿（15岁）', hint:'你（家长）怎么先关心人再谈成绩？',
+        text:'（很小声）妈……这次考试没考好。我自己也很难受。你能不能别骂我？' },
+      { scene:'孩子说不快乐', ava:'👦', role:'儿子（16岁）', hint:'你（家长）怎么回应这句重要的话？',
+        text:'爸，我最近很不快乐。我说不清楚原因，就是每天都很难受。你能陪我说说吗？' },
+      { scene:'孩子说被老师批评了', ava:'👧', role:'女儿（14岁）', hint:'你（家长）怎么先听她说而不是评判？',
+        text:'妈，我今天被老师当着全班批评了……我觉得好丢脸。你能安慰一下我吗？' },
+      { scene:'孩子说想辍学', ava:'👦', role:'儿子（17岁）', hint:'你（家长）怎么先听他为什么？',
+        text:'爸，我最近在想……要不要先休学一年。我真的撑不住了。你能听我说说吗？' },
+      { scene:'孩子问你的过去', ava:'👧', role:'女儿（16岁）', hint:'你（家长）怎么分享一些真实的自己？',
+        text:'妈，你年轻时候是什么样的？你有没有特别难的时候？你怎么撑过来的？' },
+      { scene:'孩子问你爱不爱他', ava:'👦', role:'儿子（14岁）', hint:'你（家长）怎么清楚地回答这个问题？',
+        text:'爸……你是真的爱我吗？还是就是想要一个听话的孩子？' },
+      { scene:'孩子说他不知道自己是谁', ava:'👧', role:'女儿（15岁）', hint:'你（家长）怎么陪他探索？',
+        text:'妈，我最近老是想，我到底是谁呢？我想要的是什么？我想不明白。你有没有遇到过这种感觉？' },
+      { scene:'孩子说他怕了', ava:'👦', role:'儿子（13岁）', hint:'你（家长）怎么给他安全感？',
+        text:'爸，我有点害怕……考试越来越难，我感觉我跟不上。你能帮我吗？' },
+      { scene:'孩子问你后悔没有', ava:'👧', role:'女儿（17岁）', hint:'你（家长）怎么认真回答这个问题？',
+        text:'妈，你有没有觉得，你有些事做了会后悔？你现在有什么遗憾吗？' },
+      { scene:'孩子说谢谢', ava:'👦', role:'儿子（15岁）', hint:'你（家长）怎么接住这份感谢？',
+        text:'（突然）爸，谢谢你。我知道你挺不容易的。谢谢你一直支持我。……你能抱我一下吗？' },
+    ],
+    please: [
+      { scene:'孩子不尊重你', ava:'👦', role:'儿子（15岁）', hint:'你（家长）怎么温和说出你的感受？',
+        text:'你别老管我行不行！我朋友他们爸妈都不管，就你成天叨叨。我心里有数！' },
+      { scene:'孩子不守约定', ava:'👧', role:'女儿（14岁）', hint:'你（家长）怎么说出这次你不忍了？',
+        text:'说好十点回来，你现在十一点半了！你每次都这样！我说话你是不是当耳旁风？！' },
+      { scene:'孩子当着朋友面怼你', ava:'👦', role:'儿子（16岁）', hint:'你（家长）怎么事后表达感受？',
+        text:'（当着同学的面）你别管我！你有完没完？！丢不丢人啊你！' },
+      { scene:'孩子嫌你烦', ava:'👧', role:'女儿（13岁）', hint:'你（家长）怎么说出你也需要被尊重？',
+        text:'你能不能别老盯着我？！你烦不烦啊？！我觉得你一点都不理解我！' },
+      { scene:'孩子要钱要得很过分', ava:'👦', role:'儿子（16岁）', hint:'你（家长）怎么说"我有边界"？',
+        text:'你就是小气！多给我点零花钱又怎样？！别家父母都比你们大方！' },
+      { scene:'孩子说家里不民主', ava:'👧', role:'女儿（17岁）', hint:'你（家长）怎么说出你的立场？',
+        text:'你们家就是独裁！什么都你们说了算！我的意见有什么用？！' },
+      { scene:'孩子骂了你', ava:'👦', role:'儿子（14岁）', hint:'你（家长）怎么说出这让你很难受？',
+        text:'你就是烦！我恨你！你为什么要管我那么多！！' },
+      { scene:'孩子嘲笑了你', ava:'👧', role:'女儿（15岁）', hint:'你（家长）怎么说出这很伤你的心？',
+        text:'（在朋友面前）我妈就这样，老派。你们别管她，听不懂的。（让你走）' },
+      { scene:'孩子说他再也不跟你说话了', ava:'👦', role:'儿子（13岁）', hint:'你（家长）怎么应对这个威胁？',
+        text:'以后我不告诉你任何事了！你管那么多，那你管个够！我关门了！（摔门）' },
+      { scene:'孩子说你没有做任何正确的事', ava:'👧', role:'女儿（16岁）', hint:'你（家长）怎么不全盘道歉？',
+        text:'你从来没有做对过一件事！什么都错的！你能不能别再进我房间？！' },
+      { scene:'孩子明显在试探你', ava:'👦', role:'儿子（15岁）', hint:'你（家长）怎么不被牵着走？',
+        text:'妈，你不管我的话我会怎样怎样……（你越怕越说越狠，一直试探你的底线）' },
+      { scene:'孩子说你的话没有意义', ava:'👧', role:'女儿（14岁）', hint:'你（家长）怎么说出你说话的理由？',
+        text:'你说的那些，我根本不想听！你说的有什么意义？！说了也没用！' },
+      { scene:'孩子推开了你的帮助', ava:'👦', role:'儿子（13岁）', hint:'你（家长）怎么尊重他的空间但不消失？',
+        text:'你别帮我！我自己可以！你帮的那个不是我要的！你就不要帮了！' },
+      { scene:'孩子拿你和别的父母比', ava:'👧', role:'女儿（15岁）', hint:'你（家长）怎么不立刻比回去？',
+        text:'你看别的爸妈——他们不管这么多！就你们管！真的烦透了！' },
+      { scene:'孩子说你偏心', ava:'👦', role:'儿子（16岁）', hint:'你（家长）怎么认真听他的感受？',
+        text:'你就是偏心弟弟！什么都给他！你有没有想过我也是你孩子！' },
+    ],
+    analyze: [
+      { scene:'孩子突然崩溃', ava:'👦', role:'儿子（14岁）', hint:'你（家长）怎么不立刻分析？',
+        text:'（突然趴桌上哭了）我真的受不了了……我真的受不了了……你们都别管我了！' },
+      { scene:'孩子说不念了', ava:'👧', role:'女儿（17岁）', hint:'你（家长）怎么先听他为什么？',
+        text:'我不念了。读书有什么用？你看那些没读书的，不也活得好好的。我不想考了。' },
+      { scene:'孩子说你偏心', ava:'👦', role:'儿子（15岁）', hint:'你（家长）怎么先问清楚他的感受？',
+        text:'你就是偏心！你根本就不爱我！你只爱成绩好的那个！你说你不是，那你拿证据出来！' },
+      { scene:'孩子质疑决定', ava:'👧', role:'女儿（16岁）', hint:'你（家长）怎么听她说再解释？',
+        text:'你凭什么替我决定？你问过我想不想去那个夏令营吗？你就是自私！' },
+      { scene:'孩子情绪反常', ava:'👦', role:'儿子（13岁）', hint:'你（家长）怎么不马上找原因？',
+        text:'（突然变得很安静，不吃饭，什么话也不说，只是盯着窗户看）' },
+      { scene:'孩子说你让他失望', ava:'👧', role:'女儿（14岁）', hint:'你（家长）怎么先问她哪里失望了？',
+        text:'你知道吗，我觉得你很让我失望。不是成绩——就是感觉你对我不是真心的。' },
+      { scene:'孩子说他没有动力', ava:'👦', role:'儿子（16岁）', hint:'你（家长）怎么先陪他坐一坐？',
+        text:'爸，我最近对什么都没有动力。不是懒，就是……真的什么都不想做。我怎么了？' },
+      { scene:'孩子哭着说很累', ava:'👧', role:'女儿（15岁）', hint:'你（家长）怎么不说"你哪里累"？',
+        text:'（边哭边说）我真的好累好累……不是身体上的……是心里很累。我也不知道为什么。' },
+      { scene:'孩子说他没有朋友', ava:'👦', role:'儿子（13岁）', hint:'你（家长）怎么先接住他的孤独感？',
+        text:'爸，我感觉我在学校没有真正的朋友。大家都只是普通认识。我有点孤独。' },
+      { scene:'孩子说他不行', ava:'👧', role:'女儿（14岁）', hint:'你（家长）怎么不立刻反驳？',
+        text:'我就是不行。不是谦虚，我就是比别人差。我试过很多次了，还是这样。' },
+      { scene:'孩子说他不知道将来怎么办', ava:'👦', role:'儿子（17岁）', hint:'你（家长）怎么不立刻规划？',
+        text:'爸，我真的不知道我将来想干什么。我很迷茫。你能不能跟我说说你怎么看？' },
+      { scene:'孩子说被欺负了', ava:'👧', role:'女儿（13岁）', hint:'你（家长）怎么先关心她，不是分析怎么解决？',
+        text:'妈……有人在学校欺负我。不是打架。就是一直说我坏话，冷落我。我不知道怎么办。' },
+      { scene:'孩子说他做错了事', ava:'👦', role:'儿子（15岁）', hint:'你（家长）怎么先问清楚再反应？',
+        text:'爸……我做了一件事，我不知道你知道会不会很生气。但我想跟你说。你能先不发火吗？' },
+      { scene:'孩子说他睡不着', ava:'👧', role:'女儿（16岁）', hint:'你（家长）怎么关心她的状态而不是分析原因？',
+        text:'妈，我最近晚上老是睡不着。脑子里乱乱的。我试过很多方法，但没用。你怎么看？' },
+      { scene:'孩子说他不知道你爱不爱他', ava:'👦', role:'儿子（14岁）', hint:'你（家长）怎么直接表达爱而不分析为什么爱他？',
+        text:'爸，我有时候真的搞不懂，你是爱我的吗？你有没有为我骄傲过？你能告诉我吗？' },
+    ],
+  }
+};
+
+function getChals() {
+  const role = isChild() ? 'child' : 'parent';
+  const persKey = S.emotion || 'blame';
+  const chals = M2_CHALS[role]?.[persKey] || M2_CHALS[role].blame;
+  return chals;
+}
+
+const M2_FB = [
+  { score:72, lbl:'不错，有进步空间！', detail:'方向是对的——你没有直接怼回去。再加一点对情绪的理解就更好了',
+    better:'"我知道你觉得烦。我不是要管你——我是真的担心你明天精神不好。咱商量商量？"' },
+  { score:85, lbl:'这个回应很厉害！', detail:'你准确听出了对方的难受，给了空间，没急着讲道理',
+    better:'"你最近是不是压力挺大？咱们不聊成绩也行，你想跟妈/爸说说吗？"' },
+  { score:60, lbl:'还可以再软一点点', detail:'道理没错，就是语气硬了点。对方可能觉得你在教育他',
+    better:'"（语气缓下来）好啦好啦，我不是要跟你吵。我就是担心你，咱们能不能坐一块儿好好说？"' },
+  { score:90, lbl:'超级棒！', detail:'你不仅听到了情绪，还主动给了台阶——这就是高手沟通',
+    better:'"你愿意说出来我就放心多了。谢谢你跟我说这些。"' },
+];
+
+// ==================== MODE 3 ====================
+// Personality-aware AI dialogue lines
+// Each personality gets a DIFFERENT opening and flow that matches their struggle
+const M3_DATA = {
+  // ============ USER IS PARENT → AI plays child ============
+  parent: {
+    init_blame: [
+      { role:'sys', text:'【场景铺垫】孩子从学校回来，书包往地上一扔就往房间走。你瞥见成绩单露出一角……' },
+      { role:'ai', ava:'👦', name:'儿子（AI）', text:'（头也不回往屋里钻）你别管我了行不行？！我今天心情烂透了！' },
+    ],
+    ai_blame: [ // 火力全开型家长 → AI child gets defensive and lashes out
+      '你又想说什么？！我知道，我又考砸了，我又让你丢人了！',
+      '你每次都这样！一回家就审问我！你就不想知道我今天在学校受了多少委屈吗？！',
+      '对！我就是态度不好！你那样说我，我还能有好态度？！',
+      '你根本就不听我说话！你满脑子都是成绩、排名、别人家孩子！',
+      '反正我说什么你都觉得是借口！我不说了！',
+      '（转身要摔门）你让我安静一会儿不行吗？！',
+      '……（隔着门）你真的在乎我吗？还是只在乎那个分数？',
+      '（门后面传来哭声）我就是不行了行吧？你觉得谁好你找谁当儿子去！',
+    ],
+    init_avoid: [
+      { role:'sys', text:'【场景铺垫】孩子放学回来，闷头进了房间，不说话。你敲了敲门……' },
+      { role:'ai', ava:'👦', name:'儿子（AI）', text:'（门开了一条缝，眼睛红红的）……嗯？怎么了？' },
+    ],
+    ai_avoid: [ // 闷葫芦型家长 → AI child is also silent, hard to draw out
+      '……没什么。就是有点累。',
+      '（低头玩手机，不说话）',
+      '……说了你也不懂。',
+      '我就想一个人待会儿。不行吗？',
+      '（沉默了很久）……你觉得我是不是挺没用的？',
+      '……其实我也想跟你说，但不知道从哪开始。',
+      '（抬起眼睛）你不会嫌我烦吧？',
+      '嗯……其实今天语文课，被老师当众点了名。挺丢人的。',
+    ],
+    init_please: [
+      { role:'sys', text:'【场景铺垫】孩子回来好像不太高兴，但你没敢问。晚饭时你试着开口……' },
+      { role:'ai', ava:'👦', name:'儿子（AI）', text:'（把碗放下）我吃饱了。（起身要走）' },
+    ],
+    ai_please: [ // 委屈求全型家长 → AI child pushes boundaries
+      '你能不能别老盯着我？我都说了我吃饱了！',
+      '你又怎么了？你那表情我看就烦。',
+      '行行行，都是我的错。你满意了吧？',
+      '你一辈子都在忍，一辈子都在说"没事"。你就不累吗？',
+      '你看妈/爸——人家爸妈都支持孩子搞兴趣班，就你，什么都让我让。',
+      '……其实我也不想这样说话。但是我不说，你就一直压着我。',
+      '以后我的事，我自己决定。你别再替我答应这答应那了。',
+      '（声音小下来）……对不起。我不是故意的。我就是……有点喘不过气。',
+    ],
+    init_analyze: [
+      { role:'sys', text:'【场景铺垫】孩子回来就把自己关屋里。你在外面分析了一下——可能是成绩的事……' },
+      { role:'ai', ava:'👦', name:'儿子（AI）', text:'（门里传来）你别进来！我现在不想说话！' },
+    ],
+    ai_analyze: [ // 讲道理型家长 → AI child feels analyzed, not heard
+      '你又开始分析了是吧？！"我们来梳理一下"——每次都这套！',
+      '我不是问题！我是人！你能不能别老把我当案例分析？！',
+      '你讲的都对。但你讲的时候，我感觉自己像个犯人。',
+      '你就不能先问问我说了什么吗？你上来就给结论！',
+      '……你知道吗，有时候我就想你陪我坐一会儿。什么都不分析。就坐着。',
+      '你上次说"我尽量先听"——但你还是没做到。',
+      '算了。我累了。你去分析吧。',
+      '……算了。明天再说吧。你去休息。',
+    ],
+  },
+  // ============ USER IS CHILD → AI plays parent ============
+  child: {
+    init_blame: [
+      { role:'sys', text:'【场景铺垫】你刚考砸了，把成绩单塞进书包不敢拿出来。妈妈走过来……' },
+      { role:'ai', ava:'🧑', name:'妈妈（AI）', text:'（站在门口）你今天回来就闷着，是不是又考砸了？拿出来我看看。' },
+    ],
+    ai_blame: [ // 火力全开型孩子 → AI parent gets angry back
+      '考成这样你还有脸回来？！我天天跟你说什么来着？！',
+      '你看看你那态度！我是你妈，你跟我说话就这语气？！',
+      '你别跟我解释！我听够了！你就是没用心！',
+      '你跟谁学的这德行？啊？你跟我说！',
+      '行！你厉害！你以后别叫我妈了！（摔门出去）',
+      '（门外传来）你就跟你爸一样！说不通！',
+      '（过了一会儿，门被推开）……你作业写完了没？',
+      '……（语气软了点）我不是要骂你。你倒是跟我说实话啊。',
+    ],
+    init_avoid: [
+      { role:'sys', text:'【场景铺垫】你考砸了，一个人坐在书桌前发呆。妈妈推门进来……' },
+      { role:'ai', ava:'🧑', name:'妈妈（AI）', text:'（看了你一眼，欲言又止）……你吃饭了吗？' },
+    ],
+    ai_avoid: [ // 闷葫芦型孩子 → AI parent also doesn't know what to say
+      '……（沉默了一会儿）这次考了多少？',
+      '你倒是说话啊。考得好不好你倒是说一句。',
+      '（叹气）你这样我怎么帮你？你什么都不说。',
+      '你是不是觉得说了也没用？……那你倒是让我知道你是怎么想的啊。',
+      '（声音低下来）我不是要骂你。我就是……不知道怎么跟你沟通。',
+      '你看看你，一回家就把自己关起来。你心里到底在想什么？',
+      '……行了。你去吃饭吧。这事咱们回头再说。',
+      '（走了两步又回头）你有什么想说的，随时跟我说。真的。',
+    ],
+    init_please: [
+      { role:'sys', text:'【场景铺垫】你考砸了，妈妈好像有点失望，但没说太多。你心里特别难受……' },
+      { role:'ai', ava:'🧑', name:'妈妈（AI）', text:'（轻声）宝贝，你是不是有点不开心？没事的，一次考不好不代表什么。' },
+    ],
+    ai_please: [ // 委屈求全型孩子 → AI parent minimizes your feelings
+      '你别想太多啊。妈妈不是怪你。',
+      '你这孩子，我说没事就没事，你哭什么？',
+      '好了好了，妈妈不说了。你去复习吧。',
+      '你就是这样，一考试就压力大。你得学会调节自己。',
+      '你看你，我又没骂你，你倒先委屈上了。',
+      '行行行，都是妈妈不好。行了吧？',
+      '（沉默了一会儿）……其实妈妈也有点失望。但我不说，我不想给你压力。',
+      '（摸了摸你的头）咱们都努力。慢慢来。',
+    ],
+    init_analyze: [
+      { role:'sys', text:'【场景铺垫】你考砸了，坐在桌前发呆。妈妈进来，开始跟你分析原因……' },
+      { role:'ai', ava:'🧑', name:'妈妈（AI）', text:'来，我们看看卷子。你这道题为什么错？是知识点没掌握还是粗心？' },
+    ],
+    ai_analyze: [ // 讲道理型孩子 → AI parent lectures and analyzes
+      '你看，这道题明明讲过。你是不是上课走神了？',
+      '你说你，每次都犯同样的错误。你有没有总结过原因？',
+      '你就是态度问题。你根本没把学习当回事。',
+      '我跟你讲了多少遍了，错题本要建立起来。你建立了没有？',
+      '你别跟我顶嘴。我是为你好。你现在不理解，以后就知道了。',
+      '你看看你们班XXX，人家怎么就能学好？你跟人家比比。',
+      '……（语气软一点）妈妈也不是要骂你。你说说，你打算怎么办？',
+      '行了，去把错题整理一下。明天我检查。',
+    ],
+  }
+};
+
+function getM3Lines() {
+  const role = isChild() ? 'child' : 'parent';
+  const persKey = S.emotion || 'blame';
+  const d = M3_DATA[role];
+  const initKey = `init_${persKey}`;
+  const aiKey = `ai_${persKey}`;
+  // Use personality-specific if available, otherwise fall back to blame
+  const init = d[initKey] || d.init_blame;
+  const ai = d[aiKey] || d.ai_blame;
+  return { init, ai };
+}
+
+const M3_PHASES = [
+  { name:'暖场铺垫', desc:'把对话架起来', sec:60 },
+  { name:'正面交锋', desc:'情绪上来了，全力练', sec:180 },
+  { name:'收尾和解', desc:'把话圆回来', sec:60 },
+];
+
+// ==================== NAVIGATION ====================
+function go(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+  const el = document.getElementById(id);
+  if (el) { el.classList.add('on'); window.scrollTo(0,0); }
+}
+
+// ==================== IDENTITY ====================
+function pickId(type, el) {
+  S.identity = type;
+  document.querySelectorAll('.id-card').forEach(c => c.classList.remove('sel'));
+  if (el) el.classList.add('sel');
+  setTimeout(() => go('s-qprofile'), 280);
+}
+
+// ==================== PROFILE ====================
+function pickEmo(el, val) {
+  el.closest('.card').querySelectorAll('.opt').forEach(o => o.classList.remove('sel'));
+  el.classList.add('sel');
+  S.emotion = val;
+  updateQBar();
+}
+
+function pickOpt(el, group) {
+  el.closest('.card').querySelectorAll('.opt').forEach(o => o.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function tScene(el, s) {
+  el.classList.toggle('sel');
+  const i = S.scenes.indexOf(s);
+  if (i === -1) S.scenes.push(s); else S.scenes.splice(i,1);
+  const h = document.getElementById('scene-hint');
+  h.textContent = S.scenes.length ? `选了 ${S.scenes.length} 个 ✓` : '至少选1个哦';
+  h.style.color = S.scenes.length ? 'var(--mint)' : 'var(--text-soft)';
+  updateQBar();
+}
+
+function updateQBar() {
+  let p = 0;
+  if (S.emotion) p += 50;
+  if (S.scenes.length) p += 50;
+  document.getElementById('qpbar').style.width = p + '%';
+}
+
+function genPersonality() {
+  if (!S.emotion) { toast('先选一下你的反应方式'); return; }
+  if (!S.scenes.length) { toast('至少选1个冲突场景'); return; }
+  const p = PERS[S.emotion];
+  S.personality = p;
+  const card = document.getElementById('pers-card');
+  card.innerHTML = `
+    <div class="pers-badge" style="background:${p.bg};">${p.ico}</div>
+    <div class="pers-name">${p.name}</div>
+    <div class="pers-desc">${p.desc}</div>
+    <div class="traits-wrap">${p.traits.map(t=>`<span class="tag-mint">${t}</span>`).join('')}</div>
+  `;
+  document.getElementById('pers-traps').innerHTML = p.traps;
+  document.getElementById('pers-focus').innerHTML = p.focus;
+  go('s-pers');
+}
+
+function toDashboard() {
+  const h = new Date().getHours();
+  const greet = h<12 ? '早安 ☀️' : h<18 ? '下午好 🌤️' : '晚上好 🌙';
+  document.getElementById('dash-greeting').textContent = greet;
+  const p = S.personality || PERS['blame'];
+  document.getElementById('badge-id').textContent = isChild() ? '🌻 孩子' : '👨‍👩‍👧 家长';
+  document.getElementById('badge-pers').textContent = `💬 ${p.name}`;
+  go('s-dashboard');
+}
+
+// ==================== MODE 1: OBSERVER - PERSONALITY-AWARE (MULTI-SCENARIO) ====================
+// Structure: MODE1_DATA[role][personality] = ARRAY of scenario objects
+// Each scenario: { scene, err[], ok[], insights[], phrases[] }
+const MODE1_DATA = {
+  child: {
+    blame: [
+    { // scenario 0
+      scene: '📱 场景：晚上玩手机被妈妈抓到了……（你是孩子·火力全开型）',
+      err: [
+        { r:'p', ava:'🧑', txt:'你看看现在都几点了？！手机赶紧给我放下——我数到三！' },
+        { r:'u', ava:'🌻', txt:'你烦不烦啊每天就这一套！我就是不睡怎么了！' },
+        { r:'p', ava:'🧑', txt:'你跟我什么态度？！你再吼一句试试？！' },
+        { r:'u', ava:'🌻', txt:'行行行你厉害！懒得跟你说！（摔门）' },
+      ],
+      ok: [
+        { r:'p', ava:'🧑', txt:'你看看现在都几点了？！手机赶紧给我放下——我数到三！' },
+        { r:'u', ava:'🌻', txt:'……妈，这局真的快打完了。再五分钟，行不行？' },
+        { r:'p', ava:'🧑', txt:'你上回也这么说的。每次都是"再五分钟"。' },
+        { r:'u', ava:'🌻', txt:'（把屏幕转过去）你看嘛，就剩三分钟了。打完我自己关——我保证。' },
+        { r:'p', ava:'🧑', txt:'……行，我看着表。说话算话。' },
+        { r:'u', ava:'🌻', txt:'谢谢妈。（打完放下手机）那我先去洗了。' },
+      ],
+      insights: ['一开火就顶回去——事情直接炸了，后面说什么都白搭','硬碰硬的时候两边都在吼，谁的话都没进去','摔门走人爽一秒，明天还是得面对'],
+      phrases: ['"妈，这局快打完了——你看，就剩几分钟。打完我关。"','"我知道你担心我。我也不是故意跟你对着干。"','"你说的我记住了。以后我会看好时间，你别生气了。"'],
+    },
+    { // scenario 1
+      scene: '📊 场景：成绩单出来了，下滑了10名……（你是孩子·火力全开型）',
+      err: [
+        { r:'p', ava:'🧑', txt:'你看看你这成绩！你好好跟我说说，你上课到底听了没有？！' },
+        { r:'u', ava:'🌻', txt:'你别这么说话行不行？！我已经很努力了！' },
+        { r:'p', ava:'🧑', txt:'很努力？这就是努力的结果？！你别跟我说这种话！' },
+        { r:'u', ava:'🌻', txt:'你永远不相信我！算了！（摔成绩单走人）' },
+      ],
+      ok: [
+        { r:'p', ava:'🧑', txt:'你看看你这成绩！你好好跟我说说，你上课到底听了没有？！' },
+        { r:'u', ava:'🌻', txt:'……妈，我知道你生气。你先别急——我跟你说说发生了什么。' },
+        { r:'p', ava:'🧑', txt:'（停下来）你说。' },
+        { r:'u', ava:'🌻', txt:'这次数学考卷有两道题我根本没复习到，不是我不努力。但以后我会提前问老师。' },
+        { r:'p', ava:'🧑', txt:'……好，那下次考前先把重点弄清楚。' },
+        { r:'u', ava:'🌻', txt:'嗯。我保证。谢谢你听我说完。' },
+      ],
+      insights: ['"我已经很努力了"——没说哪里努力，等于白说','用攻击还攻击，把原因淹没了，解决不了问题','摔东西走人，关系破裂，下次更难说话'],
+      phrases: ['"妈，你先别急。我跟你说说这次的情况——我有自己的解释。"','"我承认成绩不好。但你能先听我说说原因吗？"','"以后考前我会主动找你复习，这次是我没准备好。"'],
+    },
+    { // scenario 2
+      scene: '⚖️ 场景：又被拿来跟别人比较……（你是孩子·火力全开型）',
+      err: [
+        { r:'p', ava:'🧑', txt:'你看看你邻居家小华，人家考了第一，又懂事又努力。你怎么就——' },
+        { r:'u', ava:'🌻', txt:'你别说了！你觉得他好你去找他当孩子！' },
+        { r:'p', ava:'🧑', txt:'你这说的什么话？我是在激励你！' },
+        { r:'u', ava:'🌻', txt:'你这叫激励？！这叫嫌弃！我不想听了！（走掉）' },
+      ],
+      ok: [
+        { r:'p', ava:'🧑', txt:'你看看你邻居家小华，人家考了第一，又懂事又努力。你怎么就——' },
+        { r:'u', ava:'🌻', txt:'妈，你说这话我有点难受。我能说说吗？' },
+        { r:'p', ava:'🧑', txt:'……你说。' },
+        { r:'u', ava:'🌻', txt:'我知道你是想让我进步。但拿我跟别人比，我会觉得你嫌弃我。能不能说"你能做到更好"，而不是"别人比你强"？' },
+        { r:'p', ava:'🧑', txt:'（有点愣）……好，我记住了，以后注意。' },
+        { r:'u', ava:'🌻', txt:'谢谢妈。我也会努力的。' },
+      ],
+      insights: ['"你去找他当孩子"——这句话是在割断关系，不是在表达感受','情绪炸了，有效沟通就结束了','说你难受才是关键，比怼回去有效一百倍'],
+      phrases: ['"妈，你这样说我心里不舒服——我能说说我的感受吗？"','"我知道你想激励我。但拿我比别人，我只会更沮丧。"','"以后你直接跟我说期望是什么，比比较好多了。"'],
+    },
+    { // scenario 3
+      scene: '💸 场景：想要一双限量球鞋，被拒绝了……（你是孩子·火力全开型）',
+      err: [
+        { r:'p', ava:'🧑', txt:'那双鞋八百多，我不给你买。你有那个心思还不如好好学习。' },
+        { r:'u', ava:'🌻', txt:'你就是抠！我同学都有！就我没有！' },
+        { r:'p', ava:'🧑', txt:'我抠？！我一天到晚辛辛苦苦还抠？！你说这种话！' },
+        { r:'u', ava:'🌻', txt:'反正你就是不爱我！（跑回房间摔门）' },
+      ],
+      ok: [
+        { r:'p', ava:'🧑', txt:'那双鞋八百多，我不给你买。你有那个心思还不如好好学习。' },
+        { r:'u', ava:'🌻', txt:'……妈，我知道贵。但我真的很想要。你能告诉我为什么不行吗？' },
+        { r:'p', ava:'🧑', txt:'（停了一下）家里这个月开销大，鞋不是必需品。' },
+        { r:'u', ava:'🌻', txt:'好。那我能攒钱吗？我帮家里做家务换零花钱，攒够了我自己买。' },
+        { r:'p', ava:'🧑', txt:'（意外）……你真的想清楚了？行，那就这样。' },
+        { r:'u', ava:'🌻', txt:'谢谢妈。我不是要为难你——就是真的很喜欢那双鞋。' },
+      ],
+      insights: ['说"你不爱我"是在无限升级冲突，跑题了','情绪激动的时候说出的话会一直留下来','问"为什么"+"提替代方案"，这才是解决问题的路子'],
+      phrases: ['"妈，你能跟我说说为什么不行吗？我想听你的理由。"','"我知道贵。那我可以自己攒吗？"','"我不是要跟你对着干，我只是很喜欢。"'],
+    },
+    ], // end blame array
+    avoid: [
+    { // scenario 0
+      scene: '📱 场景：晚上玩手机被妈妈抓到了……（你是孩子·闷葫芦型）',
+      err: [
+        { r:'p', ava:'🧑', txt:'你看看现在都几点了？！手机赶紧给我放下——我数到三！' },
+        { r:'u', ava:'🌻', txt:'……（不说话，把头低下去，手机还攥在手里）' },
+        { r:'p', ava:'🧑', txt:'我跟你说话你听见没有？！每次都这样闷着，你到底什么意思？！' },
+        { r:'u', ava:'🌻', txt:'……（转过身去，戴上耳机）' },
+        { r:'p', ava:'🧑', txt:'行，你不说话是吧。那你以后也不用跟我说了！（摔门而出）' },
+        { r:'u', ava:'🌻', txt:'（一个人坐在黑暗里，心里更堵了）' },
+      ],
+      ok: [
+        { r:'p', ava:'🧑', txt:'你看看现在都几点了？！手机赶紧给我放下——我数到三！' },
+        { r:'u', ava:'🌻', txt:'……（放下手机，安静了几秒）妈，我知道你生气。我脑子有点乱，让我缓一下行吗？' },
+        { r:'p', ava:'🧑', txt:'（愣了一下）你又来了，每次都说缓——缓完了不还是老样子？' },
+        { r:'u', ava:'🌻', txt:'不是逃避。我就是不想跟你吵。你给我两分钟，我出来跟你说。' },
+        { r:'p', ava:'🧑', txt:'（语气软了）……行。我在客厅等你。' },
+        { r:'u', ava:'🌻', txt:'（两分钟后走出来）对不起。今天跟同学闹了点不愉快，打游戏压一压。明天肯定早睡。' },
+      ],
+      insights: ['你一不说话，对方会觉得你不在乎——沉默有时候比吵架还伤人','今天忍一点明天忍一点，小问题攒成大疙瘩，最后全崩','不说话就等于把决定权全交给对方——你心里再委屈也没人知道'],
+      phrases: ['"妈，我不是不理你。我就是脑子有点乱，给我一分钟。"','"我不想跟你吵。但我也不想一个人扛着。能听我说说吗？"','"对不起——我不是故意熬夜。我其实是想跟你说今天学校的事。"'],
+    },
+    { // scenario 1
+      scene: '😞 场景：跟好朋友闹了别扭，一个人扛着……（你是孩子·闷葫芦型）',
+      err: [
+        { r:'p', ava:'🧑', txt:'（看你不开心）怎么了？今天有什么不高兴的吗？' },
+        { r:'u', ava:'🌻', txt:'……没什么。（低头玩手机）' },
+        { r:'p', ava:'🧑', txt:'我看你脸色就不对。你倒是说说啊，啥事儿？' },
+        { r:'u', ava:'🌻', txt:'……没事。你别管。（走进房间）' },
+        { r:'p', ava:'🧑', txt:'（无奈）行吧，不问了。你有事别一个人憋着……（叹气走开）' },
+        { r:'u', ava:'🌻', txt:'（躺在床上，越想越难受，但就是开不了口）' },
+      ],
+      ok: [
+        { r:'p', ava:'🧑', txt:'（看你不开心）怎么了？今天有什么不高兴的吗？' },
+        { r:'u', ava:'🌻', txt:'……（停了一下）妈，我跟我朋友闹了点矛盾。' },
+        { r:'p', ava:'🧑', txt:'是吗？发生什么了？' },
+        { r:'u', ava:'🌻', txt:'就是……他说了一句话，我心里不好受。具体我说不清楚，但就是很难受。' },
+        { r:'p', ava:'🧑', txt:'嗯，难受就对了。你愿意说就说，不说也没事，我陪着你。' },
+        { r:'u', ava:'🌻', txt:'……谢谢妈。我就是需要知道你在。我慢慢缓缓。' },
+      ],
+      insights: ['你越不说，妈妈越担心越乱猜，关系更远','一句"我今天不太好"比什么都不说强一百倍','你不用解释所有细节——开个口，让她知道你的状态就够了'],
+      phrases: ['"妈，我今天心情不好。不是因为你——我跟朋友有点不愉快。"','"我现在说不清楚，但我就是需要一个人待一会儿。"','"等我想好了我跟你说。谢谢你关心我。"'],
+    },
+    { // scenario 2
+      scene: '📖 场景：考砸了，成绩单藏了三天不敢拿出来……（你是孩子·闷葫芦型）',
+      err: [
+        { r:'p', ava:'🧑', txt:'你成绩单出来了吗？老师在家长群说今天发了，我没看见你的。' },
+        { r:'u', ava:'🌻', txt:'……发了。（不动）' },
+        { r:'p', ava:'🧑', txt:'呢？给我看看。' },
+        { r:'u', ava:'🌻', txt:'……（慢慢去翻书包，拿出来，不说话地放在桌上）' },
+        { r:'p', ava:'🧑', txt:'（看了一眼）这……怎么这个分？你就没有什么话说的？' },
+        { r:'u', ava:'🌻', txt:'……（沉默，低头）' },
+      ],
+      ok: [
+        { r:'p', ava:'🧑', txt:'你成绩单出来了吗？老师在家长群说今天发了，我没看见你的。' },
+        { r:'u', ava:'🌻', txt:'……（深呼吸）妈，出来了。我……没考好。我怕你生气所以没敢说。' },
+        { r:'p', ava:'🧑', txt:'（愣了一下）你都藏几天了？' },
+        { r:'u', ava:'🌻', txt:'三天。对不起。我不是故意不告诉你。我自己也很难受。' },
+        { r:'p', ava:'🧑', txt:'行，先别自责。成绩可以补，但有事你得跟我说——这比分数重要。' },
+        { r:'u', ava:'🌻', txt:'我知道了。以后我不会再藏着了。（松了口气）' },
+      ],
+      insights: ['藏着不说只会让你越来越难受，也让妈妈越来越无法信任你','"我怕你生气"——说出这句话，比什么都能软化气氛','坦白了才能有对话，有对话才能解决问题'],
+      phrases: ['"妈，成绩单出来了……没考好。我一直想跟你说，就是不知道怎么开口。"','"我知道你会担心。但我自己也难受——你能先听我说说吗？"','"以后我不会藏着了。分数不好可以补，但我不想让你担心。"'],
+    },
+    { // scenario 3
+      scene: '🎒 场景：被老师批评了，一个人回家，什么都没说……（你是孩子·闷葫芦型）',
+      err: [
+        { r:'p', ava:'🧑', txt:'（吃饭时）今天在学校怎么样？' },
+        { r:'u', ava:'🌻', txt:'……还好。（低头吃饭）' },
+        { r:'p', ava:'🧑', txt:'你最近脸色不对劲，到底怎么了？' },
+        { r:'u', ava:'🌻', txt:'没怎么。吃饭吧。（不说话）' },
+        { r:'p', ava:'🧑', txt:'你这孩子，什么事都憋着，我说你两句你都不理……算了。（叹气）' },
+      ],
+      ok: [
+        { r:'p', ava:'🧑', txt:'（吃饭时）今天在学校怎么样？' },
+        { r:'u', ava:'🌻', txt:'……妈，我今天被老师点名批评了。我心里挺不好受的。' },
+        { r:'p', ava:'🧑', txt:'发生什么了？' },
+        { r:'u', ava:'🌻', txt:'上课走神了，被老师当着全班说。我觉得挺丢人的。但是我不是故意的。' },
+        { r:'p', ava:'🧑', txt:'被批评确实难受。但你敢跟我说——这比我想的要勇敢。' },
+        { r:'u', ava:'🌻', txt:'……我之前不知道说了你会怎样。但说出来轻松多了。谢谢你没骂我。' },
+      ],
+      insights: ['一句"我今天遇到点事"，就能打开对话的门','你越不说，对方越无法帮到你','"我不知道你会怎样"——说出来，给对方一个机会'],
+      phrases: ['"妈，我今天有点不顺心。能说给你听吗？"','"我被老师批了。我有点丢人，但是我想跟你说。"','"你先别着急——我就是需要说出来，不是要你帮我解决。"'],
+    },
+    ], // end avoid array
+    please: [
+    { // scenario 0
+      scene: '📱 场景：晚上玩手机被妈妈抓到了……（你是孩子·委屈求全型）',
+      err: [
+        { r:'p', ava:'🧑', txt:'你看看现在都几点了？！手机赶紧给我放下——我数到三！' },
+        { r:'u', ava:'🌻', txt:'好好好我放我放。你别生气了好不好。' },
+        { r:'p', ava:'🧑', txt:'每次都这样！答应了第二天又照旧！你说的话有几句是真的？' },
+        { r:'u', ava:'🌻', txt:'我错了，真的。下次绝对不熬了。你说的都对。' },
+        { r:'p', ava:'🧑', txt:'行了行了。赶紧睡。（走了）' },
+        { r:'u', ava:'🌻', txt:'（躺在被窝里，盯着天花板。明明什么错都认了，但心里空落落的）' },
+      ],
+      ok: [
+        { r:'p', ava:'🧑', txt:'你看看现在都几点了？！手机赶紧给我放下——我数到三！' },
+        { r:'u', ava:'🌻', txt:'（放下手机，声音很小）妈……我知道晚了。我也不想惹你生气。' },
+        { r:'p', ava:'🧑', txt:'知道晚了还玩？！' },
+        { r:'u', ava:'🌻', txt:'今天跟朋友闹了点不愉快，就一直想打赢一盘再睡……我知道这不是借口。但我不是故意跟你对着干的。' },
+        { r:'p', ava:'🧑', txt:'（态度软了）……怎么不早说？' },
+        { r:'u', ava:'🌻', txt:'我怕说了你又觉得我矫情。但现在说出来，心里舒服多了。' },
+      ],
+      insights: ['心里说"行"嘴上说"行"——可委屈攒多了，哪天会全炸出来','你越忍，对方越不知道你难受','认错不等于解决问题——你得让对方知道你到底想要什么'],
+      phrases: ['"妈，我今天情绪不太好。不是故意熬夜。"','"我知道你为我好——但我也有点自己的想法，能听我说吗？"','"我不想跟你吵架。但我也不想每次都憋着。咱俩能好好说吗？"'],
+    },
+    { // scenario 1
+      scene: '🎨 场景：被否定了最喜欢的兴趣——画画……（你是孩子·委屈求全型）',
+      err: [
+        { r:'p', ava:'🧑', txt:'你整天画画有什么用？画画能考上大学吗？时间都浪费在这上面了。' },
+        { r:'u', ava:'🌻', txt:'……（把画本收起来）好，我知道了，我不画了。' },
+        { r:'p', ava:'🧑', txt:'去刷题，别整天搞这些。' },
+        { r:'u', ava:'🌻', txt:'嗯。（走进房间，坐在那里发呆，心里空落落的）' },
+      ],
+      ok: [
+        { r:'p', ava:'🧑', txt:'你整天画画有什么用？画画能考上大学吗？时间都浪费在这上面了。' },
+        { r:'u', ava:'🌻', txt:'……妈，画画对我来说很重要。我想跟你说说为什么。你能听我说一分钟吗？' },
+        { r:'p', ava:'🧑', txt:'（停了一下）行，说。' },
+        { r:'u', ava:'🌻', txt:'每次画画我都能放松下来。我学习的时候注意力反而更好。我知道你担心成绩，但这是我目前唯一喜欢做的事。' },
+        { r:'p', ava:'🧑', txt:'……你这样说我没想到。那学习完再画，行吗？' },
+        { r:'u', ava:'🌻', txt:'好的。这样我也接受。谢谢你听我说。' },
+      ],
+      insights: ['你没说话，对方会以为你接受了——心里的话说出来才算数','说出"这对我很重要"，就是在维护自己的边界','你有权利说明白自己想要什么，这不是忤逆'],
+      phrases: ['"妈，画画对我很重要。我能说说为什么吗？"','"我不是非要违背你——但我想让你知道我的感受。"','"我们能商量一个都能接受的方式吗？"'],
+    },
+    { // scenario 2
+      scene: '🏕️ 场景：想去同学聚会，妈妈不让……（你是孩子·委屈求全型）',
+      err: [
+        { r:'p', ava:'🧑', txt:'周末那个同学聚会不能去。你作业还没写完，而且我不认识他们。' },
+        { r:'u', ava:'🌻', txt:'好，我知道了。（低头，强忍着没说话）' },
+        { r:'p', ava:'🧑', txt:'别委屈，你是为了自己好。' },
+        { r:'u', ava:'🌻', txt:'（点头）嗯。（心里已经开始难过，但一句话都没说）' },
+      ],
+      ok: [
+        { r:'p', ava:'🧑', txt:'周末那个同学聚会不能去。你作业还没写完，而且我不认识他们。' },
+        { r:'u', ava:'🌻', txt:'妈，我心里有点失落。能不能听我说两句？' },
+        { r:'p', ava:'🧑', txt:'说。' },
+        { r:'u', ava:'🌻', txt:'这是我们班关系比较好的一组人，我不去会有点尴尬。如果我今天把作业写完，明天可以去吗？你不认识他们——我可以把联系方式给你。' },
+        { r:'p', ava:'🧑', txt:'……你能做到今天写完？' },
+        { r:'u', ava:'🌻', txt:'我保证。（认真地点头）' },
+      ],
+      insights: ['沉默=放弃——你一次不说，下次就更说不出来','说"我心里有点失落"软化了气氛，不是在闹','提替代方案才是说话的关键——不是只会抱怨'],
+      phrases: ['"妈，我心里有点失落，能先听我说说吗？"','"我不是要强行去——但我想让你知道这对我挺重要的。"','"如果我……你觉得这个方法行吗？"'],
+    },
+    { // scenario 3
+      scene: '👩‍👩‍👦 场景：爸妈吵架，你被夹在中间……（你是孩子·委屈求全型）',
+      err: [
+        { r:'p', ava:'🧑', txt:'你说说你爸，他有没有道理？你站在哪边？' },
+        { r:'u', ava:'🌻', txt:'……妈，你别问我。你们说。（低下头）' },
+        { r:'p', ava:'🧑', txt:'你到底向着谁？有没有自己的想法？' },
+        { r:'u', ava:'🌻', txt:'……你们都没错。（说完想哭）' },
+      ],
+      ok: [
+        { r:'p', ava:'🧑', txt:'你说说你爸，他有没有道理？你站在哪边？' },
+        { r:'u', ava:'🌻', txt:'妈，我不想选边站。但我有话说。你和爸都让我很难受——你们吵架，我也很痛。' },
+        { r:'p', ava:'🧑', txt:'（愣了）我们……你别瞎担心。' },
+        { r:'u', ava:'🌻', txt:'不是瞎担心。我就是想你们都知道：不管怎样，我希望你们能好好的。我只是个孩子，选不了站哪边。' },
+        { r:'p', ava:'🧑', txt:'（沉默了一会儿）……妈知道了。对不起，让你为难了。' },
+      ],
+      insights: ['你一"没事""你们都行"——反而给自己更大的压力','说出"我也很痛"，这是你有权利说的话','不选边站，说出感受，这才是保护自己'],
+      phrases: ['"我不选边站，但我想告诉你们我有多难受。"','"你们是我最重要的人——我只希望你们好。"','"我不是在评判谁——我只是希望我们家都能好。"'],
+    },
+    ], // end please array
+    analyze: [
+    { // scenario 0
+      scene: '📱 场景：晚上玩手机被妈妈抓到了……（你是孩子·讲道理型）',
+      err: [
+        { r:'p', ava:'🧑', txt:'你看看现在都几点了？！手机赶紧给我放下——我数到三！' },
+        { r:'u', ava:'🌻', txt:'妈你先冷静一下。根据研究，青少年本来睡眠节律就比成年人晚——' },
+        { r:'p', ava:'🧑', txt:'你少跟我扯这些！我不管什么研究，现在立刻给我睡觉！' },
+        { r:'u', ava:'🌻', txt:'我不是在狡辩，我是从科学角度跟你解释——青春期褪黑素分泌本来就推迟——' },
+        { r:'p', ava:'🧑', txt:'闭嘴！我不要听科学！你就是贪玩！（一把抽走手机）' },
+        { r:'u', ava:'🌻', txt:'……你根本不听我说。算了。（摔门进被窝）' },
+      ],
+      ok: [
+        { r:'p', ava:'🧑', txt:'你看看现在都几点了？！手机赶紧给我放下——我数到三！' },
+        { r:'u', ava:'🌻', txt:'……妈，你先别急。我听得出来你担心我。' },
+        { r:'p', ava:'🧑', txt:'我当然担心！都几点了？！' },
+        { r:'u', ava:'🌻', txt:'我知道。刚才排位赛拖得太久了——不是我故意熬夜。你先坐，我跟你说。' },
+        { r:'p', ava:'🧑', txt:'（坐下）你说。' },
+        { r:'u', ava:'🌻', txt:'以后过了十点我不碰手机。要是再这样，你直接没收。但我希望你信我一次。' },
+        { r:'p', ava:'🧑', txt:'（看了你一会儿）……好。就这一次。' },
+      ],
+      insights: ['人家正在气头上，你讲科学——等于给火山喷发做地质分析','道理再对，说在错的时机就是废的','先听情绪，再讲道理——顺序反了全盘皆输'],
+      phrases: ['"妈，我知道你担心。我不是故意熬夜——你坐，我跟你好好说。"','"你说的有道理，我先听你说完。"','"以后我会主动跟你说。不让你老操心。"'],
+    },
+    { // scenario 1
+      scene: '📊 场景：妈妈说你上课不认真，但你有自己的解释……（你是孩子·讲道理型）',
+      err: [
+        { r:'p', ava:'🧑', txt:'老师跟我说你上课老是走神！你有什么好说的？' },
+        { r:'u', ava:'🌻', txt:'妈你听我解释，根据研究，在课堂注意力能持续集中的时间只有15-20分钟，之后需要休息——' },
+        { r:'p', ava:'🧑', txt:'你别跟我讲研究！我问的是你为什么走神！' },
+        { r:'u', ava:'🌻', txt:'我是在从科学角度解释，这不是借口，这是事实……' },
+        { r:'p', ava:'🧑', txt:'你就是在狡辩！我不想听这些！（走开）' },
+      ],
+      ok: [
+        { r:'p', ava:'🧑', txt:'老师跟我说你上课老是走神！你有什么好说的？' },
+        { r:'u', ava:'🌻', txt:'……妈，我能先说两句吗？我不是要辩解——我是想跟你说清楚我的情况。' },
+        { r:'p', ava:'🧑', txt:'说吧。' },
+        { r:'u', ava:'🌻', txt:'最近数学的内容我真的有点跟不上，走神是因为听不懂，不是不想听。我需要的不是批评——而是补课或者你帮我找到原因。' },
+        { r:'p', ava:'🧑', txt:'（停下来）跟不上？你怎么不早说？' },
+        { r:'u', ava:'🌻', txt:'我以为能追上来……但没有。你能帮我想想怎么补吗？' },
+      ],
+      insights: ['先讲科学后讲自己——对方会觉得你在逃避','你有道理，但说道理之前要先说感受','"我需要帮助"比"我有理由"更容易被接受'],
+      phrases: ['"妈，我不是要辩解——我是想说清楚发生了什么。"','"你能听我说完吗？我有话要说，不是借口，是情况。"','"我需要你的帮助，不是批评——我们一起想想怎么解决好吗？"'],
+    },
+    { // scenario 2
+      scene: '🏠 场景：不想参加亲戚聚会，妈妈强制要求……（你是孩子·讲道理型）',
+      err: [
+        { r:'p', ava:'🧑', txt:'明天去你大伯家，你一起去。' },
+        { r:'u', ava:'🌻', txt:'妈，社交心理学研究表明，强制性社交对内向者来说会造成心理负担，而且——' },
+        { r:'p', ava:'🧑', txt:'你给我闭嘴！就是一顿饭！你用得着分析这么多吗？！' },
+        { r:'u', ava:'🌻', txt:'你不听道理……（摇头）' },
+        { r:'p', ava:'🧑', txt:'少废话！就这么定了！（走开）' },
+      ],
+      ok: [
+        { r:'p', ava:'🧑', txt:'明天去你大伯家，你一起去。' },
+        { r:'u', ava:'🌻', txt:'妈，我不太想去。不是不懂事——我最近有点累，能不能说说我的感受？' },
+        { r:'p', ava:'🧑', txt:'（停下）你说。' },
+        { r:'u', ava:'🌻', txt:'最近期末压力挺大的，我需要在家休息一天。但如果你觉得一定要去，我可以去但早点回，行吗？' },
+        { r:'p', ava:'🧑', txt:'……行，吃完饭就走。' },
+        { r:'u', ava:'🌻', txt:'谢谢你理解我。我答应你好好表现。' },
+      ],
+      insights: ['讲道理是对的，但时机不对、顺序不对','先说感受，再说需求，最后才提方案','你有逻辑很好——学着把逻辑放在情绪后面'],
+      phrases: ['"妈，我有点累了，能说说我的感受吗？"','"我不是要拒绝——我想商量一个都能接受的方式。"','"我有我的理由，但我先想听听你怎么看。"'],
+    },
+    { // scenario 3
+      scene: '💔 场景：爸爸批评了你，妈妈没有帮你……（你是孩子·讲道理型）',
+      err: [
+        { r:'p', ava:'🧑', txt:'你爸批评你是有道理的，你就听着。' },
+        { r:'u', ava:'🌻', txt:'妈，从客观角度来讲，爸爸那个说法是有逻辑漏洞的——第一……' },
+        { r:'p', ava:'🧑', txt:'你给我停！有没有完？你爸说的没错！' },
+        { r:'u', ava:'🌻', txt:'那是你的主观判断——事实是……（被打断）' },
+        { r:'p', ava:'🧑', txt:'别说了！' },
+      ],
+      ok: [
+        { r:'p', ava:'🧑', txt:'你爸批评你是有道理的，你就听着。' },
+        { r:'u', ava:'🌻', txt:'妈，我不是不接受批评——但我心里有点不舒服。能跟你说说吗？' },
+        { r:'p', ava:'🧑', txt:'说。' },
+        { r:'u', ava:'🌻', txt:'我觉得你们没给我解释的机会。我也许有做不对的地方，但我想被听见——不只是被告知我错了。' },
+        { r:'p', ava:'🧑', txt:'……你有道理。我们下次先听你说完。' },
+        { r:'u', ava:'🌻', txt:'谢谢妈。我也会更认真地听你们的话。' },
+      ],
+      insights: ['说"有逻辑漏洞"让对方觉得被挑战——关系先于对错','先说你不舒服，比先说他们错了有效多了','被听见比被认可更重要——告诉对方你需要的是什么'],
+      phrases: ['"妈，我心里有点难受——不是在说谁对谁错。能听我说说吗？"','"我不是非要赢这场争论。我只是想被听见。"','"以后有冲突，能先给我说几句的机会吗？"'],
+    },
+    ], // end analyze array
+  }, // end child
+  parent: {
+    blame: [
+    { // scenario 0
+      scene: '📱 场景：孩子晚上玩手机不肯睡……（你是家长·火力全开型）',
+      err: [
+        { r:'c', ava:'👦', txt:'你别老管我行不行！天天念天天念，我头都要炸了！' },
+        { r:'u', ava:'🧑', txt:'我不管你谁管你？你看看你那成绩单，我能不操心吗？！' },
+        { r:'c', ava:'👦', txt:'成绩成绩！你除了成绩还知道什么？！你问过我一句今天过得怎么样吗？！' },
+        { r:'u', ava:'🧑', txt:'我每天辛辛苦苦还不是为了你？！你这说的什么话！' },
+        { r:'c', ava:'👦', txt:'随便吧！反正说什么你都有理！（起身走人）' },
+      ],
+      ok: [
+        { r:'c', ava:'👦', txt:'你别老管我行不行！天天念天天念，我头都要炸了！' },
+        { r:'u', ava:'🧑', txt:'……（深呼吸）好，我先不念叨。你是不是最近心里憋着什么事？' },
+        { r:'c', ava:'👦', txt:'……也没什么。就是烦。' },
+        { r:'u', ava:'🧑', txt:'嗯，我听到了。你不说也行——但你要知道我一直在这儿。' },
+        { r:'c', ava:'👦', txt:'（沉默了几秒）……这次数学没考好。我不敢跟你说。' },
+        { r:'u', ava:'🧑', txt:'谢谢你告诉我。不急，等你缓过来了咱俩慢慢聊。' },
+      ],
+      insights: ['孩子一顶嘴你就拿成绩说事——等于往火里浇油','你越强调"我为你好"，孩子越觉得你在控制他','命令+反问是在逼对方关门——门一关说啥都晚了'],
+      phrases: ['"你先别急，跟我说说——最近是不是有什么压在心里的？"','"我听到了。你不说我也可以等。但我在这儿。"','"成绩的事咱不急着现在聊。我就是想知道你好不好。"'],
+    },
+    { // scenario 1 - blame parent
+      scene: '📖 场景：孩子成绩一塌糊涂，你快忍不住了……（你是家长·火力全开型）',
+      err: [
+        { r:'c', ava:'👦', txt:'（把成绩单往桌上一扔）就这样了，你看吧。' },
+        { r:'u', ava:'🧑', txt:'你看看你！这什么成绩？！我一天天供你吃喝，就换来这个？！' },
+        { r:'c', ava:'👦', txt:'你说完了没有？烦死了！' },
+        { r:'u', ava:'🧑', txt:'我说你两句还不行了？你有没有良心？！' },
+        { r:'c', ava:'👦', txt:'有良心又怎样！你除了逼我还会干嘛！（摔门）' },
+      ],
+      ok: [
+        { r:'c', ava:'👦', txt:'（把成绩单往桌上一扔）就这样了，你看吧。' },
+        { r:'u', ava:'🧑', txt:'（看了一眼，深呼吸）……你自己也知道这次不理想，对吗？' },
+        { r:'c', ava:'👦', txt:'……嗯。（低着头）' },
+        { r:'u', ava:'🧑', txt:'我先不说成绩的事。你告诉我——这次有没有什么你觉得特别难的地方？' },
+        { r:'c', ava:'👦', txt:'……数学这道大题我就是不会，之前没搞懂。' },
+        { r:'u', ava:'🧑', txt:'好，这个可以解决。咱们下周找老师问一下，行吗？' },
+      ],
+      insights: ['你越逼，孩子越往后退——逼出来的努力撑不了多久','先听孩子哪里卡了，比骂他有效一百倍','问"哪里难"而不是"为什么考这么烂"——方向对了事情才能解决'],
+      phrases: ['"这次成绩我看到了。你自己怎么看？"','"你有没有什么觉得特别难的地方，跟我说说。"','"不管怎样，咱们一起想办法——我不是要骂你，我是要帮你。"'],
+    },
+    { // scenario 2 - blame parent
+      scene: '🕐 场景：孩子晚回家，你等到快急死了……（你是家长·火力全开型）',
+      err: [
+        { r:'c', ava:'👦', txt:'（推门进来，十点半了）我回来了。' },
+        { r:'u', ava:'🧑', txt:'你知道现在几点了吗？！说好十点！你让我等死了啊！' },
+        { r:'c', ava:'👦', txt:'路上堵车了嘛……' },
+        { r:'u', ava:'🧑', txt:'堵车你不会发条消息吗？！我以为你出什么事了！你这孩子怎么这么自私！' },
+        { r:'c', ava:'👦', txt:'好了好了！我不是回来了吗？你能不能停？！' },
+      ],
+      ok: [
+        { r:'c', ava:'👦', txt:'（推门进来，十点半了）我回来了。' },
+        { r:'u', ava:'🧑', txt:'（长呼一口气）你平安回来了，我心里松了一口气。我等了很久。' },
+        { r:'c', ava:'👦', txt:'……路上堵车，手机没电了。' },
+        { r:'u', ava:'🧑', txt:'下次能不能临出发前给我发一条？我不是要管你，是我一个人在家等着，担心。' },
+        { r:'c', ava:'👦', txt:'……好，以后我注意。对不起，我没想到你这么担心。' },
+        { r:'u', ava:'🧑', txt:'没事。回来就好。去洗个手吧，我给你留了饭。' },
+      ],
+      insights: ['你越急着骂，孩子越觉得"你只会管我"，而不是"你在乎我"','先说担心再说规定——顺序对了，孩子才听得进去','"我等你很担心"比"你怎么这么自私"更能触动人心'],
+      phrases: ['"你回来了，我松一口气。我真的很担心。"','"下次能提前告诉我一声吗？不是规定——是我需要安心。"','"我不是要管你去哪里——我只是需要知道你安全。"'],
+    },
+    { // scenario 3 - blame parent
+      scene: '🎮 场景：孩子整天打游戏，学习不管……（你是家长·火力全开型）',
+      err: [
+        { r:'c', ava:'👦', txt:'（耳机挂着，眼睛不离屏幕）等等，打完这把。' },
+        { r:'u', ava:'🧑', txt:'打完这把！你整天就知道打！作业写了没有？试卷复习了没有？！' },
+        { r:'c', ava:'👦', txt:'烦不烦啊！！就知道催！' },
+        { r:'u', ava:'🧑', txt:'就知道催？！我不催你你就废了！' },
+        { r:'c', ava:'👦', txt:'废了就废了！你管那么多干嘛！（继续打）' },
+      ],
+      ok: [
+        { r:'c', ava:'👦', txt:'（耳机挂着，眼睛不离屏幕）等等，打完这把。' },
+        { r:'u', ava:'🧑', txt:'（等他打完）这把结束了吗？我能跟你说两句吗？' },
+        { r:'c', ava:'👦', txt:'（摘下耳机）什么事？' },
+        { r:'u', ava:'🧑', txt:'不是要骂你。我只想问——你今天作业弄完了吗？还是说先学完再玩更合适？' },
+        { r:'c', ava:'👦', txt:'……大部分写了，就差两道题。' },
+        { r:'u', ava:'🧑', txt:'那先把两道题搞定，再打，行吗？我去给你倒杯水。' },
+      ],
+      insights: ['一上来就"你整天""就知道打"——对方直接关门','等他打完再说，这是给他尊重，也是给自己冷静的时间','用问题代替命令——"你打算什么时候"比"你快去"好用'],
+      phrases: ['"打完这把，你能来跟我说说今天学到哪儿了吗？"','"我不是要骂你，就是想知道作业的情况。"','"咱们约个时间，你觉得怎么分配学习和游戏时间比较合适？"'],
+    },
+    ], // end blame array
+    avoid: [
+    { // scenario 0
+      scene: '📱 场景：孩子晚上玩手机不肯睡……（你是家长·闷葫芦型）',
+      err: [
+        { r:'c', ava:'👦', txt:'你别老管我行不行！天天念天天念，我头都要炸了！' },
+        { r:'u', ava:'🧑', txt:'……（转过去不说话，叹了口气）' },
+        { r:'c', ava:'👦', txt:'你又不说话了！每次都这样！你到底在想什么？！你倒是说啊！' },
+        { r:'u', ava:'🧑', txt:'……我说什么你都不听，我还能说什么。（起身走开）' },
+        { r:'c', ava:'👦', txt:'（更生气了）对！什么都不说！这个家就这样！冷死算了！' },
+      ],
+      ok: [
+        { r:'c', ava:'👦', txt:'你别老管我行不行！天天念天天念，我头都要炸了！' },
+        { r:'u', ava:'🧑', txt:'……（停了两秒）我听到了。我不是要念你——我就是不知道怎么跟你说才管用。' },
+        { r:'c', ava:'👦', txt:'……那你倒是说啊！' },
+        { r:'u', ava:'🧑', txt:'我怕说了你又嫌我烦。但不说我又担心。你帮我想想——我用什么方式说你才听得进去？' },
+        { r:'c', ava:'👦', txt:'（愣了一下）……你别一上来就吼就行。' },
+        { r:'u', ava:'🧑', txt:'好，我记住了。那现在能跟我说说，你刚才为什么那么烦？' },
+      ],
+      insights: ['你越不说话，孩子越觉得你不关心——沉默比吵架还让人绝望','今天憋一句明天憋一句，到最后就没话可说了','冷处理不是不处理——躲开不等于问题没了'],
+      phrases: ['"我不是不想说——是怕说了你不听。你能先告诉我你怎么想的吗？"','"我知道你烦，我也不想跟你吵。咱们能不能换个方式聊？"','"以后你觉得我哪里不对，直接说。我尽量先听，不打断。"'],
+    },
+    { // scenario 1 - avoid parent
+      scene: '😔 场景：孩子主动来找你说心里话，你不知道怎么回……（你是家长·闷葫芦型）',
+      err: [
+        { r:'c', ava:'👦', txt:'（低着头）爸……我最近感觉压力特别大，学不进去。我有点怕。' },
+        { r:'u', ava:'🧑', txt:'……（沉默了一会儿）那你努力就行了。（转头继续看手机）' },
+        { r:'c', ava:'👦', txt:'……你就这一句话？' },
+        { r:'u', ava:'🧑', txt:'我能说什么……你自己得加油嘛。' },
+        { r:'c', ava:'👦', txt:'（失望）算了。（走回房间）你根本不理解我。' },
+      ],
+      ok: [
+        { r:'c', ava:'👦', txt:'（低着头）爸……我最近感觉压力特别大，学不进去。我有点怕。' },
+        { r:'u', ava:'🧑', txt:'（放下手机，看着孩子）……你过来，坐。你说说，是哪里让你怕？' },
+        { r:'c', ava:'👦', txt:'就是……期末了，感觉跟不上节奏，又怕你们失望。' },
+        { r:'u', ava:'🧑', txt:'嗯……你能跟我说这些，我很高兴。其实你跟我说了，我也不知道该怎么帮——但我在这儿。' },
+        { r:'c', ava:'👦', txt:'……其实你在就够了。我只是不想一个人扛。' },
+        { r:'u', ava:'🧑', txt:'好。以后遇到难的，先来找我说。我学着怎么听你说话。' },
+      ],
+      insights: ['孩子主动说话是最难得的机会——你沉默，等于关上了门','不一定要有答案——"我在"就是最好的回应','你说"我不知道怎么帮"反而比干硬的道理更真实'],
+      phrases: ['"你来跟我说，我很高兴。你说，我听着。"','"我可能没有好答案——但我在这儿，不会走。"','"你说你怕——我也有点不知道说什么。但你不是一个人扛。"'],
+    },
+    { // scenario 2 - avoid parent
+      scene: '💔 场景：孩子跟你说了自己喜欢一个人……（你是家长·闷葫芦型）',
+      err: [
+        { r:'c', ava:'👧', txt:'妈……我想跟你说个事。我好像喜欢我们班一个男生。' },
+        { r:'u', ava:'🧑', txt:'……（愣了一下）现在哪里有时间想这个，好好学习去。' },
+        { r:'c', ava:'👧', txt:'我就是跟你说一声……你根本不想听。' },
+        { r:'u', ava:'🧑', txt:'不是不听，就是现在不是说这个的时候。' },
+        { r:'c', ava:'👧', txt:'算了。我不说了。（走开）以后这种事再也不跟你说了。' },
+      ],
+      ok: [
+        { r:'c', ava:'👧', txt:'妈……我想跟你说个事。我好像喜欢我们班一个男生。' },
+        { r:'u', ava:'🧑', txt:'（停了一下，没反应过激）……嗯。然后呢？他对你好吗？' },
+        { r:'c', ava:'👧', txt:'（没想到这么问）……还好。我也就是有点喜欢。' },
+        { r:'u', ava:'🧑', txt:'青春期有这种感觉是很正常的。谢谢你愿意告诉我。我暂时不知道该说什么，但你知道我支持你的，对吧？' },
+        { r:'c', ava:'👧', txt:'……嗯。（笑了）谢谢妈妈。' },
+        { r:'u', ava:'🧑', txt:'有什么事都可以来找我说。我学着不乱评判。' },
+      ],
+      insights: ['孩子愿意告诉你这种事，是极大的信任——你怎么接住很重要','你一转移话题，孩子下次再也不说了','不知道怎么说没关系——但要让他/她感受到你没有拒绝'],
+      phrases: ['"你来告诉我，我很感动。你说说，发生了什么？"','"我可能不完全理解——但我不会评判你。"','"有什么事都可以跟我说，哪怕我一时不知道怎么回。"'],
+    },
+    { // scenario 3 - avoid parent
+      scene: '😠 场景：孩子发脾气，你习惯性不说话、走开……（你是家长·闷葫芦型）',
+      err: [
+        { r:'c', ava:'👦', txt:'你根本不理解我！你从来不听我说话！' },
+        { r:'u', ava:'🧑', txt:'……（叹气，站起来走向厨房）' },
+        { r:'c', ava:'👦', txt:'你看！你又走！我就知道！' },
+        { r:'u', ava:'🧑', txt:'（没回头，继续走）……冷静冷静就好了。' },
+        { r:'c', ava:'👦', txt:'（冲着你背影大喊）你不说话不代表这事结束了！我恨你！（摔门）' },
+      ],
+      ok: [
+        { r:'c', ava:'👦', txt:'你根本不理解我！你从来不听我说话！' },
+        { r:'u', ava:'🧑', txt:'（站住，没走）……我听到了。你说我不理解——哪件事让你觉得我没听进去？' },
+        { r:'c', ava:'👦', txt:'（愣了）就是……每次你都不说话，或者说"等等"就完了！' },
+        { r:'u', ava:'🧑', txt:'嗯，我知道了。我沉默不是不在乎，是我真的不知道说什么。以后我先告诉你"我听着"，好吗？' },
+        { r:'c', ava:'👦', txt:'（气消了一些）……好。你能不能不要每次都走开？' },
+        { r:'u', ava:'🧑', txt:'好。我学着不走。我在这儿。' },
+      ],
+      insights: ['你走开那一刻，孩子感受到的是"你不重要"','不知道说什么没关系——先说"我听着"比沉默好太多','冷处理对成人有时有用，对孩子来说等于抛弃'],
+      phrases: ['"我听到你了——你说我哪里没有理解到你？"','"我不走。我就是不知道说什么。你愿意告诉我吗？"','"以后你情绪来了，我不走——我先说\'我在\'，行吗？"'],
+    },
+    ], // end avoid array
+    please: [
+    { // scenario 0
+      scene: '📱 场景：孩子晚上玩手机不肯睡……（你是家长·委屈求全型）',
+      err: [
+        { r:'c', ava:'👦', txt:'你别老管我行不行！天天念天天念，我头都要炸了！' },
+        { r:'u', ava:'🧑', txt:'好好好我不管了。你爱怎么样怎么样吧，反正我说了也没用。' },
+        { r:'c', ava:'👦', txt:'（愣了一下）……你这是什么态度？' },
+        { r:'u', ava:'🧑', txt:'我顺着你还不行吗？行行行都是我错。你没错，都是我的问题。' },
+        { r:'c', ava:'👦', txt:'烦死了！阴阳怪气的！（摔门）' },
+      ],
+      ok: [
+        { r:'c', ava:'👦', txt:'你别老管我行不行！天天念天天念，我头都要炸了！' },
+        { r:'u', ava:'🧑', txt:'（声音放轻）好，我不念叨了。但你能跟我说说——你觉得我哪里管太多了吗？' },
+        { r:'c', ava:'👦', txt:'……就是你什么都管。' },
+        { r:'u', ava:'🧑', txt:'嗯。那你希望我怎么改？咱们商量着来——你说的有理的，我改。' },
+        { r:'c', ava:'👦', txt:'（态度软下来）……其实也不是全不对。就是你别老催我。' },
+        { r:'u', ava:'🧑', txt:'好。那以后我会注意。但你也要跟我说实话，行不？' },
+      ],
+      insights: ['嘴上说"行"心里说"不行"——今天忍了明天还得忍','你越退让，孩子越不知道边界在哪里','委屈求全等于把怨气攒起来——哪天崩了更伤感情'],
+      phrases: ['"好，我不念叨了。但你能告诉我你觉得问题出在哪吗？"','"你说的有道理的我改。但我也有我的担心，咱们商量着来。"','"我不是要控制你。我只是希望咱们能好好沟通——不是谁对谁错。"'],
+    },
+    { // scenario 1 - please parent
+      scene: '🤝 场景：孩子当着朋友的面否定了你……（你是家长·委屈求全型）',
+      err: [
+        { r:'c', ava:'👦', txt:'（当着同学面）我妈说话总是这样，你们别管她。（挥手让你走）' },
+        { r:'u', ava:'🧑', txt:'（尴尬地笑）哦，好好好，你们聊你们的。（转身走开）' },
+        { r:'u', ava:'🧑', txt:'（走进厨房，心里憋了一口气，但一句话都没说）' },
+      ],
+      ok: [
+        { r:'c', ava:'👦', txt:'（当着同学面）我妈说话总是这样，你们别管她。（挥手让你走）' },
+        { r:'u', ava:'🧑', txt:'（当时没说什么，等客人走后）刚才你那样说我，我心里有点难受。' },
+        { r:'c', ava:'👦', txt:'……有吗？我就是随便说说。' },
+        { r:'u', ava:'🧑', txt:'我知道你可能是无意的。但在朋友面前被那样说，我觉得不太好受。以后能不这样吗？' },
+        { r:'c', ava:'👦', txt:'……对不起，我没想到你会在意。' },
+        { r:'u', ava:'🧑', txt:'没事。知道了就好。谢谢你听我说。' },
+      ],
+      insights: ['当场走开=告诉孩子"这样对你没关系"——他下次还会这样','等人走了再说，时机对了对话效果好','说"我心里难受"不是责怪，是让他知道边界在哪里'],
+      phrases: ['"你刚才那样说我，我心里有点难受——你能听我说说吗？"','"我不是要兴师问罪，就是想让你知道我有感受。"','"以后遇到这种事，我希望你能尊重我——哪怕不认同也行。"'],
+    },
+    { // scenario 2 - please parent
+      scene: '📞 场景：孩子说你电话打太多让他/她烦了……（你是家长·委屈求全型）',
+      err: [
+        { r:'c', ava:'👦', txt:'妈，你能不能别天天给我打电话？我都多大了！你烦不烦？！' },
+        { r:'u', ava:'🧑', txt:'……好好好。那我不打了。我不打就是了。（挂电话）' },
+        { r:'u', ava:'🧑', txt:'（放下手机，眼眶有点红，但压下去了）' },
+      ],
+      ok: [
+        { r:'c', ava:'👦', txt:'妈，你能不能别天天给我打电话？我都多大了！你烦不烦？！' },
+        { r:'u', ava:'🧑', txt:'……（停了一下）我听到了，你觉得太频繁了。但我也有话说。' },
+        { r:'c', ava:'👦', txt:'你说。' },
+        { r:'u', ava:'🧑', txt:'我打电话是因为我想你，也担心你。我没有别的意思。你告诉我——多久打一次你觉得合适？' },
+        { r:'c', ava:'👦', txt:'……一周两次就行了。我有事会主动说的。' },
+        { r:'u', ava:'🧑', txt:'行，一周两次。但你答应我——有事真的主动说，别让我担心好吗？' },
+      ],
+      insights: ['你一挂电话，孩子以为你认可了——你的感受没有被表达','不是让你一味顺着——你有权说"我也有想法"','一起商量出一个都能接受的方式，这才叫沟通'],
+      phrases: ['"我听到了，你觉得太多了。但我也想说说我的感受——行吗？"','"我担心你，这是真的。咱们能商量一个你我都能接受的方式吗？"','"你给我一个能联系你的方式，我会尊重的。"'],
+    },
+    { // scenario 3 - please parent
+      scene: '😤 场景：孩子又一次打破了你们的约定……（你是家长·委屈求全型）',
+      err: [
+        { r:'c', ava:'👦', txt:'妈，这次就这一次，我今天晚回家。' },
+        { r:'u', ava:'🧑', txt:'……（叹气）好，那你注意安全。（强忍着说）' },
+        { r:'u', ava:'🧑', txt:'（心里想：这已经第三次了……但还是没说）' },
+      ],
+      ok: [
+        { r:'c', ava:'👦', txt:'妈，这次就这一次，我今天晚回家。' },
+        { r:'u', ava:'🧑', txt:'（停了一下）这次是第三次了。我想跟你说说我的感受，可以吗？' },
+        { r:'c', ava:'👦', txt:'……什么感受？' },
+        { r:'u', ava:'🧑', txt:'每次你说"就这次"，然后下次还是这样。我慢慢觉得咱们的约定对你来说不算什么——这让我很难受。' },
+        { r:'c', ava:'👦', txt:'……我没想到你这么想。对不起妈。' },
+        { r:'u', ava:'🧑', txt:'我不是要为难你——只是希望说到做到，这样我才能信任你，也给你更多自由。' },
+      ],
+      insights: ['每次你忍，孩子就以为"这不是大事"——直到你忍不了了才爆发','说出来不是吵架，是给对方机会知道这事的重量','你说"我感觉约定对你不重要"——这句话软化了气氛，也让他听进去了'],
+      phrases: ['"这已经是第三次了。我能说说我的感受吗？"','"我不是要讲理——我就是想让你知道，这让我有点难受。"','"你说到做到，才是给我最好的信任。"'],
+    },
+    ], // end please array
+    analyze: [
+    { // scenario 0
+      scene: '📱 场景：孩子晚上玩手机不肯睡……（你是家长·讲道理型）',
+      err: [
+        { r:'c', ava:'👦', txt:'你别老管我行不行！天天念天天念，我头都要炸了！' },
+        { r:'u', ava:'🧑', txt:'你先冷静。我们来分析一下：第一，我管你是因为——' },
+        { r:'c', ava:'👦', txt:'又来了又来了！我不听分析！分析能当饭吃吗？！' },
+        { r:'u', ava:'🧑', txt:'你不分析怎么解决？我们来梳理一下这个问题的逻辑——' },
+        { r:'c', ava:'👦', txt:'啊啊啊别说了！（捂住耳朵走了）' },
+      ],
+      ok: [
+        { r:'c', ava:'👦', txt:'你别老管我行不行！天天念天天念，我头都要炸了！' },
+        { r:'u', ava:'🧑', txt:'（停了一下）……好，我先不说对错。你刚才说"头都要炸了"——是不是最近压力特别大？' },
+        { r:'c', ava:'👦', txt:'……嗯。' },
+        { r:'u', ava:'🧑', txt:'那我们不说"管不管"的事。你先跟我说说什么压力大，我听听。' },
+        { r:'c', ava:'👦', txt:'（沉默了一会儿）学习跟不上。你又老催。' },
+        { r:'u', ava:'🧑', txt:'我知道了。以后我先问你怎么了，再想怎么办。行吗？' },
+      ],
+      insights: ['人家情绪上头了你开始分析逻辑——等于给对方讲数学题','分析的出发点是好意，但在对方耳朵里就是"你在说我错"','先问情绪再讲道理——顺序对了什么都不用分析'],
+      phrases: ['"我不跟你分析对错——你先跟我说说，发生了什么？"','"我感觉你现在特别烦。是因为什么事？我真想听听。"','"以后我不急着下结论。先听你说完，咱俩再一起想办法。"'],
+    },
+    { // scenario 1 - analyze parent
+      scene: '😭 场景：孩子突然崩溃大哭……（你是家长·讲道理型）',
+      err: [
+        { r:'c', ava:'👧', txt:'（突然趴在桌上哭起来）我受不了了……我真的受不了了……' },
+        { r:'u', ava:'🧑', txt:'好了好了，不就一次考试吗？我们来分析一下——情绪化解决不了问题……' },
+        { r:'c', ava:'👧', txt:'（哭得更厉害）你不懂！你什么都不懂！' },
+        { r:'u', ava:'🧑', txt:'你冷静一下。情绪出了就好了，我们再来看看具体哪里出了问题——' },
+        { r:'c', ava:'👧', txt:'走开走开走开！！（推开你）' },
+      ],
+      ok: [
+        { r:'c', ava:'👧', txt:'（突然趴在桌上哭起来）我受不了了……我真的受不了了……' },
+        { r:'u', ava:'🧑', txt:'（走过去，轻轻拍了拍背）……我在。你先哭一会儿，没关系。' },
+        { r:'c', ava:'👧', txt:'（哭了一会儿，慢慢平静）……妈，我真的太累了。' },
+        { r:'u', ava:'🧑', txt:'嗯。我看到了。你一直撑着，今天撑不住了——这很正常。' },
+        { r:'c', ava:'👧', txt:'……你不说我哪里没做好吗？' },
+        { r:'u', ava:'🧑', txt:'现在不说。现在就陪你。等你准备好了，我们再慢慢说。' },
+      ],
+      insights: ['孩子哭了——这是在求助，不是在失控','你一开始分析，孩子感受到"你觉得我的情绪是个问题"','什么都不说，拍拍背，"我在"——比任何分析都有效'],
+      phrases: ['"我在。你先哭一会儿，没关系。"','"不用解释什么，你先让自己缓过来。"','"等你好一点了，我们再想怎么办。现在不是说这些的时候。"'],
+    },
+    { // scenario 2 - analyze parent
+      scene: '🎓 场景：孩子说不想读大学了……（你是家长·讲道理型）',
+      err: [
+        { r:'c', ava:'👦', txt:'妈，我想清楚了，我不想考大学了。我想学厨师。' },
+        { r:'u', ava:'🧑', txt:'你冷静冷静。首先，学历在社会竞争中的作用是……第二，厨师的职业前景数据显示……' },
+        { r:'c', ava:'👦', txt:'你能不能听我说一句话！！' },
+        { r:'u', ava:'🧑', txt:'我在分析你说的。你说的不理性——' },
+        { r:'c', ava:'👦', txt:'你觉得我说的一切都是不理性的！你不尊重我！（摔门）' },
+      ],
+      ok: [
+        { r:'c', ava:'👦', txt:'妈，我想清楚了，我不想考大学了。我想学厨师。' },
+        { r:'u', ava:'🧑', txt:'（停下来）……这句话一定是鼓了很大勇气才说出来的。你先跟我说说，你怎么想到的？' },
+        { r:'c', ava:'👦', txt:'……我就是觉得读书不是我的路。做饭让我开心。' },
+        { r:'u', ava:'🧑', txt:'嗯，我听到了。我有很多话想说——但我先不说。你能不能多跟我说说你是怎么想的？' },
+        { r:'c', ava:'👦', txt:'（松了口气）……谢谢你没有马上反对。' },
+        { r:'u', ava:'🧑', txt:'你是我孩子。我想先理解你，再想有没有别的可能。' },
+      ],
+      insights: ['孩子说出这种话，是想被理解不是被辩论','你一分析，他就不说了——分析关门不开门','先听完再说——你的道理也许是对的，但听完了再讲，对方才接得住'],
+      phrases: ['"这句话你鼓了勇气才说。我先想听听你怎么想的。"','"我有我的担心——但你先说完，我不打断。"','"以后有什么大决定，能先来跟我说说想法吗？不是让我决定——是让我了解你。"'],
+    },
+    { // scenario 3 - analyze parent
+      scene: '💬 场景：孩子说"你根本不理解我"……（你是家长·讲道理型）',
+      err: [
+        { r:'c', ava:'👧', txt:'你根本就不理解我！你从来都只会讲道理！' },
+        { r:'u', ava:'🧑', txt:'我"不理解"你？你具体说说——哪件事我表现出不理解了？我们来列举一下——' },
+        { r:'c', ava:'👧', txt:'你这样说话就是不理解！！你只会分析！！我不跟你说了！（转身走开）' },
+        { r:'u', ava:'🧑', txt:'你说不清楚，怎么证明我不理解你？' },
+      ],
+      ok: [
+        { r:'c', ava:'👧', txt:'你根本就不理解我！你从来都只会讲道理！' },
+        { r:'u', ava:'🧑', txt:'……（沉默了几秒）你这样说，我有点难受。但我想听你说说——哪件事让你有这种感觉？' },
+        { r:'c', ava:'👧', txt:'……就是上次我跟你说我压力大，你直接给我分析怎么减压，但你根本没问我为什么。' },
+        { r:'u', ava:'🧑', txt:'……你说得对。我那次真的急着想帮你，忘了先听你说感受了。对不起。' },
+        { r:'c', ava:'👧', txt:'（愣了）……你道歉？' },
+        { r:'u', ava:'🧑', txt:'我做得不够好——我学着先听，再说。你愿意给我机会吗？' },
+      ],
+      insights: ['让孩子"证明"你不理解——这是在赢辩论，不是在连接关系','听到"你不理解我"，重要的是听下去，不是反驳','道歉不是认输——是在说"你比我的面子重要"'],
+      phrases: ['"你说我不理解你——我想听听你说的是哪件事。"','"我上次做得不够好。我太急着分析，忘了先问你感受。"','"以后我会先问你\'你现在是什么感受\'，再想怎么帮。"'],
+    },
+    ], // end analyze array
+  } // end parent
+};
+
+function loadM1Scene(idx) {
+  switchObserver('error');
+  const persKey = S.emotion || 'blame';
+  const role = isChild() ? 'child' : 'parent';
+  const scenarios = MODE1_DATA[role]?.[persKey] || MODE1_DATA[role].blame;
+  const data = scenarios[idx % scenarios.length];
+  renderDlg('err-dlg', data.err);
+  renderDlg('ok-dlg', data.ok);
+  const insContainer = document.getElementById('obs-insights');
+  if (insContainer) {
+    insContainer.innerHTML = data.insights.map((t,i) =>
+      `<div class="ins-item"><div class="ins-no">${i+1}</div><div>${t}</div></div>`
+    ).join('');
+  }
+  const phrContainer = document.getElementById('obs-phrases');
+  if (phrContainer) {
+    phrContainer.innerHTML = data.phrases.map(t =>
+      `<div style="background:var(--sky-pale);border-radius:var(--rs);padding:12px 14px;font-size:13px;color:var(--text-dark);line-height:1.7;margin-bottom:9px;">${t}</div>`
+    ).join('');
+  }
+  document.getElementById('m1-scene-label').textContent = data.scene;
+  const counter = document.getElementById('m1-scene-counter');
+  if (counter) counter.textContent = `场景 ${(idx % scenarios.length) + 1} / ${scenarios.length}`;
+}
+
+function showMode1() {
+  S.m1SceneIdx = 0;
+  go('s-mode1');
+  loadM1Scene(0);
+}
+
+function nextM1Scene() {
+  S.m1SceneIdx++;
+  switchObserver('error');
+  loadM1Scene(S.m1SceneIdx);
+  // scroll to top
+  const screen = document.getElementById('s-mode1');
+  if (screen) screen.scrollTop = 0;
+  const persKey = S.emotion || 'blame';
+  const role = isChild() ? 'child' : 'parent';
+  const scenarios = MODE1_DATA[role]?.[persKey] || MODE1_DATA[role].blame;
+  toast(`换到第 ${(S.m1SceneIdx % scenarios.length) + 1} 个场景`);
+}
+
+function renderDlg(elId, dlgs) {
+  const el = document.getElementById(elId);
+  el.innerHTML = '';
+  const userRole = isChild() ? '孩子' : '爸妈';
+  const aiRole = isChild() ? '爸妈' : '孩子';
+  dlgs.forEach((d, i) => {
+    setTimeout(() => {
+      const isRight = d.r === 'u'; // user's messages go on the right
+      const isAiSide = !isRight;
+      const div = document.createElement('div');
+      div.className = `dlg${isRight?' r':''}`;
+      const roleLabel = d.r === 'u' ? userRole : (d.r === 'c' ? '孩子' : '爸妈');
+      const bblClass = d.r === 'u' ? 'user' : (d.r === 'c' ? 'c' : 'p');
+      div.innerHTML = `
+        <div class="ava ${d.r === 'u' ? (isChild() ? 'c' : 'p') : d.r}">${d.ava}</div>
+        <div>
+          <div class="bbl-role${isRight?' r-align':''}">${d.r === 'u' ? '你' : roleLabel}</div>
+          <div class="bbl ${bblClass}">${d.txt}</div>
+        </div>`;
+      el.appendChild(div);
+    }, i * 500);
+  });
+}
+
+function switchObserver(phase) {
+  const errEl = document.getElementById('obs-err');
+  const okEl = document.getElementById('obs-ok');
+  const tabErr = document.getElementById('tab-err');
+  const tabOk = document.getElementById('tab-ok');
+  if (phase === 'error') {
+    errEl.style.display = '';
+    okEl.style.display = 'none';
+    tabErr.className = 'ptab err-on';
+    tabOk.className = 'ptab';
+  } else {
+    errEl.style.display = 'none';
+    okEl.style.display = '';
+    tabErr.className = 'ptab';
+    tabOk.className = 'ptab ok-on';
+  }
+}
+
+// ==================== MODE 2: SHORT SENTENCE ====================
+const MODE2_HINTS = {
+  blame: '⚠️ 练习重点：别上头——说话之前先深呼吸',
+  avoid: '⚠️ 练习重点：别又沉默了——试着开口说第一句',
+  please: '⚠️ 练习重点：别光说好——把你的真实想法也说出去',
+  analyze: '⚠️ 练习重点：先别分析——先问问对方怎么了',
+};
+
+function showMode2() {
+  S.m2ChalIdx = 0;
+  loadChal(0);
+  document.getElementById('m2-fb').style.display = 'none';
+  document.getElementById('m2-input').style.display = '';
+  document.getElementById('m2-resp').value = '';
+  // Show personality hint
+  const persKey = S.emotion || 'blame';
+  const hint = document.getElementById('m2-pers-hint');
+  hint.textContent = MODE2_HINTS[persKey] || '';
+  hint.style.display = persKey ? '' : 'none';
+  go('s-mode2');
+}
+
+function loadChal(idx) {
+  const chals = getChals();
+  const c = chals[idx % chals.length];
+  document.getElementById('m2-text').textContent = c.text;
+  document.getElementById('m2-avatar').textContent = c.ava;
+  document.getElementById('m2-name').textContent = `AI · 扮演：${c.role}`;
+  document.getElementById('m2-scene').textContent = `📌 ${c.scene}`;
+  document.getElementById('m2-role-hint').textContent = c.hint;
+  // Update challenge box border color based on who AI is playing
+  const chalBox = document.getElementById('m2-text').parentElement.querySelector('.chal-box');
+}
+
+function nextChal() {
+  S.m2ChalIdx++;
+  loadChal(S.m2ChalIdx);
+  document.getElementById('m2-fb').style.display = 'none';
+  document.getElementById('m2-input').style.display = '';
+  document.getElementById('m2-resp').value = '';
+}
+
+function submitM2() {
+  const val = document.getElementById('m2-resp').value.trim();
+  if (!val) { toast('先敲几个字再发……'); return; }
+  const fb = M2_FB[Math.floor(Math.random() * M2_FB.length)];
+  const fbEl = document.getElementById('m2-fb');
+  fbEl.innerHTML = `
+    <div class="fb-box mb14">
+      <div class="score-row">
+        <div class="score-c">${fb.score}</div>
+        <div>
+          <div style="font-size:15px;font-weight:700;margin-bottom:3px;">${fb.lbl}</div>
+          <div style="font-size:13px;color:var(--text-mid);">${fb.detail}</div>
+        </div>
+      </div>
+      <div class="better-box">
+        <div style="font-size:12px;color:var(--mint);font-weight:600;margin-bottom:6px;">💡 换个说法试试</div>
+        <div style="font-size:14px;color:var(--text-dark);line-height:1.65;">${fb.better}</div>
+      </div>
+      <button class="btn btn-g" style="margin-top:14px;" onclick="nextChal()">再来一题 →</button>
+    </div>`;
+  fbEl.style.display = '';
+  document.getElementById('m2-input').style.display = 'none';
+}
+
+// ==================== RESET PROFILE ====================
+function resetProfile() {
+  if (!confirm('重新建档会清除当前设置，确定吗？')) return;
+  S.identity = 'parent';
+  S.emotion = '';
+  S.scenes = [];
+  S.personality = null;
+  S.m1SceneIdx = 0;
+  S.partnerGender = '';
+  S.partnerDescs = [];
+  go('s-identity');
+}
+
+// ==================== M3 PARTNER SETUP ====================
+const M3_PARTNER_OPTIONS = {
+  parent: { // user is parent, partner is child
+    options: [
+      { key:'son', label:'👦', sub:'儿子' },
+      { key:'daughter', label:'👧', sub:'女儿' },
+    ],
+    styles: ['脾气急躁','沉默冷淡','敏感易哭','叛逆难管','懂事体贴','压力很大','活泼好动','害怕失败','爱讲道理','特别固执'],
+    q2: '用几个词描述一下他/她的性格？',
+  },
+  child: { // user is child, partner is parent
+    options: [
+      { key:'father', label:'👨', sub:'爸爸' },
+      { key:'mother', label:'👩', sub:'妈妈' },
+    ],
+    styles: ['急躁易怒','沉默寡言','唠叨管控','温柔体贴','严格要求','情绪稳定','喜欢讲理','容易担心','不善表达','偶尔暴躁'],
+    q2: '用几个词描述一下他/她？',
+  }
+};
+
+function showM3Setup() {
+  const role = isChild() ? 'child' : 'parent';
+  const cfg = M3_PARTNER_OPTIONS[role];
+  // Build partner buttons
+  const btnWrap = document.getElementById('partner-btns');
+  btnWrap.innerHTML = cfg.options.map(o =>
+    `<button class="partner-btn" id="pbtn-${o.key}" onclick="selectPartner('${o.key}')">
+      ${o.label}<span>${o.sub}</span>
+    </button>`
+  ).join('');
+  // Build style chips
+  document.getElementById('partner-style-chips').innerHTML = cfg.styles.map(s =>
+    `<button class="style-chip" onclick="toggleStyleChip(this,'${s}')">${s}</button>`
+  ).join('');
+  document.getElementById('m3-setup-q2').textContent = cfg.q2;
+  document.getElementById('partner-style-card').style.display = 'none';
+  document.getElementById('m3-setup-tip').style.display = 'none';
+  document.getElementById('m3-start-btn').style.display = 'none';
+  S.partnerGender = '';
+  S.partnerDescs = [];
+  go('s-m3-setup');
+}
+
+function selectPartner(key) {
+  S.partnerGender = key;
+  // Update button UI
+  document.querySelectorAll('.partner-btn').forEach(b => b.classList.remove('sel'));
+  const btn = document.getElementById('pbtn-' + key);
+  if (btn) btn.classList.add('sel');
+  // Show style card
+  document.getElementById('partner-style-card').style.display = '';
+  document.getElementById('m3-setup-tip').style.display = '';
+  document.getElementById('m3-start-btn').style.display = '';
+}
+
+function toggleStyleChip(el, val) {
+  el.classList.toggle('sel');
+  if (el.classList.contains('sel')) {
+    if (!S.partnerDescs.includes(val)) S.partnerDescs.push(val);
+  } else {
+    S.partnerDescs = S.partnerDescs.filter(v => v !== val);
+  }
+}
+
+function startMode3WithSetup() {
+  showMode3();
+}
+
+function getPartnerName() {
+  const map = { father:'爸爸', mother:'妈妈', son:'儿子', daughter:'女儿' };
+  return map[S.partnerGender] || (isChild() ? '爸妈' : '孩子');
+}
+
+function getPartnerAva() {
+  const map = { father:'👨', mother:'👩', son:'👦', daughter:'👧' };
+  return map[S.partnerGender] || (isChild() ? '🧑' : '👦');
+}
+
+// ==================== MODE 3 ADAPTIVE AI ====================
+function analyzeInput(text) {
+  const len = text.length;
+  const hasQ = /[?？]/.test(text);
+  const hasEmo = /难过|委屈|烦|烦躁|生气|不知道|害怕|担心|哭|难|好|棒|谢|懂|明白|高兴|开心|失望|压力|累|焦虑|孤独/.test(text);
+  const hasApology = /对不起|抱歉|我错了|我知道了|我明白/.test(text);
+  const hasNegative = /不|没|算了|无所谓|随便|没事/.test(text);
+  return {
+    isSilent: len < 8,
+    isShort: len < 25,
+    isMid: len >= 25 && len < 60,
+    isLong: len >= 60,
+    hasQ, hasEmo, hasApology, hasNegative,
+  };
+}
+
+function getAdaptiveReply(userText, baseLines) {
+  const a = analyzeInput(userText);
+  let base = baseLines[S.m3AiIdx % baseLines.length];
+
+  // Build contextual prefix based on what user actually wrote
+  let prefix = '';
+  if (a.isLong && a.hasEmo) {
+    prefix = '（停顿了一下，认真看着你）我听到了。你刚才说的我有感觉到。';
+  } else if (a.hasApology) {
+    prefix = '……（愣了一下）你说了对不起。';
+  } else if (a.hasQ) {
+    prefix = '……（想了想）';
+  } else if (a.isLong) {
+    prefix = '（点了点头）嗯，你说的我在听。';
+  } else if (a.isShort && !a.isSilent) {
+    // User said something short but not silent — acknowledge, don't scold
+    prefix = '……嗯。';
+  }
+  // NOTE: never say "你倒是说句话" even for silent type — use base lines naturally
+
+  // Ensure 2+ sentences: if base has only 1 sentence, add a follow-up
+  const rawSentences = base.split(/[。！？]/).filter(Boolean);
+  if (rawSentences.length < 2 && prefix) {
+    const followUps = [
+      '你说呢？我想听你说说。',
+      '我认真地听着。',
+      '然后呢？接着说。',
+      '别急，慢慢说。',
+      '你继续说，我在听。',
+    ];
+    base = base + followUps[Math.floor(Math.random() * followUps.length)];
+  }
+
+  return prefix ? `${prefix}${base}` : base;
+}
+
+// ==================== MODE 3: 5-MINUTE PRACTICE ====================
+function showMode3() {
+  S.timerSec = 300;
+  S.m3Phase = 0;
+  S.m3AiIdx = 0;
+  S.isPaused = false;
+  S.m3ConvLen = 0;
+  S.m3LastUserMsg = '';
+  clearInterval(S.timerInt);
+
+  const chat = document.getElementById('m3-chat');
+  chat.innerHTML = '';
+  const m3Lines = getM3Lines();
+  // Dynamically replace partner name/ava in init messages
+  const pn = getPartnerName() + '（AI）';
+  const pa = getPartnerAva();
+  const initMsgs = m3Lines.init.map(m => ({
+    ...m,
+    ava: m.role === 'ai' ? pa : m.ava,
+    name: m.role === 'ai' ? pn : m.name,
+  }));
+  initMsgs.forEach(m => appendM3Msg(m));
+
+  document.getElementById('pause-btn').textContent = '⏸️ 暂停';
+  updateM3Phase(0);
+  updateM3Timer();
+  go('s-mode3');
+
+  S.timerInt = setInterval(() => {
+    if (!S.isPaused) {
+      S.timerSec--;
+      updateM3Timer();
+      const elapsed = 300 - S.timerSec;
+      if (elapsed === 60 && S.m3Phase === 0) {
+        S.m3Phase = 1;
+        updateM3Phase(1);
+        appendM3Msg({ role:'sys', text:'【进入主战阶段】不用怕，说你想说的——练的就是真实反应' });
+      } else if (elapsed === 240 && S.m3Phase === 1) {
+        S.m3Phase = 2;
+        updateM3Phase(2);
+        appendM3Msg({ role:'sys', text:'【收尾阶段】试着温和一点。不用追求完美和解，能接住对方就好' });
+      }
+      if (S.timerSec <= 0) {
+        clearInterval(S.timerInt);
+        endM3();
+      }
+    }
+  }, 1000);
+}
+
+function updateM3Timer() {
+  const m = Math.floor(S.timerSec / 60);
+  const s = S.timerSec % 60;
+  document.getElementById('m3-timer').textContent =
+    String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  const elapsed = 300 - S.timerSec;
+  const filled = Math.ceil(elapsed / 30);
+  for (let i=1;i<=10;i++) {
+    const b = document.getElementById('pb'+i);
+    if (!b) continue;
+    if (i <= 2) b.className = 'pb on';
+    else if (i <= 8 && i <= filled) b.className = 'pb on2';
+    else if (i <= 10 && i <= filled) b.className = 'pb on3';
+    else b.className = 'pb';
+  }
+}
+
+function updateM3Phase(idx) {
+  const p = M3_PHASES[idx];
+  document.getElementById('m3-phase').textContent = p.name;
+  document.getElementById('m3-phase-desc').textContent = p.desc;
+}
+
+function appendM3Msg(msg) {
+  const chat = document.getElementById('m3-chat');
+  const div = document.createElement('div');
+  if (msg.role === 'sys') {
+    div.innerHTML = `<div class="dlg"><div><div class="bbl sys">${msg.text}</div></div></div>`;
+  } else if (msg.role === 'ai') {
+    div.innerHTML = `
+      <div class="dlg">
+        <div class="ava ${isChild()?'p':'c'}">${msg.ava}</div>
+        <div>
+          <div class="bbl-role">${msg.name}</div>
+          <div class="bbl ${isChild()?'p':'c'}">${msg.text}</div>
+        </div>
+      </div>`;
+  } else {
+    const userAva = isChild() ? '🌻' : '👤';
+    div.innerHTML = `
+      <div class="dlg r">
+        <div class="ava ${isChild()?'c':'p'}">${userAva}</div>
+        <div>
+          <div class="bbl-role r-align">你</div>
+          <div class="bbl user">${msg.text}</div>
+        </div>
+      </div>`;
+  }
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function sendM3() {
+  const inp = document.getElementById('m3-input');
+  const val = inp.value.trim();
+  if (!val) return;
+  appendM3Msg({ role:'user', text: val });
+  S.m3LastUserMsg = val;
+  S.m3ConvLen++;
+  inp.value = '';
+
+  const chat = document.getElementById('m3-chat');
+  const typing = document.createElement('div');
+  typing.id = 'typing-ind';
+  const aiAva = getPartnerAva();
+  typing.innerHTML = `<div class="dlg"><div class="ava ${isChild()?'p':'c'}">${aiAva}</div><div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div></div>`;
+  chat.appendChild(typing);
+  chat.scrollTop = chat.scrollHeight;
+
+  setTimeout(() => {
+    const t = document.getElementById('typing-ind');
+    if (t) t.remove();
+    const m3Lines = getM3Lines();
+    const replies = m3Lines.ai;
+    const reply = getAdaptiveReply(val, replies);
+    S.m3AiIdx++;
+    const aiName = getPartnerName() + '（AI）';
+    appendM3Msg({ role:'ai', ava:aiAva, name:aiName, text: reply });
+  }, 1100 + Math.random()*500);
+}
+
+function togglePause() {
+  S.isPaused = !S.isPaused;
+  document.getElementById('pause-btn').textContent = S.isPaused ? '▶️ 继续' : '⏸️ 暂停';
+}
+
+function switchTone() {
+  S.toneSharp = !S.toneSharp;
+  const t = S.toneSharp ? '真实直接' : '温和包容';
+  toast(`AI语气：${t}`);
+  appendM3Msg({ role:'sys', text:`【切换语气 →「${t}」模式】` });
+}
+
+function exitM3() {
+  if (S.timerSec < 295) {
+    if (confirm('不练啦？确定退出吗？')) { clearInterval(S.timerInt); endM3(); }
+  } else {
+    clearInterval(S.timerInt);
+    go('s-dashboard');
+  }
+}
+
+function endM3() {
+  clearInterval(S.timerInt);
+  document.getElementById('sum-turns').textContent = S.m3AiIdx + 2;
+  document.getElementById('sum-score').textContent = Math.floor(62 + Math.random()*28);
+  document.getElementById('sum-improve').innerHTML =
+    `✦ 你这次有 ${Math.floor(2+Math.random()*3)} 回把"你又……"换成了"我感觉……"<br>` +
+    `✦ 对方激动的时候你选了先听，而不是马上还嘴<br>` +
+    `✦ 最后几分钟语气明显比开头柔了不少`;
+  document.getElementById('sum-phrases').innerHTML =
+    `💬 "我知道你现在心里不舒服——不急着解决，我先陪你坐会儿"<br>` +
+    `💬 "跟我说说吧，什么让你这么难受？"<br>` +
+    `💬 "你考多少分，你都是我最重要的人"`;
+  go('s-summary');
+}
+
+// ==================== UTILITIES ====================
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ==================== INIT ====================
+document.addEventListener('DOMContentLoaded', () => {
+  const h = new Date().getHours();
+  const g = h<12?'早安 ☀️':h<18?'下午好 🌤️':'晚上好 🌙';
+  const el = document.getElementById('dash-greeting');
+  if (el) el.textContent = g;
+});
+</script>
+</body>
+</html>
