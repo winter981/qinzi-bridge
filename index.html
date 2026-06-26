@@ -1127,126 +1127,517 @@ const M2_FB = [
 // ==================== MODE 3 ====================
 // Personality-aware AI dialogue lines
 // Each personality gets a DIFFERENT opening and flow that matches their struggle
+// ==================== MODE 3 SMART REPLY SYSTEM ====================
+// AI replies are now organized by what the USER (child/parent) actually says.
+// trigger types: apology, emotion, question, defensive, explain, silent, default
+
+// M3_DATA now only holds init (opening) messages; AI replies come from M3_REPLIES
 const M3_DATA = {
-  // ============ USER IS PARENT → AI plays child ============
   parent: {
     init_blame: [
       { role:'sys', text:'【场景铺垫】孩子从学校回来，书包往地上一扔就往房间走。你瞥见成绩单露出一角……' },
       { role:'ai', ava:'👦', name:'儿子（AI）', text:'（头也不回往屋里钻）你别管我了行不行？！我今天心情烂透了！' },
     ],
-    ai_blame: [ // 火力全开型家长 → AI child gets defensive and lashes out
-      '你又想说什么？！我知道，我又考砸了，我又让你丢人了！',
-      '你每次都这样！一回家就审问我！你就不想知道我今天在学校受了多少委屈吗？！',
-      '对！我就是态度不好！你那样说我，我还能有好态度？！',
-      '你根本就不听我说话！你满脑子都是成绩、排名、别人家孩子！',
-      '反正我说什么你都觉得是借口！我不说了！',
-      '（转身要摔门）你让我安静一会儿不行吗？！',
-      '……（隔着门）你真的在乎我吗？还是只在乎那个分数？',
-      '（门后面传来哭声）我就是不行了行吧？你觉得谁好你找谁当儿子去！',
-    ],
     init_avoid: [
       { role:'sys', text:'【场景铺垫】孩子放学回来，闷头进了房间，不说话。你敲了敲门……' },
       { role:'ai', ava:'👦', name:'儿子（AI）', text:'（门开了一条缝，眼睛红红的）……嗯？怎么了？' },
-    ],
-    ai_avoid: [ // 闷葫芦型家长 → AI child is also silent, hard to draw out
-      '……没什么。就是有点累。',
-      '（低头玩手机，不说话）',
-      '……说了你也不懂。',
-      '我就想一个人待会儿。不行吗？',
-      '（沉默了很久）……你觉得我是不是挺没用的？',
-      '……其实我也想跟你说，但不知道从哪开始。',
-      '（抬起眼睛）你不会嫌我烦吧？',
-      '嗯……其实今天语文课，被老师当众点了名。挺丢人的。',
     ],
     init_please: [
       { role:'sys', text:'【场景铺垫】孩子回来好像不太高兴，但你没敢问。晚饭时你试着开口……' },
       { role:'ai', ava:'👦', name:'儿子（AI）', text:'（把碗放下）我吃饱了。（起身要走）' },
     ],
-    ai_please: [ // 委屈求全型家长 → AI child pushes boundaries
-      '你能不能别老盯着我？我都说了我吃饱了！',
-      '你又怎么了？你那表情我看就烦。',
-      '行行行，都是我的错。你满意了吧？',
-      '你一辈子都在忍，一辈子都在说"没事"。你就不累吗？',
-      '你看妈/爸——人家爸妈都支持孩子搞兴趣班，就你，什么都让我让。',
-      '……其实我也不想这样说话。但是我不说，你就一直压着我。',
-      '以后我的事，我自己决定。你别再替我答应这答应那了。',
-      '（声音小下来）……对不起。我不是故意的。我就是……有点喘不过气。',
-    ],
     init_analyze: [
       { role:'sys', text:'【场景铺垫】孩子回来就把自己关屋里。你在外面分析了一下——可能是成绩的事……' },
       { role:'ai', ava:'👦', name:'儿子（AI）', text:'（门里传来）你别进来！我现在不想说话！' },
     ],
-    ai_analyze: [ // 讲道理型家长 → AI child feels analyzed, not heard
-      '你又开始分析了是吧？！"我们来梳理一下"——每次都这套！',
-      '我不是问题！我是人！你能不能别老把我当案例分析？！',
-      '你讲的都对。但你讲的时候，我感觉自己像个犯人。',
-      '你就不能先问问我说了什么吗？你上来就给结论！',
-      '……你知道吗，有时候我就想你陪我坐一会儿。什么都不分析。就坐着。',
-      '你上次说"我尽量先听"——但你还是没做到。',
-      '算了。我累了。你去分析吧。',
-      '……算了。明天再说吧。你去休息。',
-    ],
   },
-  // ============ USER IS CHILD → AI plays parent ============
   child: {
     init_blame: [
       { role:'sys', text:'【场景铺垫】你刚考砸了，把成绩单塞进书包不敢拿出来。妈妈走过来……' },
       { role:'ai', ava:'🧑', name:'妈妈（AI）', text:'（站在门口）你今天回来就闷着，是不是又考砸了？拿出来我看看。' },
     ],
-    ai_blame: [ // 火力全开型孩子 → AI parent gets angry back
-      '考成这样你还有脸回来？！我天天跟你说什么来着？！',
-      '你看看你那态度！我是你妈，你跟我说话就这语气？！',
-      '你别跟我解释！我听够了！你就是没用心！',
-      '你跟谁学的这德行？啊？你跟我说！',
-      '行！你厉害！你以后别叫我妈了！（摔门出去）',
-      '（门外传来）你就跟你爸一样！说不通！',
-      '（过了一会儿，门被推开）……你作业写完了没？',
-      '……（语气软了点）我不是要骂你。你倒是跟我说实话啊。',
-    ],
     init_avoid: [
       { role:'sys', text:'【场景铺垫】你考砸了，一个人坐在书桌前发呆。妈妈推门进来……' },
       { role:'ai', ava:'🧑', name:'妈妈（AI）', text:'（看了你一眼，欲言又止）……你吃饭了吗？' },
-    ],
-    ai_avoid: [ // 闷葫芦型孩子 → AI parent also doesn't know what to say
-      '……（沉默了一会儿）这次考了多少？',
-      '你倒是说话啊。考得好不好你倒是说一句。',
-      '（叹气）你这样我怎么帮你？你什么都不说。',
-      '你是不是觉得说了也没用？……那你倒是让我知道你是怎么想的啊。',
-      '（声音低下来）我不是要骂你。我就是……不知道怎么跟你沟通。',
-      '你看看你，一回家就把自己关起来。你心里到底在想什么？',
-      '……行了。你去吃饭吧。这事咱们回头再说。',
-      '（走了两步又回头）你有什么想说的，随时跟我说。真的。',
     ],
     init_please: [
       { role:'sys', text:'【场景铺垫】你考砸了，妈妈好像有点失望，但没说太多。你心里特别难受……' },
       { role:'ai', ava:'🧑', name:'妈妈（AI）', text:'（轻声）宝贝，你是不是有点不开心？没事的，一次考不好不代表什么。' },
     ],
-    ai_please: [ // 委屈求全型孩子 → AI parent minimizes your feelings
-      '你别想太多啊。妈妈不是怪你。',
-      '你这孩子，我说没事就没事，你哭什么？',
-      '好了好了，妈妈不说了。你去复习吧。',
-      '你就是这样，一考试就压力大。你得学会调节自己。',
-      '你看你，我又没骂你，你倒先委屈上了。',
-      '行行行，都是妈妈不好。行了吧？',
-      '（沉默了一会儿）……其实妈妈也有点失望。但我不说，我不想给你压力。',
-      '（摸了摸你的头）咱们都努力。慢慢来。',
-    ],
     init_analyze: [
       { role:'sys', text:'【场景铺垫】你考砸了，坐在桌前发呆。妈妈进来，开始跟你分析原因……' },
       { role:'ai', ava:'🧑', name:'妈妈（AI）', text:'来，我们看看卷子。你这道题为什么错？是知识点没掌握还是粗心？' },
     ],
-    ai_analyze: [ // 讲道理型孩子 → AI parent lectures and analyzes
-      '你看，这道题明明讲过。你是不是上课走神了？',
-      '你说你，每次都犯同样的错误。你有没有总结过原因？',
-      '你就是态度问题。你根本没把学习当回事。',
-      '我跟你讲了多少遍了，错题本要建立起来。你建立了没有？',
-      '你别跟我顶嘴。我是为你好。你现在不理解，以后就知道了。',
-      '你看看你们班XXX，人家怎么就能学好？你跟人家比比。',
-      '……（语气软一点）妈妈也不是要骂你。你说说，你打算怎么办？',
-      '行了，去把错题整理一下。明天我检查。',
-    ],
   }
 };
+
+const M3_REPLIES = {
+  // ===== USER IS PARENT (playing as parent), AI plays child =====
+  parent_blame: {
+    apology: [
+      '（愣了一下，把手里的东西放下）……你认错了？那你说说，你刚才跑那么急是去干嘛了？',
+      '哼。（别过脸）你说对不起，我听着呢。你倒是说说你错哪了？',
+      '（语气稍微缓一点）……你这次倒没顶嘴。说吧，怎么回事。',
+      '（沉默两秒）你知道错了就好。那……你下次打算怎么做？',
+      '（小声）你别说对不起了，你每次都说……你倒是改啊。',
+    ],
+    emotion: [
+      '（愣了一下）……你真的是这么想的？',
+      '你等等，你刚才说的……你认真的？',
+      '（坐下来，离你远了点但没走）你过来，坐这儿说。你慢慢说，我听着。',
+      '（声音低下来）你……你别哭啊。我又没骂你。',
+      '（没想到你会说这些）……其实我也有地方做得不对。',
+    ],
+    question: [
+      '你问我为什么？你自己不知道吗？！',
+      '……（停顿）你知道我在意的是什么。你自己说。',
+      '你能问出来，说明你还是在乎的。说吧，想问什么？',
+      '（看你一眼）你倒是会问。那你觉得呢？你觉得我为什么生气？',
+      '你问我……你先说说你刚才在干嘛，我再告诉你为什么。',
+    ],
+    defensive: [
+      '你还敢顶嘴？！你看你那态度！',
+      '对！就你有理！我说的都是废话是吧？！',
+      '你那什么语气？！我跟你说话你就这态度？！',
+      '你厉害！你以后别叫我爸/妈了！（转身要走）',
+      '行行行，都是我的错，行了吧？！你满意了？！',
+    ],
+    explain: [
+      '你说的原因是这个？……（将信将疑）那你为什么不早说？',
+      '（听你说完）……是这样吗？你没骗我？',
+      '你说的我听到了。但是……你有没有想过，下次可以早点跟我说？',
+      '（沉默了一下）……你说的有道理。但是我生气不是因为这个。',
+      '你 explain 得这么清楚，怎么一开始不说？',
+    ],
+    silent: [
+      '……你倒是说句话啊。',
+      '（叹气）你又不说话了。每次都这样。',
+      '行，你不说是吧。那我去忙了。（走了两步又回头）你真不说？',
+      '……（等了十秒）算了，你去写作业吧。',
+      '你每次都这样，一有事就闷着。你到底想怎么样？',
+    ],
+    default: [
+      '你到底想说什么？能不能一次性说清楚？！',
+      '你脑子里在想什么？我完全猜不出来！',
+      '……（看着你）你倒是继续说啊。',
+      '你说完了？说完了就去写作业。',
+      '（看你一眼）你今天怎么这么奇怪？',
+    ],
+  },
+  parent_avoid: {
+    apology: [
+      '（有点意外）……嗯。没事，你没事就好。',
+      '（不知道该怎么反应）你……你别老是道歉。有事就说。',
+      '（轻轻拍了拍你肩膀）没事了。下次早点跟我说。',
+      '（声音有点哑）你别说对不起……我也有点过分了。',
+      '（转身去倒水）……渴不渴？先喝点水。',
+    ],
+    emotion: [
+      '（不知道该说什么，手足无措）你……你别这样。',
+      '（坐在你旁边，不看着你）……我在呢。',
+      '（过了一会儿）你想说什么就说吧。我不骂你。',
+      '（声音很轻）我也是第一次当爸/妈，我也不知道怎么办。',
+      '（拿了一张纸巾递过去，不看你）',
+    ],
+    question: [
+      '（愣了一下）……你觉得呢？',
+      '你想知道什么？你问吧，我尽量说。',
+      '（小心翼翼）你是真的想知道，还是随口问问？',
+      '……（想了想）我觉得……应该可以吧。你觉得呢？',
+      '你问我……你先说说你的想法，我再告诉你我的。',
+    ],
+    defensive: [
+      '（被你语气刺到，低下头）……我又说错什么了吗？',
+      '（声音小了）我不是那个意思……你别误会。',
+      '（有点受伤）你……你一定要这样说话吗？',
+      '（转身去厨房）……算了，你去写作业吧。',
+      '（沉默了很久）……我是不是很烦？',
+    ],
+    explain: [
+      '（认真听你说）……嗯。然后呢？',
+      '（点点头）你说的我听到了。那……你打算怎么办？',
+      '（没想到你会说这么多）……你早点跟我说不就好了。',
+      '（有点愧疚）……是我没注意到这些。',
+      '你说的有道理。但是……我也有我的难处。',
+    ],
+    silent: [
+      '（等了很久）……你去写作业吧。',
+      '（不知道说什么，起身去厨房）我去做饭了。',
+      '……（坐了一会儿，起身）你饿了就说。',
+      '（轻轻）你在想什么呢……',
+      '（试探性地）……要不要一起去散散步？',
+    ],
+    default: [
+      '……（看着你，不知道说什么）',
+      '（过了一会儿）你去写作业吧，别太晚了。',
+      '……嗯。',
+      '（欲言又止）……算了，你去忙吧。',
+      '（小声）你有什么事就跟我说，真的。',
+    ],
+  },
+  parent_please: {
+    apology: [
+      '没事的没事的，你别老说对不起。',
+      '（愣了一下，然后笑了笑）你这孩子，我说没事就没事。',
+      '好了好了，妈妈/爸爸不生气了。你去写作业吧。',
+      '你别说对不起了……你这样我反而……（转身去忙别的）',
+      '（摸摸你的头）没事，下次注意就好了。',
+    ],
+    emotion: [
+      '（有点不知所措）你……你别哭了啊。',
+      '（轻声）宝贝，没事的，真的。一次考不好不代表什么。',
+      '（想安慰但不知道怎么开口）你要不要吃点什么？',
+      '（过来坐下）来，跟我说说，怎么了？',
+      '（松了口气）你能跟我说这些……挺好的。',
+    ],
+    question: [
+      '（快速回答，有点敷衍）嗯，应该可以吧。',
+      '你想怎么样都行，你决定就好。',
+      '（想了想）我觉得……你喜欢就好。',
+      '你问我……你怎么突然问这个？',
+      '（小心翼翼）你觉得呢？你觉得好就行。',
+    ],
+    defensive: [
+      '（有点受伤，但忍着）……你一定要这样说话吗？',
+      '（转身去厨房）我去炒菜了，你写作业吧。',
+      '（声音低下来）我是不是……又做错了什么？',
+      '（忍住情绪）没事，你去写作业吧。',
+      '（沉默了一会儿）……我也不是完美的爸妈。',
+    ],
+    explain: [
+      '（快速点头）嗯嗯，我知道了。没事没事。',
+      '你说的我都懂，你别太紧张了。',
+      '（有点敷衍）嗯，挺好的，你做得挺好的。',
+      '（不想深聊）嗯，我知道了。你去写作业吧。',
+      '（轻声）你不用跟我解释的，我信你。',
+    ],
+    silent: [
+      '（有点尴尬）……你去写作业吧。',
+      '（起身去忙）我去做饭了。',
+      '……（等了一会儿）你说话啊。',
+      '（小声）你在生我气吗？',
+      '（试探地）……要不要吃点水果？',
+    ],
+    default: [
+      '没事的，你别想太多。',
+      '（笑着）你这孩子，就是想太多。',
+      '好了好了，都过去了，不说了。',
+      '你去写作业吧，别太累了。',
+      '（轻声）有我在呢，别怕。',
+    ],
+  },
+  parent_analyze: {
+    apology: [
+      '（认真看着你）你刚才说对不起——你是真心的，还是在敷衍我？',
+      '道歉是第一步。那你觉得你刚才的行为，问题出在哪？',
+      '（点点头）知错能改，挺好的。那我们来梳理一下——',
+      '你道歉了，说明你有自知之明。那——你觉得我为什么生气？',
+      '（放缓语气）嗯，我听到了。那我们来看看怎么避免下次再犯。',
+    ],
+    emotion: [
+      '（停下来看着你）你说你有压力……具体是哪方面的压力？我们来拆解一下。',
+      '（拿出一张纸）你说你难受——我们来看看，到底是什么让你难受。',
+      '你的情绪我收到了。但是情绪不能解决问题——我们来看看原因。',
+      '（认真）你能把你的感受说得更具体一点吗？比如——是害怕，还是失望？',
+      '情绪是正常的。但是我们需要把情绪转化成行动方案。你说呢？',
+    ],
+    question: [
+      '好问题。我们来一步步分析——你觉得可能的原因有哪些？',
+      '（拿出纸笔）你来问，我来帮你梳理。先把问题写下来。',
+      '这个问题值得深挖。你觉得——是能力问题还是态度问题？',
+      '（眼睛亮了）你能问出来，说明你在思考。那——你的假设是什么？',
+      '问得好。但是答案在你自己身上——你觉得呢？',
+    ],
+    defensive: [
+      '（皱眉）你现在的反应，恰恰说明你没有在听我说话。我们来复盘一下——',
+      '你刚才的这句话，是在回避问题。我们直接一点——',
+      '（平静但坚定）你现在是在防御，不是在沟通。我们换个方式——',
+      '你有没有发现，你每次被说中了就会顶嘴？我们来记录一下这个模式——',
+      '（叹气）我又开始分析了是吧？但你不分析，你就永远不知道问题在哪。',
+    ],
+    explain: [
+      '（认真听）嗯，你说的这个原因——它是一直存在的，还是最近才有的？',
+      '好，我先不评价。你继续说——还有别的什么原因吗？',
+      '（拿笔记录）你说的原因一……原因二……还有吗？',
+      '你给出的解释，我觉得有一部分有道理。但是——我们看数据——',
+      '（点点头）你的解释我听到了。那——解决方案是什么？',
+    ],
+    silent: [
+      '（等了十秒）……你不说话，我怎么帮你分析？',
+      '沉默解决不了问题。你来——把你的想法说出来，我帮你整理。',
+      '（拿笔敲了敲纸）你不说，我就只能猜了。你确定要让我猜？',
+      '……（叹气）行，那我先说——我觉得你的问题可能出在——',
+      '你每次不说话，我就只能自己分析。你至少给我点线索啊。',
+    ],
+    default: [
+      '（拿笔在纸上写）我们来看看——你这次的问题到底是什么。',
+      '你不说话，那我来分析——我觉得，核心问题是——',
+      '（认真地）你有没有发现，你每次遇到这种事，反应都是一样的？',
+      '我们来建立一个模型——你、我、这件事，三者的关系是——',
+      '（推了推纸）你来看看，我画了个图，你说说对不对。',
+    ],
+  },
+  // ===== USER IS CHILD (playing as child), AI plays parent =====
+  child_blame: {
+    apology: [
+      '（停顿了一下，看着你）……你认错了？那你说，你错在哪了？',
+      '（语气稍微缓了一点）哼，你知道错了？那——你打算怎么办？',
+      '（把门推开一点）你说对不起……你倒是说说，你刚才跑哪去了？',
+      '（沉默了两秒）……你别说对不起了，你每次都说。',
+      '（声音低下来）你知道错了就好……你过来，我们聊聊。',
+    ],
+    emotion: [
+      '（愣了一下）……你哭了？',
+      '（关掉电视/放下手里的东西）你过来，坐这儿说。',
+      '（声音软了）你等等，你刚才说的……你认真的？',
+      '（没想到你会说这些）……其实妈/爸也有地方做得不好。',
+      '（坐到你旁边）你在学校……还好吗？',
+    ],
+    question: [
+      '你问我为什么管你？！因为我是你妈/爸！',
+      '（愣了一下）……你觉得呢？你觉得我为什么生气？',
+      '你能问出来，说明你还有救。说吧——',
+      '（看着你）你想知道答案？那你先说说你的想法。',
+      '你问我……你是不是我亲生的？！你说呢？！',
+    ],
+    defensive: [
+      '你还敢顶嘴？！你看你那态度！',
+      '对！就你有理！我说的都是废话是吧？！',
+      '你那什么语气？！我跟你说话你就这态度？！',
+      '你厉害！你以后别进这个家门了！',
+      '行行行，都是我的错，行了吧？！你满意了？！',
+    ],
+    explain: [
+      '你说的原因是这个？……那你为什么不早跟我说？',
+      '（听你说完，将信将疑）……是真的吗？你没骗我？',
+      '你说的我听到了。但是——你有没有想过，下次可以早点说？',
+      '（沉默了一下）……你说的有道理。但是我生气不是因为这个。',
+      '你解释得这么清楚，怎么一开始不跟我说？',
+    ],
+    silent: [
+      '……你倒是说句话啊！',
+      '（叹气）你又不说话了。每次都这样。',
+      '行，你不说是吧。那你去写作业，别在这儿杵着。',
+      '（等了十秒）……算了，你去写作业吧。写完了我们再聊。',
+      '你每次一有事就闷着，你到底想怎么样？！',
+    ],
+    default: [
+      '你到底想说什么？能不能一次性说清楚？！',
+      '你脑子里在想什么？我完全猜不出来！',
+      '……（看着你）你倒是继续说啊。',
+      '你说完了？说完了就去写作业。',
+      '（看你一眼）你今天怎么这么奇怪？是不是有事瞒着我？',
+    ],
+  },
+  child_avoid: {
+    apology: [
+      '（有点意外，手足无措）……嗯。没事了。',
+      '（不知道该怎么反应）你……你别老是道歉。有事就说。',
+      '（轻轻拍拍你）没事了。下次……早点跟我说。',
+      '（声音有点哑）你别说对不起……我也有点过分了。',
+      '（转身去倒水）……渴不渴？先喝点水。',
+    ],
+    emotion: [
+      '（不知道该说什么）你……你别这样。',
+      '（坐在你旁边，不看着你）……我在呢。',
+      '（过了一会儿）你想说什么就说吧。我不骂你。',
+      '（声音很轻）我也是第一次当妈/爸，我也不知道怎么办。',
+      '（拿了一张纸巾，递过去，不看你）',
+    ],
+    question: [
+      '（愣了一下）……你觉得呢？',
+      '你想知道什么？你问吧，我尽量说。',
+      '（小心翼翼）你是真的想知道，还是随口问问？',
+      '……（想了想）我觉得……应该可以吧。你觉得呢？',
+      '你问我……你怎么突然问这个？',
+    ],
+    defensive: [
+      '（被你语气刺到，低下头）……我又说错什么了吗？',
+      '（声音小了）我不是那个意思……你别误会。',
+      '（有点受伤）你……你一定要这样说话吗？',
+      '（转身去厨房）……算了，你去写作业吧。',
+      '（沉默了很久）……我是不是很烦？',
+    ],
+    explain: [
+      '（认真听你说）……嗯。然后呢？',
+      '（点点头）你说的我听到了。那……你打算怎么办？',
+      '（没想到你会说这么多）……你早点跟我说不就好了。',
+      '（有点愧疚）……是我没注意到这些。',
+      '你说的有道理。但是……我也有我的难处。',
+    ],
+    silent: [
+      '（等了很久）……你去写作业吧。',
+      '（不知道说什么，起身）我去做饭了。',
+      '……（坐了一会儿，起身）你饿了就说。',
+      '（轻轻）你在想什么呢……',
+      '（试探性地）……要不要一起去散散步？',
+    ],
+    default: [
+      '……（看着你，不知道说什么）',
+      '（过了一会儿）你去写作业吧，别太晚了。',
+      '……嗯。',
+      '（欲言又止）……算了，你去忙吧。',
+      '（小声）你有什么事就跟我说，真的。',
+    ],
+  },
+  child_please: {
+    apology: [
+      '没事的没事的，你别老说对不起。',
+      '（愣了一下，笑了笑）你这孩子，我说没事就没事。',
+      '好了好了，妈/爸不生气了。你去写作业吧。',
+      '你别说对不起了……你这样我反而……（转身去忙别的）',
+      '（摸摸你的头）没事，下次注意就好了。',
+    ],
+    emotion: [
+      '（有点不知所措）你……你别哭了啊。',
+      '（轻声）宝贝，没事的，真的。一次考不好不代表什么。',
+      '（想安慰但不知道怎么开口）你要不要吃点什么？',
+      '（过来坐下）来，跟我说说，怎么了？',
+      '（松了口气）你能跟我说这些……挺好的。',
+    ],
+    question: [
+      '（快速回答，有点敷衍）嗯，应该可以吧。',
+      '你想怎么样都行，你决定就好。',
+      '（想了想）我觉得……你喜欢就好。',
+      '你问我……你怎么突然问这个？',
+      '（小心翼翼）你觉得呢？你觉得好就行。',
+    ],
+    defensive: [
+      '（有点受伤，但忍着）……你一定要这样说话吗？',
+      '（转身去厨房）我去炒菜了，你写作业吧。',
+      '（声音低下来）我是不是……又做错了什么？',
+      '（忍住情绪）没事，你去写作业吧。',
+      '（沉默了一会儿）……我也不是完美的爸妈。',
+    ],
+    explain: [
+      '（快速点头）嗯嗯，我知道了。没事没事。',
+      '你说的我都懂，你别太紧张了。',
+      '（有点敷衍）嗯，挺好的，你做得挺好的。',
+      '（不想深聊）嗯，我知道了。你去写作业吧。',
+      '（轻声）你不用跟我解释的，我信你。',
+    ],
+    silent: [
+      '（有点尴尬）……你去写作业吧。',
+      '（起身去忙）我去做饭了。',
+      '……（等了一会儿）你说话啊。',
+      '（小声）你在生我气吗？',
+      '（试探地）……要不要吃点水果？',
+    ],
+    default: [
+      '没事的，你别想太多。',
+      '（笑着）你这孩子，就是想太多。',
+      '好了好了，都过去了，不说了。',
+      '你去写作业吧，别太累了。',
+      '（轻声）有我在呢，别怕。',
+    ],
+  },
+  child_analyze: {
+    apology: [
+      '（认真看着你）你刚才说对不起——你是真心的，还是在敷衍我？',
+      '道歉是第一步。那你觉得你刚才的行为，问题出在哪？',
+      '（点点头）知错能改，挺好的。那我们来梳理一下——',
+      '你道歉了，说明你有自知之明。那——你觉得我为什么生气？',
+      '（放缓语气）嗯，我听到了。那我们来看看怎么避免下次再犯。',
+    ],
+    emotion: [
+      '（停下来看着你）你说你有压力……具体是哪方面的压力？我们来拆解一下。',
+      '你的情绪我收到了。但是情绪不能解决问题——我们来看看原因。',
+      '（拿出一张纸）你说你难受——我们来看看，到底是什么让你难受。',
+      '你能把你的感受说得更具体一点吗？比如——是害怕，还是失望？',
+      '情绪是正常的。但是我们需要把情绪转化成行动方案。你说呢？',
+    ],
+    question: [
+      '好问题。我们来一步步分析——你觉得可能的原因有哪些？',
+      '（拿出纸笔）你来问，我来帮你梳理。先把问题写下来。',
+      '这个问题值得深挖。你觉得——是能力问题还是态度问题？',
+      '（眼睛亮了）你能问出来，说明你在思考。那——你的假设是什么？',
+      '问得好。但是答案在你自己身上——你觉得呢？',
+    ],
+    defensive: [
+      '（皱眉）你现在的反应，恰恰说明你没有在听我说话。',
+      '你刚才的这句话，是在回避问题。我们直接一点——',
+      '（平静但坚定）你现在是在防御，不是在沟通。我们换个方式——',
+      '你有没有发现，你每次被说中了就会顶嘴？',
+      '我又开始分析了是吧？但你不分析，你就永远不知道问题在哪。',
+    ],
+    explain: [
+      '（认真听）嗯，你说的这个原因——它是一直存在的，还是最近才有的？',
+      '好，我先不评价。你继续说——还有别的什么原因吗？',
+      '你说的原因，我觉得有一部分有道理。但是——我们看事实——',
+      '你的解释我听到了。那——解决方案是什么？你说个方案我听听。',
+      '（点点头）嗯，那你打算什么时候开始执行？',
+    ],
+    silent: [
+      '（等了十秒）……你不说话，我怎么帮你？',
+      '沉默解决不了问题。你把你的想法说出来，我帮你整理。',
+      '（拿笔敲了敲桌子）你不说，我就只能猜了。你确定要让我猜？',
+      '……行，那我先说——我觉得你的问题可能出在——',
+      '你每次不说话，我就只能自己分析。你至少给我点线索啊。',
+    ],
+    default: [
+      '我们来看看——你这次的问题到底是什么。',
+      '你不说话，那我来分析——我觉得，核心问题是——',
+      '你有没有发现，你每次遇到这种事，反应都是一样的？',
+      '我们来建立一个沟通模型——你看这个图，你说说对不对。',
+      '（推了推纸）你说呢？你觉得问题出在哪？',
+    ],
+  },
+};
+
+// Helper: pick a random reply from a pool, avoiding recent ones
+const M3_RECENT_MAX = 3;
+function pickReply(pool) {
+  if (!pool || !pool.length) return '……（沉默）';
+  // Avoid repeating recent replies
+  const recent = (S.m3RecentReplies || []).slice(-M3_RECENT_MAX);
+  const available = pool.filter(r => !recent.includes(r));
+  const source = available.length > 0 ? available : pool;
+  const pick = source[Math.floor(Math.random() * source.length)];
+  if (!S.m3RecentReplies) S.m3RecentReplies = [];
+  S.m3RecentReplies.push(pick);
+  if (S.m3RecentReplies.length > M3_RECENT_MAX + 2) S.m3RecentReplies.shift();
+  return pick;
+}
+
+// Main smart reply function
+function getM3Reply(userText) {
+  const role = isChild() ? 'child' : 'parent';
+  const persKey = S.emotion || 'blame';
+  const key = `${role}_${persKey}`;
+  const pools = M3_REPLIES[key];
+  if (!pools) return '……（沉默）';
+
+  const a = analyzeInput(userText);
+
+  // Determine trigger based on actual user input
+  let trigger = 'default';
+  if (a.hasApology) trigger = 'apology';
+  else if (a.hasEmo && userText.length > 15) trigger = 'emotion';
+  else if (a.hasQ) trigger = 'question';
+  else if (a.isSilent) trigger = 'silent';
+  else if (a.hasNegative && userText.length < 30) trigger = 'defensive';
+  else if (userText.length > 30 && !a.hasNegative) trigger = 'explain';
+
+  const pool = pools[trigger] || pools['default'];
+  return pickReply(pool);
+}
+
+// Phase-aware reply: early phase more confrontational, late phase softer
+function getM3ReplyWithPhase(userText) {
+  let reply = getM3Reply(userText);
+  // In late phase (last 2 min), add softening prefix occasionally
+  const elapsed = 300 - S.timerSec;
+  if (elapsed > 240 && Math.random() < 0.4) {
+    const softPrefixes = [
+      '（叹了口气）',
+      '（声音低下来）',
+      '（停顿了一下）',
+    ];
+    const prefix = softPrefixes[Math.floor(Math.random() * softPrefixes.length)];
+    reply = prefix + reply;
+  }
+  return reply;
+}
 
 function getM3Lines() {
   const role = isChild() ? 'child' : 'parent';
@@ -2254,42 +2645,6 @@ function analyzeInput(text) {
   };
 }
 
-function getAdaptiveReply(userText, baseLines) {
-  const a = analyzeInput(userText);
-  let base = baseLines[S.m3AiIdx % baseLines.length];
-
-  // Build contextual prefix based on what user actually wrote
-  let prefix = '';
-  if (a.isLong && a.hasEmo) {
-    prefix = '（停顿了一下，认真看着你）我听到了。你刚才说的我有感觉到。';
-  } else if (a.hasApology) {
-    prefix = '……（愣了一下）你说了对不起。';
-  } else if (a.hasQ) {
-    prefix = '……（想了想）';
-  } else if (a.isLong) {
-    prefix = '（点了点头）嗯，你说的我在听。';
-  } else if (a.isShort && !a.isSilent) {
-    // User said something short but not silent — acknowledge, don't scold
-    prefix = '……嗯。';
-  }
-  // NOTE: never say "你倒是说句话" even for silent type — use base lines naturally
-
-  // Ensure 2+ sentences: if base has only 1 sentence, add a follow-up
-  const rawSentences = base.split(/[。！？]/).filter(Boolean);
-  if (rawSentences.length < 2 && prefix) {
-    const followUps = [
-      '你说呢？我想听你说说。',
-      '我认真地听着。',
-      '然后呢？接着说。',
-      '别急，慢慢说。',
-      '你继续说，我在听。',
-    ];
-    base = base + followUps[Math.floor(Math.random() * followUps.length)];
-  }
-
-  return prefix ? `${prefix}${base}` : base;
-}
-
 // ==================== MODE 3: 5-MINUTE PRACTICE ====================
 function showMode3() {
   S.timerSec = 300;
@@ -2298,6 +2653,8 @@ function showMode3() {
   S.isPaused = false;
   S.m3ConvLen = 0;
   S.m3LastUserMsg = '';
+  S.m3History = [];
+  S.m3RecentReplies = [];
   clearInterval(S.timerInt);
 
   const chat = document.getElementById('m3-chat');
@@ -2311,7 +2668,13 @@ function showMode3() {
     ava: m.role === 'ai' ? pa : m.ava,
     name: m.role === 'ai' ? pn : m.name,
   }));
-  initMsgs.forEach(m => appendM3Msg(m));
+  initMsgs.forEach(m => {
+    appendM3Msg(m);
+    // Also log init AI messages to history for scoring
+    if (m.role === 'ai') {
+      S.m3History.push({ role:'ai', text: m.text });
+    }
+  });
 
   document.getElementById('pause-btn').textContent = '⏸️ 暂停';
   updateM3Phase(0);
@@ -2399,6 +2762,8 @@ function sendM3() {
   appendM3Msg({ role:'user', text: val });
   S.m3LastUserMsg = val;
   S.m3ConvLen++;
+  // Log user message to history
+  S.m3History.push({ role:'user', text: val, time: S.timerSec });
   inp.value = '';
 
   const chat = document.getElementById('m3-chat');
@@ -2412,12 +2777,13 @@ function sendM3() {
   setTimeout(() => {
     const t = document.getElementById('typing-ind');
     if (t) t.remove();
-    const m3Lines = getM3Lines();
-    const replies = m3Lines.ai;
-    const reply = getAdaptiveReply(val, replies);
+    // Use smart reply instead of old adaptive reply
+    const reply = getM3ReplyWithPhase(val);
     S.m3AiIdx++;
     const aiName = getPartnerName() + '（AI）';
     appendM3Msg({ role:'ai', ava:aiAva, name:aiName, text: reply });
+    // Log AI reply to history
+    S.m3History.push({ role:'ai', text: reply, time: S.timerSec });
   }, 1100 + Math.random()*500);
 }
 
@@ -2444,16 +2810,92 @@ function exitM3() {
 
 function endM3() {
   clearInterval(S.timerInt);
-  document.getElementById('sum-turns').textContent = S.m3AiIdx + 2;
-  document.getElementById('sum-score').textContent = Math.floor(62 + Math.random()*28);
-  document.getElementById('sum-improve').innerHTML =
-    `✦ 你这次有 ${Math.floor(2+Math.random()*3)} 回把"你又……"换成了"我感觉……"<br>` +
-    `✦ 对方激动的时候你选了先听，而不是马上还嘴<br>` +
-    `✦ 最后几分钟语气明显比开头柔了不少`;
-  document.getElementById('sum-phrases').innerHTML =
-    `💬 "我知道你现在心里不舒服——不急着解决，我先陪你坐会儿"<br>` +
-    `💬 "跟我说说吧，什么让你这么难受？"<br>` +
-    `💬 "你考多少分，你都是我最重要的人"`;
+  const history = S.m3History || [];
+  const userMsgs = history.filter(m => m.role === 'user');
+
+  // ===== Real scoring =====
+  let score = 50; // base score
+  let highlights = [];
+  let improvements = [];
+
+  if (userMsgs.length === 0) {
+    score = 30;
+    improvements.push('练习时注意多发言，沉默越多练习效果越差');
+  } else {
+    // 1. "我" statements (good) vs "你" accusations (needs work)
+    let iCount = 0, youBlameCount = 0;
+    userMsgs.forEach(m => {
+      const t = m.text;
+      if (/^我|我觉得|我认为|我的/.test(t)) iCount++;
+      if (/你(怎么|为什么|总是|又不|别|能不能)/.test(t) && !/你能|你可以/.test(t)) youBlameCount++;
+    });
+    const iRatio = iCount / userMsgs.length;
+    const youRatio = youBlameCount / userMsgs.length;
+    if (iRatio > 0.4) { score += 12; highlights.push('有 ' + Math.round(iRatio*100) + '% 的发言以"我"开头，学会了表达自己'); }
+    if (youRatio > 0.5) { score -= 10; improvements.push('指责式发言偏多（"你又……"），下次试着换成"我觉得……"'); }
+    if (youRatio <= 0.2 && userMsgs.length >= 3) { score += 8; highlights.push('很少指责对方，沟通姿态不错'); }
+
+    // 2. Asks questions (engagement)
+    const qCount = userMsgs.filter(m => /[?？]/.test(m.text)).length;
+    if (qCount >= 2) { score += 10; highlights.push('主动提了 ' + qCount + ' 次问题，说明在努力理解对方'); }
+    if (qCount === 0 && userMsgs.length >= 3) { improvements.push('全程没有提问，下次试着多问"你怎么想"'); }
+
+    // 3. Apologies (growth / vulnerability)
+    const apCount = userMsgs.filter(m => /对不起|抱歉|我错了/.test(m.text)).length;
+    if (apCount >= 1) { score += 8; highlights.push('愿意说"对不起"，这是很有勇气的沟通姿态'); }
+
+    // 4. Message length trend (opening up?)
+    if (userMsgs.length >= 3) {
+      const earlyAvg = userMsgs.slice(0,2).reduce((s,m) => s+m.text.length,0)/2;
+      const lateAvg = userMsgs.slice(-2).reduce((s,m) => s+m.text.length,0)/2;
+      if (lateAvg > earlyAvg * 1.5) { score += 8; highlights.push('后半段发言比前半段更详细，说明越来越放开了'); }
+      if (lateAvg < earlyAvg * 0.5 && earlyAvg > 10) { improvements.push('后半段发言变短了，可能是累了或挫败，下次注意坚持'); }
+    }
+
+    // 5. Engagement: responded to AI's questions
+    let respondedToQ = 0;
+    for (let i = 1; i < history.length; i++) {
+      if (history[i-1].role === 'ai' && /[?？]/.test(history[i-1].text) && history[i].role === 'user' && history[i].text.length > 5) {
+        respondedToQ++;
+      }
+    }
+    if (respondedToQ >= 2) { score += 8; highlights.push('AI提问后你都认真回答了，互动质量很高'); }
+
+    // 6. Penalize very short responses throughout
+    const avgLen = userMsgs.reduce((s,m) => s+m.text.length,0) / userMsgs.length;
+    if (avgLen < 8) { score -= 8; improvements.push('回复普遍偏短，下次试着多说两句，让对方感受到你在参与'); }
+  }
+
+  // Clamp score
+  score = Math.max(20, Math.min(98, Math.round(score)));
+
+  // ===== Build feedback HTML =====
+  const turnCount = userMsgs.length + 2;
+  let improveHTML = '';
+  if (highlights.length > 0) {
+    improveHTML += highlights.map(h => `✦ ${h}<br>`).join('');
+  }
+  if (improvements.length > 0) {
+    improveHTML += improvements.slice(0,2).map(im => `⚡ ${im}<br>`).join('');
+  }
+  if (!improveHTML) {
+    improveHTML = '✦ 完成了一轮完整练习，已经很棒了<br>⚡ 下次试试更主动地表达自己';
+  }
+
+  // Phrase suggestions based on personality
+  const persKey = S.emotion || 'blame';
+  const suggMap = {
+    blame: [`💬 "我知道你很生气。我想跟你说说是怎么了。"`, `💬 "你先说，我在听。"`, `💬 "我们能不能不吵架，好好说？"`],
+    avoid: [`💬 "我其实有点难受，但不知道怎么说……你帮我一下？"`, `💬 "你能不能主动问问我？我很想跟你说。"`, `💬 "我需要一点时间想想，等下找你聊。"`],
+    please: [`💬 "我有我的想法，我希望你能听听。"`, `💬 "你不用忍着，说出来我们一起解决。"`, `💬 "我也有需要，你能不能也考虑一下？"`],
+    analyze: [`💬 "我现在情绪有点大，你能不能先不分析，陪我坐会儿？"`, `💬 "你这么说我有点受伤，但不是针对你。"`, `💬 "我们先不找原因，我想先让你知道我的感受。"`],
+  };
+  const sugg = suggMap[persKey] || suggMap['blame'];
+
+  document.getElementById('sum-turns').textContent = turnCount;
+  document.getElementById('sum-score').textContent = score;
+  document.getElementById('sum-improve').innerHTML = improveHTML;
+  document.getElementById('sum-phrases').innerHTML = sugg.map(s => s + '<br>').join('');
   go('s-summary');
 }
 
