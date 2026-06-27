@@ -1467,6 +1467,21 @@ const M2_FB = [
     better:'"你愿意说出来我就放心多了。谢谢你跟我说这些。"' },
 ];
 
+// 低分评价池：检测到对抗性/排斥性表达时使用
+const M2_FB_BAD = [
+  { score:18, lbl:'这样说会把对方推开', detail:'"你管我呢""要你管"这种话说出来就是在拒绝沟通。对方听到会很难过',
+    better:'"我现在有点烦，能不能先停一下？等会儿我好好跟你说。"' },
+  { score:25, lbl:'这不是沟通，是对抗', detail:'你用了排斥性的语言。沟通的前提是愿意对话，而不是把门关上',
+    better:'"我不同意你说的，但我愿意听听你为什么这么想。"' },
+  { score:12, lbl:'对话无法继续', detail:'你的回复完全没有给对方留余地。练习的目的不是赢，是连接',
+    better:'"我有点生气，但我不想吵。我们能不能换个方式说这件事？"' },
+];
+
+// 检测用户回复是否包含恶意/对抗性内容
+function isHostileReply(text) {
+  return /你管我呢|你管我|要你管|少管我|别管我|关你屁事|关你什么事|关我什么事|跟你没关系|你谁啊|你算老几|滚蛋|滚开|离我远点|凭什么|要你讲|要你说|要你教/.test(text);
+}
+
 // ==================== MODE 3 ====================
 // Personality-aware AI dialogue lines
 // Each personality gets a DIFFERENT opening and flow that matches their struggle
@@ -2911,7 +2926,17 @@ async function submitM2() {
       const c = chals[S.m2ChalIdx % chals.length];
       const userRole = isChild() ? '孩子' : '家长';
       const aiRole = isChild() ? '家长' : '孩子';
-      const prompt = `你正在扮演一个亲子沟通教练。当前场景：【${c.scene}】。${aiRole}（${c.role}）说："${c.text}"。${userRole}回复："${val}"。请评分(0-100)并给出详细反馈和一个更好的替代说法。用JSON格式返回：{"score": 数字, "lbl": "一句话评价", "detail": "详细分析", "better": "换一种更有效的说法"}`;
+      const prompt = `你正在扮演一个亲子沟通教练。当前场景：【${c.scene}】。${aiRole}（${c.role}）说："${c.text}"。${userRole}回复："${val}"。
+
+请严格按以下标准评分(0-100)：
+
+【严重对抗/排斥类】如果回复包含"你管我呢""要你管""少管我""别管我""关你屁事""关你什么事""滚蛋""滚开""你谁啊""你算老几"等主动推开对方的话 → score必须<=25，"lbl"用"这样说会把对方推开"或类似
+
+【无效对话】如果只是句号、空格、单个字敷衍 → score必须<=15
+
+【普通/有效沟通】如果回复有实际内容，请根据倾听、尊重、表达清晰度综合评分
+
+请用JSON格式返回：{"score": 数字, "lbl": "一句话评价", "detail": "详细分析", "better": "换一种更有效的说法"}`;
 
       const result = await callDifyAPI(prompt);
       let fb;
@@ -2948,8 +2973,10 @@ async function submitM2() {
     }
   }
 
-  // Fallback: original random scoring
-  const fb = M2_FB[Math.floor(Math.random() * M2_FB.length)];
+  // Fallback: original scoring — but check for hostile replies first
+  const fb = isHostileReply(val)
+    ? M2_FB_BAD[Math.floor(Math.random() * M2_FB_BAD.length)]
+    : M2_FB[Math.floor(Math.random() * M2_FB.length)];
   fbEl.innerHTML = `
     <div class="fb-box mb14">
       <div class="score-row">
