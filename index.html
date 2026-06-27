@@ -3274,268 +3274,519 @@ function endM3() {
   const userMsgs = history.filter(m => m.role === 'user');
   const turnCount = userMsgs.length + 2;
 
-  // ===== 8-dimension scoring (each 0-10, raw total 0-80 → mapped 20-98) =====
-  // Dim names, max scores, and feedback labels
-  const DIMS = [
-    { id:'listen',    name:'倾听与回应',   max:10 },
-    { id:'clarity',   name:'表达清晰度',   max:10 },
-    { id:'emotion',   name:'情绪管理',     max:10 },
-    { id:'respect',   name:'尊重与礼貌',   max:10 },
-    { id:'cooperate', name:'合作意愿',     max:10 },
-    { id:'empathy',   name:'换位思考',     max:10 },
-    { id:'reflect',   name:'道歉与反思',   max:10 },
-    { id:'build',     name:'话题建设性',   max:10 },
+  // ============================================================
+  // 新打分标准（用户提供）
+  // 总分 100，8 个维度，最低固定 10 分
+  // 家长和孩子使用同一套维度名称，但扣分细则不同
+  // ============================================================
+
+  const isParentUser = !isChild(); // true = 用户是家长
+
+  // 维度定义（总分 100）
+  const DIMS = isParentUser ? [
+    { id:'listen',     name:'认真倾听',   max:15 },
+    { id:'tone',       name:'语气措辞',   max:15 },
+    { id:'respect',    name:'尊重想法',   max:12 },
+    { id:'patience',   name:'沟通耐心',   max:12 },
+    { id:'clarity',    name:'表达清晰',   max:10 },
+    { id:'encourage',  name:'正向鼓励',   max:12 },
+    { id:'emotion',    name:'情绪控制',   max:12 },
+    { id:'reconcile',  name:'知错和解',   max:12 },
+  ] : [
+    { id:'listen',     name:'认真倾听',   max:15 },
+    { id:'politeness', name:'礼貌语气',   max:15 },
+    { id:'cooperate',  name:'沟通配合',   max:12 },
+    { id:'patience',   name:'沟通耐心',   max:12 },
+    { id:'honesty',    name:'坦诚表达',   max:10 },
+    { id:'share',      name:'主动分享',   max:12 },
+    { id:'emotion',    name:'情绪控制',   max:12 },
+    { id:'reconcile',  name:'认错和解',   max:12 },
   ];
 
-  // ----- Pre-analysis of all user messages -----
-  const allText = userMsgs.map(m => m.text).join(' ');
   const msgCount = userMsgs.length;
-  const avgLen = msgCount ? userMsgs.reduce((s,m) => s + m.text.length, 0) / msgCount : 0;
+  const allText = userMsgs.map(m => m.text).join(' ');
 
-  // Count patterns
-  let iCount = 0, youBlame = 0, qCount = 0, apCount = 0, rudeCount = 0;
-  let exclCount = 0, okayCount = 0, coopCount = 0, reflectCount = 0;
-  let empCount = 0;
-  userMsgs.forEach(m => {
-    const t = m.text;
-    if (/^我|我觉得|我认为|我的|我想/.test(t)) iCount++;
-    if (/你(怎么|为什么|总是|又不|别|能不能|就不|从来)/.test(t) && !/你能|你可以|你觉|你想/.test(t)) youBlame++;
-    if (/[?？]/.test(t)) qCount++;
-    if (/对不起|抱歉|我错了|是我不好|我没想/.test(t)) apCount++;
-    if (/滚|去死|傻逼|有病|神经|烦死了|你有完没完/.test(t)) rudeCount++;
-    if (/！{2,}|[?!]{3,}/.test(t)) exclCount++;
-    if (/好吧|行吧|算了|随便|你说了算/.test(t)) okayCount++;
-    if (/好的|行|可以|那我|我试|我保证|我答应|我们一起|要不/.test(t)) coopCount++;
-    if (/你说得对|我知道你|我理解|我懂|你也不容易|你也有/.test(t)) empCount++;
-    if (/我会|我以后|下次|改正|注意|不再|反省/.test(t)) reflectCount++;
-  });
-
-  // Responded to AI's questions
-  let respondedQ = 0;
+  // ===== 前置分析 =====
+  // 倾听相关
+  let respondedQ = 0; // 回应了 AI 的问题
+  let ignoredQ = 0;   // 无视 AI 问题
+  let uhuhCount = 0;  // 嗯/哦敷衍
   for (let i = 1; i < history.length; i++) {
-    if (history[i-1].role === 'ai' && /[?？]/.test(history[i-1].text) &&
-        history[i].role === 'user' && history[i].text.length > 5) respondedQ++;
+    if (history[i-1].role === 'ai' && /[?？]/.test(history[i-1].text)) {
+      if (history[i].role === 'user' && history[i].text.length > 5) respondedQ++;
+      else ignoredQ++;
+    }
+    // 检测嗯/哦敷衍
+    if (history[i].role === 'user' && /^嗯|哦|噢|好吧|行吧$/.test(history[i].text.trim())) uhuhCount++;
   }
-
-  // Message length trend (early vs late)
-  let lengthTrend = 0; // -1 shrinking, 0 same, 1 growing
-  if (msgCount >= 3) {
-    const earlyAvg = userMsgs.slice(0, Math.ceil(msgCount/3)).reduce((s,m) => s + m.text.length, 0) / Math.ceil(msgCount/3);
-    const lateAvg = userMsgs.slice(-Math.ceil(msgCount/3)).reduce((s,m) => s + m.text.length, 0) / Math.ceil(msgCount/3);
-    if (lateAvg > earlyAvg * 1.3) lengthTrend = 1;
-    else if (lateAvg < earlyAvg * 0.7 && earlyAvg > 10) lengthTrend = -1;
-  }
-
   const aiAskCount = history.filter(m => m.role === 'ai' && /[?？]/.test(m.text)).length;
 
-  // ===== Score each dimension =====
+  // 语气措辞 / 礼貌语气
+  let commandCount = 0;   // 强硬命令
+  let mockCount = 0;      // 挖苦对比贬低
+  let rudeCount = 0;      // 人身辱骂/嘲讽挑衅
+  let coldCount = 0;      // 语气冷淡不耐烦
+  let confrontCount = 0;  // 刻意抬杠反驳
+
+  // 尊重想法 / 沟通配合
+  let negateCount = 0;    // 随口否定
+  let dismissCount = 0;   // 轻视孩子/不合心意翻脸
+  let noDiscussCount = 0; // 完全不许有不同意见/全程对抗
+
+  // 沟通耐心
+  let rushCount = 0;      // 催孩子快点/嫌弃啰嗦
+  let refuseCount = 0;    // 直接拒绝沟通/冷战闭口
+
+  // 表达清晰 / 坦诚表达
+  let confuseCount = 0;   // 说话混乱
+  let emptyCount = 0;     // 空话无重点
+  let contradictCount = 0;// 前后矛盾
+  let vagueCount = 0;     // 含糊回避
+  let lieCount = 0;       // 说谎欺骗
+
+  // 正向鼓励 / 主动分享
+  let preachCount = 0;    // 全程说教批评
+  let compareCount = 0;   // 拿他人对比打压
+  let noInitiate = 0;     // 从不主动聊天
+
+  // 情绪控制
+  let annoyedCount = 0;   // 带着烦躁怒气
+  let yellCount = 0;      // 大声争吵吼叫
+  let harshCount = 0;     // 决裂狠话/断绝关系
+
+  // 知错和解 / 认错和解
+  let noApology = 0;      // 明明说错拒不认错
+  let coldWarCount = 0;   // 分歧后冷战/赌气冷战
+  let noReflect = 0;      // 从不反思/始终认为自己全对
+
+  // 通用
+  let apologyCount = 0;   // 有道歉
+  let coopCount = 0;      // 有配合
+
+  userMsgs.forEach(m => {
+    const t = m.text;
+    // 敷衍
+    if (/^嗯|哦|噢$/.test(t.trim())) uhuhCount++;
+    // 命令
+    if (/必须|快点|别说了|闭嘴|给我/.test(t) && !/你能|可以/.test(t)) commandCount++;
+    // 挖苦对比
+    if (/你看人家|别人家的|你看看谁|你比/.test(t)) mockCount++;
+    // 辱骂
+    if (/滚|去死|傻逼|有病|神经|废物|猪/.test(t)) rudeCount++;
+    // 冷淡
+    if (/烦不烦|够了|你有完没完|别烦我/.test(t)) coldCount++;
+    // 抬杠
+    if (/才不是|胡说|你懂什么|你行你/.test(t)) confrontCount++;
+    // 否定
+    if (/不行|不可以|不许|不能|别想/.test(t) && !/能不能/.test(t)) negateCount++;
+    // 轻视
+    if (/小题大做|矫情|至于吗|想太多/.test(t)) dismissCount++;
+    // 不许讨论
+    if (/我说了算|你别管|关你什么事/.test(t)) noDiscussCount++;
+    // 催/嫌啰嗦
+    if (/快点说|别废话|啰嗦|烦死了/.test(t)) rushCount++;
+    // 拒绝沟通
+    if (/不想说|别问我|不知道|无语/.test(t) && t.length < 15) refuseCount++;
+    // 混乱
+    if (t.length > 30 && /[。，]/.test(t) && (t.match(/[。，]/g) || []).length < 2) confuseCount++;
+    // 空话
+    if (/你要努力|你要加油|你要乖/.test(t) && !/我觉得|我希望/.test(t)) emptyCount++;
+    // 前后矛盾（简单检测：先说好再说不行）
+    // 含糊/说谎
+    if (/还行|随便|没事|不知道/.test(t) && t.length < 10) vagueCount++;
+    // 说教
+    if (/你要|你应该|你这样|你以后/.test(t) && !/我们一起|你觉得/.test(t)) preachCount++;
+    // 对比
+    if (/人家|别人|你看/.test(t) && /比你好|比你强/.test(t)) compareCount++;
+    // 情绪
+    if (/！{2,}|[?!]{3,}/.test(t)) annoyedCount++;
+    if (/大喊|吼|嚷/.test(t) || /！{3,}/.test(t)) yellCount++;
+    if (/再也不管|断绝关系|不认|没你这个/.test(t)) harshCount++;
+    // 道歉/反思
+    if (/对不起|抱歉|我错了|是我不好/.test(t)) { apologyCount++; noApology = 0; }
+    else if (msgCount >= 3 && /你错|你的错|就是你/.test(t)) noApology++;
+    // 配合
+    if (/好的|行|可以|我试试|我们一起/.test(t)) coopCount++;
+    // 冷战
+    if (/不理|不想理|懒得说|算了/.test(t) && t.length < 15) coldWarCount++;
+  });
+
+  // ===== 特殊判定：全程沉默/只发句号/无有效对话 =====
+  const allGarbage = msgCount === 0 ||
+    (msgCount > 0 && userMsgs.every(m => m.text.trim().length <= 2 || /^。|\.|,|，$/.test(m.text.trim())));
+  if (allGarbage) {
+    // 直接记 10 分
+    const finalScore = 10;
+    const improveHTML = `<div style="text-align:center;padding:20px 0;">
+      <div style="font-size:48px;margin-bottom:12px;">😶</div>
+      <div style="font-size:16px;font-weight:700;color:var(--coral);margin-bottom:8px;">有效对话内容不足</div>
+      <div style="font-size:13px;color:var(--text-mid);line-height:1.7;">
+        全程沉默、只发句号或无效对话，直接记 <b>10 分</b>。<br>
+        练习需要真的开口说话——哪怕说得不好，也比不说话强。<br>
+        下次试着打几个字，哪怕只是"我今天不太想聊"。
+      </div>
+    </div>`;
+    document.getElementById('sum-turns').textContent = turnCount;
+    document.getElementById('sum-score').textContent = finalScore;
+    document.getElementById('sum-improve').innerHTML = improveHTML;
+    document.getElementById('sum-phrases').innerHTML = `💬 "我今天不太想聊，但我坐这儿陪你。"<br>💬 "我先冷静一下，等会儿跟你说。"<br>💬 "你在吗？我有点事想跟你说。"`;
+    go('s-summary');
+    return;
+  }
+
+  // ===== 逐维度打分 =====
   const dimScores = {};
   const dimFeedback = {};
 
-  // 1. 倾听与回应 — did they listen and respond?
-  if (msgCount === 0) dimScores.listen = 0;
-  else {
-    const respRatio = aiAskCount > 0 ? Math.min(1, respondedQ / aiAskCount) : 0.5;
-    dimScores.listen = Math.round(respRatio * 10);
-    if (dimScores.listen >= 8) dimFeedback.listen = '对方每次提问你都用心回答了，听得进去';
-    else if (dimScores.listen >= 5) dimFeedback.listen = '大部分问题回应了，有时候可以再认真一点';
-    else dimFeedback.listen = '对方问了好几次你都没正面回应，像是没在听';
+  if (isParentUser) {
+    // ========== 家长评分 ==========
+
+    // 1. 认真倾听（15分）
+    {
+      let s = 15;
+      if (ignoredQ > 0 && aiAskCount > 0) {
+        const ignoreRatio = ignoredQ / aiAskCount;
+        if (ignoreRatio >= 0.5) s -= 10; // 完全无视
+        else if (ignoreRatio >= 0.3) s -= 5; // 答非所问
+      }
+      if (uhuhCount >= 2) s = Math.max(0, s - 10); // 全程敷衍
+      else if (uhuhCount >= 1) s = Math.max(5, s - 5);
+      dimScores.listen = Math.max(0, s);
+      if (s >= 13) dimFeedback.listen = '专心听孩子说话，记住了孩子的诉求，回应很认真';
+      else if (s >= 8) dimFeedback.listen = '大部分时候在听，偶尔有点分心';
+      else if (s >= 5) dimFeedback.listen = '经常答非所问，或用嗯/哦敷衍';
+      else dimFeedback.listen = '基本没在听，孩子说的话没有回应';
+    }
+
+    // 2. 语气措辞（15分）
+    {
+      let s = 15;
+      if (coldCount >= 1) s -= 3;
+      if (commandCount >= 2) s -= 4;
+      else if (commandCount >= 1) s -= 2;
+      if (mockCount >= 1) s -= 8;
+      if (rudeCount >= 1) s = 0; // 人身辱骂直接 0 分
+      dimScores.tone = Math.max(0, s);
+      if (s >= 13) dimFeedback.tone = '语气温和，说话让人舒服';
+      else if (s >= 8) dimFeedback.tone = '基本客气，偶尔有点急';
+      else if (s >= 5) dimFeedback.tone = '有命令、不耐烦的语气，孩子会不舒服';
+      else if (s > 0) dimFeedback.tone = '有挖苦、对比、贬低的话，很伤孩子';
+      else dimFeedback.tone = '出现了人身辱骂，这是沟通中的红线';
+    }
+
+    // 3. 尊重想法（12分）
+    {
+      let s = 12;
+      if (negateCount >= 2) s -= 4;
+      if (dismissCount >= 1) s -= 6;
+      if (noDiscussCount >= 1) s = 0;
+      dimScores.respect = Math.max(0, s);
+      if (s >= 10) dimFeedback.respect = '能接纳孩子的不同观点，不轻易否定';
+      else if (s >= 6) dimFeedback.respect = '有时候会轻视孩子的感受，觉得是小事';
+      else if (s > 0) dimFeedback.respect = '经常否定孩子的想法，不太尊重';
+      else dimFeedback.respect = '完全不许孩子有不同意见';
+    }
+
+    // 4. 沟通耐心（12分）
+    {
+      let s = 12;
+      if (rushCount >= 1) s -= 5;
+      if (refuseCount >= 1) s = 0;
+      dimScores.patience = Math.max(0, s);
+      if (s >= 10) dimFeedback.patience = '孩子说话时有耐心听完整';
+      else if (s >= 6) dimFeedback.patience = '偶尔会催孩子或表现出不耐烦';
+      else if (s > 0) dimFeedback.patience = '嫌孩子啰嗦，表现出厌烦';
+      else dimFeedback.patience = '直接拒绝沟通，闭口不谈';
+    }
+
+    // 5. 表达清晰（10分）
+    {
+      let s = 10;
+      if (confuseCount >= 1) s -= 3;
+      if (emptyCount >= 2) s -= 5;
+      if (contradictCount >= 1) s -= 4;
+      dimScores.clarity = Math.max(0, s);
+      if (s >= 8) dimFeedback.clarity = '表达清楚，道理讲得明白';
+      else if (s >= 5) dimFeedback.clarity = '基本能看懂，但有点乱';
+      else dimFeedback.clarity = '说话混乱或全是空话，孩子听不懂';
+    }
+
+    // 6. 正向鼓励（12分）
+    {
+      let s = 12;
+      if (preachCount >= 3) s -= 6;
+      if (compareCount >= 2) s -= 5;
+      if (preachCount >= 2 && compareCount >= 2) s = 0;
+      dimScores.encourage = Math.max(0, s);
+      if (s >= 10) dimFeedback.encourage = '对话中以肯定为主，让孩子感到被支持';
+      else if (s >= 6) dimFeedback.encourage = '说教和批评偏多，肯定偏少';
+      else if (s > 0) dimFeedback.encourage = '经常拿别人对比打压孩子';
+      else dimFeedback.encourage = '全程否定，没有一句肯定的话';
+    }
+
+    // 7. 情绪控制（12分）
+    {
+      let s = 12;
+      if (annoyedCount >= 1) s -= 3;
+      if (yellCount >= 1) s -= 6;
+      if (harshCount >= 1) s = 0;
+      dimScores.emotion = Math.max(0, s);
+      if (s >= 10) dimFeedback.emotion = '沟通时情绪稳定，没有把坏情绪发泄给孩子';
+      else if (s >= 6) dimFeedback.emotion = '有点烦躁，但总体还能控制';
+      else if (s > 0) dimFeedback.emotion = '有争吵吼叫，情绪管理需要加强';
+      else dimFeedback.emotion = '说了决裂狠话，这对亲子关系伤害很大';
+    }
+
+    // 8. 知错和解（12分）
+    {
+      let s = 12;
+      if (noApology >= 2) s -= 5;
+      if (coldWarCount >= 2) s -= 4;
+      if (noReflect >= 1 && msgCount >= 4) s = 0;
+      if (apologyCount >= 1) s = Math.min(12, s + 4);
+      dimScores.reconcile = Math.max(0, s);
+      if (s >= 10) dimFeedback.reconcile = '说错了愿意认错，能主动缓和关系';
+      else if (s >= 6) dimFeedback.reconcile = '有反省意识，但不够主动';
+      else if (s > 0) dimFeedback.reconcile = '明明有错但不肯认，或分歧后只会冷战';
+      else dimFeedback.reconcile = '从不反思自身问题，把错全推给对方';
+    }
+
+  } else {
+    // ========== 孩子评分 ==========
+
+    // 1. 认真倾听（15分）
+    {
+      let s = 15;
+      if (ignoredQ > 0 && aiAskCount > 0) {
+        const ignoreRatio = ignoredQ / aiAskCount;
+        if (ignoreRatio >= 0.5) s -= 10;
+        else if (ignoreRatio >= 0.3) s -= 5;
+      }
+      if (uhuhCount >= 2) s = Math.max(0, s - 10);
+      if (refuseCount >= 1) s = 0;
+      dimScores.listen = Math.max(0, s);
+      if (s >= 13) dimFeedback.listen = '认真听家长说话，给出了有效回应';
+      else if (s >= 8) dimFeedback.listen = '大部分时候在听，偶尔分心';
+      else if (s >= 5) dimFeedback.listen = '经常假装没听见或单字敷衍';
+      else dimFeedback.listen = '扭头无视，拒绝倾听';
+    }
+
+    // 2. 礼貌语气（15分）
+    {
+      let s = 15;
+      if (coldCount >= 1) s -= 3;
+      if (confrontCount >= 2) s -= 4;
+      else if (confrontCount >= 1) s -= 2;
+      if (mockCount >= 1) s -= 8;
+      if (rudeCount >= 1) s = 0;
+      dimScores.politeness = Math.max(0, s);
+      if (s >= 13) dimFeedback.politeness = '态度平和礼貌，不刻意顶撞';
+      else if (s >= 8) dimFeedback.politeness = '基本礼貌，偶尔有点不耐烦';
+      else if (s >= 5) dimFeedback.politeness = '有抬杠、反驳的情况';
+      else if (s > 0) dimFeedback.politeness = '有嘲讽、挑衅家长的话';
+      else dimFeedback.politeness = '出言辱骂，这是不能碰的红线';
+    }
+
+    // 3. 沟通配合（12分）
+    {
+      let s = 12;
+      if (noDiscussCount >= 1) s -= 4;
+      if (confrontCount >= 2 && dismissCount >= 1) s -= 6;
+      if (refuseCount >= 2) s = 0;
+      dimScores.cooperate = Math.max(0, s);
+      if (s >= 10) dimFeedback.cooperate = '不认同也能好好表达，不抗拒对话';
+      else if (s >= 6) dimFeedback.cooperate = '偶尔会翻脸或找茬';
+      else if (s > 0) dimFeedback.cooperate = '经常对抗，不太愿意交流';
+      else dimFeedback.cooperate = '全程对抗，不愿交流';
+    }
+
+    // 4. 沟通耐心（12分）
+    {
+      let s = 12;
+      if (rushCount >= 1) s -= 5;
+      if (refuseCount >= 1) s = 0;
+      dimScores.patience = Math.max(0, s);
+      if (s >= 10) dimFeedback.patience = '家长反复叮嘱时能保持耐心';
+      else if (s >= 6) dimFeedback.patience = '偶尔会嫌家长啰嗦';
+      else if (s > 0) dimFeedback.patience = '催家长别再说，表现出厌烦';
+      else dimFeedback.patience = '冷战闭口不搭话';
+    }
+
+    // 5. 坦诚表达（10分）
+    {
+      let s = 10;
+      if (vagueCount >= 2) s -= 3;
+      if (lieCount >= 1) s -= 5;
+      if (vagueCount >= 3 && lieCount >= 1) s = 0;
+      dimScores.honesty = Math.max(0, s);
+      if (s >= 8) dimFeedback.honesty = '真实说出内心想法，不隐瞒';
+      else if (s >= 5) dimFeedback.honesty = '有时候会含糊回避';
+      else if (s > 0) dimFeedback.honesty = '有说谎或欺骗的情况';
+      else dimFeedback.honesty = '全程搪塞敷衍，不说真话';
+    }
+
+    // 6. 主动分享（12分）
+    {
+      let s = 12;
+      if (msgCount >= 3 && userMsgs.every(m => m.text.length < 15)) s -= 6;
+      if (noInitiate >= 1 && msgCount < 3) s -= 5;
+      if (msgCount >= 5 && userMsgs.filter(m => m.text.length >= 20).length < 2) s = 0;
+      dimScores.share = Math.max(0, s);
+      if (s >= 10) dimFeedback.share = '主动分享日常和心事，让家长了解你';
+      else if (s >= 6) dimFeedback.share = '偶尔主动开口，但不够多';
+      else if (s > 0) dimFeedback.share = '从不主动聊天，比较被动';
+      else dimFeedback.share = '完全不主动沟通，封闭自己';
+    }
+
+    // 7. 情绪控制（12分）
+    {
+      let s = 12;
+      if (annoyedCount >= 1) s -= 3;
+      if (yellCount >= 1) s -= 6;
+      if (harshCount >= 1) s = 0;
+      dimScores.emotion = Math.max(0, s);
+      if (s >= 10) dimFeedback.emotion = '有分歧时能控制情绪，不说狠话';
+      else if (s >= 6) dimFeedback.emotion = '有点闹情绪，但还在沟通';
+      else if (s > 0) dimFeedback.emotion = '有大喊大叫或争执';
+      else dimFeedback.emotion = '说了断绝关系类的狠话';
+    }
+
+    // 8. 认错和解（12分）
+    {
+      let s = 12;
+      if (noApology >= 2) s -= 5;
+      if (coldWarCount >= 2) s -= 4;
+      if (noReflect >= 1 && msgCount >= 4) s = 0;
+      if (apologyCount >= 1) s = Math.min(12, s + 4);
+      dimScores.reconcile = Math.max(0, s);
+      if (s >= 10) dimFeedback.reconcile = '自身有问题愿意认错，能主动缓和';
+      else if (s >= 6) dimFeedback.reconcile = '有反省，但不够主动';
+      else if (s > 0) dimFeedback.reconcile = '犯错后不停狡辩，或赌气冷战';
+      else dimFeedback.reconcile = '始终认为自己全对，从不认错';
+    }
   }
 
-  // 2. 表达清晰度 — message length + detail
-  {
-    if (avgLen < 6 && msgCount > 0) dimScores.clarity = 2;
-    else if (avgLen < 12) dimScores.clarity = 5;
-    else if (avgLen < 25) dimScores.clarity = 7;
-    else dimScores.clarity = 9;
-    const iRatio = msgCount > 0 ? iCount / msgCount : 0;
-    if (iRatio > 0.3) dimScores.clarity = Math.min(10, dimScores.clarity + 1);
-    if (dimScores.clarity >= 8) dimFeedback.clarity = '把自己的想法说得很清楚，对方能准确理解你';
-    else if (dimScores.clarity >= 5) dimFeedback.clarity = '基本表达清楚了，下次可以多说两句细节';
-    else dimFeedback.clarity = '回复太短了，对方根本不知道你在想什么';
+  // ===== 计算总分（满分 100，最低 10）=====
+  const rawTotal = DIMS.reduce((s, d) => s + (dimScores[d.id] || 0), 0);
+  const finalScore = Math.max(10, rawTotal);
+
+  // ===== 分级评价 =====
+  let gradeLabel = '';
+  let gradeDesc = '';
+  if (isParentUser) {
+    if (finalScore >= 90) { gradeLabel = '沟通优秀'; gradeDesc = '你是一位很会沟通的家长，孩子跟你说话感到安全、被理解。'; }
+    else if (finalScore >= 80) { gradeLabel = '整体良好'; gradeDesc = '沟通整体顺畅，偶尔说教较多，可以多点倾听。'; }
+    else if (finalScore >= 70) { gradeLabel = '普通'; gradeDesc = '说教较多，孩子可能觉得你不太懂他。试着多听少说。'; }
+    else if (finalScore >= 60) { gradeLabel = '及格'; gradeDesc = '沟通中容易产生矛盾，孩子可能会回避跟你交流。'; }
+    else if (finalScore >= 30) { gradeLabel = '沟通较差'; gradeDesc = '经常打压、发火，孩子跟你说话会感到害怕或抗拒。'; }
+    else if (finalScore >= 11) { gradeLabel = '恶性沟通'; gradeDesc = '冷暴力、恶语居多，亲子关系可能已经很紧张了。'; }
+    else { gradeLabel = '无有效交流'; gradeDesc = '没有有效对话内容，这需要改变。'; }
+  } else {
+    if (finalScore >= 90) { gradeLabel = '沟通优秀'; gradeDesc = '你很会跟家长沟通，懂得表达也懂得倾听。'; }
+    else if (finalScore >= 80) { gradeLabel = '表现良好'; gradeDesc = '沟通表现不错，家长跟你交流感到欣慰。'; }
+    else if (finalScore >= 70) { gradeLabel = '偏被动'; gradeDesc = '沟通积极性弱，家长可能觉得你不太愿意交流。'; }
+    else if (finalScore >= 60) { gradeLabel = '及格'; gradeDesc = '容易闹情绪，沟通效果打折扣。'; }
+    else if (finalScore >= 30) { gradeLabel = '沟通差'; gradeDesc = '频繁顶嘴、隐瞒撒谎，家长很难了解你的真实想法。'; }
+    else if (finalScore >= 11) { gradeLabel = '长期对抗'; gradeDesc = '对抗式恶性沟通，跟家长的对话充满火药味。'; }
+    else { gradeLabel = '无有效交流'; gradeDesc = '没有有效对话内容，试试下次多说几句。'; }
   }
 
-  // 3. 情绪管理 — hostility detection
-  {
-    let emo = 10;
-    if (rudeCount >= 2) emo -= 5;
-    else if (rudeCount >= 1) emo -= 3;
-    if (exclCount >= 3) emo -= 3;
-    else if (exclCount >= 1) emo -= 1;
-    if (youBlame > msgCount * 0.5) emo -= 2;
-    dimScores.emotion = Math.max(0, emo);
-    if (dimScores.emotion >= 9) dimFeedback.emotion = '全程保持冷静，没有情绪化的语言，很难得';
-    else if (dimScores.emotion >= 6) dimFeedback.emotion = '基本稳住了，有一两处有点激动但可以理解';
-    else dimFeedback.emotion = '情绪比较激动，出现了攻击性语言，需要练习情绪控制';
-  }
+  // ===== 构建反馈 HTML =====
+  const ranked = DIMS.map(d => ({ ...d, score: dimScores[d.id] || 0 })).sort((a, b) => a.score - b.score);
+  const topWeak = ranked.filter(d => d.score < d.max * 0.6);
+  const topStrong = ranked.filter(d => d.score >= d.max * 0.7);
 
-  // 4. 尊重与礼貌
-  {
-    let resp = 10;
-    if (rudeCount >= 2) resp -= 5; else if (rudeCount >= 1) resp -= 3;
-    if (youBlame > msgCount * 0.6 && msgCount >= 2) resp -= 3;
-    else if (youBlame > msgCount * 0.3) resp -= 1;
-    dimScores.respect = Math.max(0, resp);
-    if (dimScores.respect >= 9) dimFeedback.respect = '说话很有礼貌，即使有分歧也没有人身攻击';
-    else if (dimScores.respect >= 6) dimFeedback.respect = '整体还算客气，但有些话可以换个说法更温和';
-    else dimFeedback.respect = '语言比较冲，伤害对方的话说出来就收不回了';
-  }
-
-  // 5. 合作意愿
-  {
-    let coop = 5;
-    if (coopCount >= 3) coop = 9;
-    else if (coopCount >= 1) coop = 7;
-    if (okayCount > coopCount && msgCount >= 2) coop -= 2;
-    if (lengthTrend === 1) coop += 1;
-    dimScores.cooperate = Math.min(10, Math.max(0, coop));
-    if (dimScores.cooperate >= 8) dimFeedback.cooperate = '积极尝试配合对方，愿意一起找解决方案';
-    else if (dimScores.cooperate >= 5) dimFeedback.cooperate = '有一定配合，但有时候还是各说各的';
-    else dimFeedback.cooperate = '比较抗拒合作，"行吧/随便"这种话说出来等于拒绝沟通';
-  }
-
-  // 6. 换位思考
-  {
-    let emp = 5;
-    if (empCount >= 3) emp = 10;
-    else if (empCount >= 1) emp = 8;
-    else if (qCount >= 1) emp = 6;
-    if (youBlame > msgCount * 0.4 && msgCount >= 2) emp -= 2;
-    dimScores.empathy = Math.min(10, Math.max(0, emp));
-    if (dimScores.empathy >= 8) dimFeedback.empathy = '能够试着从对方角度看问题，这是最难的能力';
-    else if (dimScores.empathy >= 5) dimFeedback.empathy = '偶尔会关心对方的感受，还可以更多一些';
-    else dimFeedback.empathy = '全程只从自己的角度说话，没有尝试理解对方';
-  }
-
-  // 7. 道歉与反思
-  {
-    let ref = 5;
-    if (apCount >= 2) ref = 10;
-    else if (apCount >= 1) ref = 8;
-    if (reflectCount >= 2) ref = Math.min(10, ref + 2);
-    else if (reflectCount >= 1) ref = Math.min(10, ref + 1);
-    if (apCount === 0 && reflectCount === 0 && msgCount >= 3) ref = 3;
-    dimScores.reflect = ref;
-    if (dimScores.reflect >= 8) dimFeedback.reflect = '愿意承认自己的问题并反思改进，非常有勇气';
-    else if (dimScores.reflect >= 5) dimFeedback.reflect = '有一定的自省意识，下次可以更大方地承认';
-    else dimFeedback.reflect = '没有道歉也没有反思，沟通僵在这里就很难往前走了';
-  }
-
-  // 8. 话题建设性 — moving conversation forward vs stuck
-  {
-    let build = 5;
-    if (qCount >= 3) build = 9;
-    else if (qCount >= 1) build = 7;
-    if (lengthTrend === 1) build += 1;
-    if (lengthTrend === -1) build -= 2;
-    if (dimScores.cooperate >= 7) build += 1;
-    if (dimScores.listen >= 7) build += 1;
-    dimScores.build = Math.min(10, Math.max(0, build));
-    if (dimScores.build >= 8) dimFeedback.build = '话题在往前推进，对话有建设性的方向';
-    else if (dimScores.build >= 5) dimFeedback.build = '对话有一定推进，但有些地方卡住了';
-    else dimFeedback.build = '对话在原地打转，双方都没能让话题往前走';
-  }
-
-  // ===== Compile score =====
-  const rawTotal = DIMS.reduce((s, d) => s + dimScores[d.id], 0);
-  // Map raw 0-80 → final 20-98
-  const finalScore = Math.round(20 + (rawTotal / 80) * 78);
-
-  // ===== Detect communication style =====
-  let styleLabel = '沟通型';
-  let styleDesc = '你有表达、有倾听，整体是在交流而不是对抗。';
-  if (youBlame > msgCount * 0.5 && rudeCount >= 1) {
-    styleLabel = '对抗型'; styleDesc = '你的发言里指责和攻击较多，容易让对方防御，沟通就很难继续了。';
-  } else if (youBlame > msgCount * 0.5) {
-    styleLabel = '指责型'; styleDesc = '你倾向于指出对方的问题，但很少谈自己的感受。试着反过来——先说"我觉得……"。';
-  } else if (avgLen < 8 && msgCount > 0) {
-    styleLabel = '沉默型'; styleDesc = '你说话很少，对方猜不透你在想什么。沉默不等于安全，有时候反而是最大的对抗。';
-  } else if (dimScores.cooperate < 5) {
-    styleLabel = '回避型'; styleDesc = '你用"随便/行吧"来结束话题，问题其实没有解决，只是被搁置了。';
-  } else if (qCount >= 2 && empCount >= 1) {
-    styleLabel = '探索型'; styleDesc = '你善于提问和换位思考，这在亲子沟通里是非常宝贵的品质。';
-  }
-
-  // ===== Build feedback =====
-  const ranked = DIMS.map(d => ({ ...d, score: dimScores[d.id] })).sort((a, b) => a.score - b.score);
-  const topWeak = ranked.slice(0, Math.min(3, ranked.filter(d => d.score < 6).length));
-  const topStrong = [...ranked].reverse().slice(0, Math.min(3, ranked.filter(d => d.score >= 7).length));
-
-  // ---- Dynamic "try this" suggestions based on weakest dimension ----
-  const partnerLabel = isChild() ? '你的父母' : '你的孩子';
-  const trySuggestions = {
-    listen:    [`试着跟${partnerLabel}说："你刚才说的我听到了——你是觉得……对吗？"`, `下次对方说话时，先憋住三秒再回，用"你是说……"开头复述一遍。`],
-    clarity:   [`试着跟${partnerLabel}说："我的意思其实是……我想说的是……"`, `下次把想说的话多写两句——哪怕啰嗦一点，也比对方猜好。`],
-    emotion:   [`试着跟${partnerLabel}说："我现在有点激动，能不能让我冷静一下再说？"`, `情绪快上来的时候，先深呼吸三次，再说"我觉得……"而不是"你总是……"`],
-    respect:   [`试着跟${partnerLabel}说："我不同意你说的，但我想听听你为什么这么想。"`, `把"你又来了"换成"这件事让我觉得不太舒服"，对方更容易接受。`],
-    cooperate: [`试着跟${partnerLabel}说："我们一起想想办法，好不好？"`, `把"随便你"换成"我有不同的想法，你听听看——"，姿态先主动放下来。`],
-    empathy:   [`试着跟${partnerLabel}说："如果我是你，我可能也会这么想。"`, `下次对方说完，先问一句"你当时是什么感受？"，不急着反驳。`],
-    reflect:   [`试着跟${partnerLabel}说："对不起，我刚才那句话说得太重了。"`, `承认错误不是示弱——"我反思了一下，我确实有做得不好的地方。"`],
-    build:     [`试着跟${partnerLabel}说："那我们下一步怎么办？你有什么建议？"`, `谈话卡住的时候，主动抛出一个具体的下一步——"那周六我们试试XX，你看行吗？"`],
+  // 改进建议（按最弱维度）
+  const trySuggestionsParent = {
+    listen:    [`💡 对方提问时，先听完再回答，用"你是说……"确认一遍。`, `💡 别用"嗯/哦"打发，多回一两句。`, `下次试着复述孩子的话："你刚才说的是……我理解得对吗？"`],
+    tone:      [`💡 把"你必须"换成"我希望"或"我们一起看看……"。`, `💡 说话前先深呼吸，语速放慢一点。`, `试试不带情绪的陈述："我看到……我感到……我希望……"`],
+    respect:   [`💡 孩子表达不同观点时，先说"我理解你为什么这么想"，再说说你的担心。`, `💡 别急着否定，问一句"你是怎么想的？"比直接说"不行"更有效。`],
+    patience:  [`💡 孩子说话慢或重复时，忍住别催，安静听完。`, `💡 如果真的有急事，先说明原因再请孩子快一点。`],
+    clarity:   [`💡 说话前想清楚要表达什么，去掉空话套话。`, `💡 一次说一件事，不要同时说三件。`],
+    encourage: [`💡 每天找一件孩子做得好的事，具体夸一夸。`, `💡 把"你看人家"换成"你上次那个做得真好"。`],
+    emotion:   [`💡 感觉要发火时，先说"我现在有点激动，先停一下"，离开现场冷静。`, `💡 不发狠话——"再也不管你"这种话说出来，孩子会当真的。`],
+    reconcile: [`💡 说错了就说"对不起，我刚才那话说重了"。`, `💡 分歧后主动递个台阶："咱们先不吵了，等会儿再说。"`],
   };
-
-  let tryHTML = '';
-  if (topWeak.length > 0) {
-    const w = topWeak[0].id;
-    tryHTML = `<div style="margin-top:14px;padding:14px;background:rgba(244,151,142,0.08);border-radius:12px;border-left:3px solid var(--coral);">`;
-    tryHTML += `<div style="font-size:13px;font-weight:600;margin-bottom:8px;color:var(--text-dark);">💡 你可以尝试换一种方式沟通</div>`;
-    const ts = trySuggestions[w] || trySuggestions['clarity'];
-    ts.forEach(t => { tryHTML += `<div style="font-size:13px;margin:5px 0;color:var(--text-mid);line-height:1.7;">${t}</div>`; });
-    tryHTML += `</div>`;
-  }
+  const trySuggestionsChild = {
+    listen:    [`💡 家长说话时，先别急着反驳，听完再回应。`, `💡 用"你的意思是……"确认你听懂了。`, `别用"嗯/哦"敷衍，多回两句。`],
+    politeness:[`💡 有不同意见可以表达，但别用嘲讽的语气。`, `💡 把"你懂什么"换成"我有不同的想法……"`],
+    cooperate: [`💡 不合心意也别立刻翻脸，先听听家长的完整想法。`, `💡 表达拒绝时说明理由，而不是甩脸色。`],
+    patience:  [`💡 家长啰嗦是因为关心，忍住别催，听完再说。`, `💡 如果真的听不下去，可以说"我现在有点烦，能先停一下吗？"`],
+    honesty:   [`💡 说实话比搪塞好——家长宁愿听坏消息也不愿被蒙在鼓里。`, `💡 不知道怎么回答时，说"我需要想想"比"不知道"好。`],
+    share:     [`💡 每天主动跟家长说一件学校的事，哪怕很小的事。`, `💡 有心事时试试说"我最近有点……你能听我说说吗？"`],
+    emotion:   [`💡 要发脾气时先数到十，或离开现场冷静一下。`, `💡 不说赌气狠话——"我以后再也不跟你说了"说多了就成真了。`],
+    reconcile: [`💡 吵架后主动递个台阶："刚才我有点急，对不起。"`, `💡 别一直冷战——冷三天，关系就凉了。`],
+  };
+  const trySuggestions = isParentUser ? trySuggestionsParent : trySuggestionsChild;
 
   let improveHTML = '';
 
-  // --- Section 1: 你当前的说话模式 ---
-  improveHTML += `<div style="margin-bottom:10px;"><b>🗣️ 你当前的说话模式：${styleLabel}</b></div>`;
-  improveHTML += `<div style="margin-bottom:16px;color:var(--text-mid);font-size:13px;line-height:1.7;">${styleDesc}</div>`;
+  // 总分 + 分级
+  improveHTML += `<div style="text-align:center;margin-bottom:18px;">
+    <div style="font-size:14px;color:var(--text-mid);margin-bottom:4px;">${isParentUser ? '家长言语评分' : '孩子言语评分'}</div>
+    <div style="font-size:40px;font-weight:800;color:${finalScore>=80?'var(--mint)':finalScore>=60?'var(--sun)':'var(--coral)'};">${finalScore}</div>
+    <div style="font-size:15px;font-weight:700;color:var(--text-dark);margin-top:4px;">${gradeLabel}</div>
+    <div style="font-size:13px;color:var(--text-mid);margin-top:6px;line-height:1.6;">${gradeDesc}</div>
+  </div>`;
 
-  // --- Section 2: 你现在的状况（8维雷达简表） ---
-  improveHTML += '<div style="margin-bottom:6px;"><b>📊 你现在的状况</b></div>';
-  improveHTML += '<div style="margin-bottom:12px;display:grid;grid-template-columns:1fr 1fr;gap:5px 14px;">';
+  // 8 维明细
+  improveHTML += '<div style="margin-bottom:8px;"><b>📊 各维度明细</b></div>';
+  improveHTML += '<div style="margin-bottom:14px;">';
   DIMS.forEach(d => {
-    const pct = Math.round(dimScores[d.id] / d.max * 100);
+    const score = dimScores[d.id] || 0;
+    const pct = Math.round(score / d.max * 100);
     const color = pct >= 70 ? 'var(--mint)' : pct >= 40 ? 'var(--sun)' : 'var(--coral)';
-    const bar = '▓'.repeat(Math.round(dimScores[d.id]/2)) + '░'.repeat(5 - Math.round(dimScores[d.id]/2));
-    improveHTML += `<div style="font-size:12px;"><span style="display:inline-block;width:70px;color:var(--text-mid);">${d.name}</span> <span style="color:${color};font-weight:600;">${bar} ${dimScores[d.id]}/10</span></div>`;
+    improveHTML += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:13px;">
+      <span style="width:70px;color:var(--text-mid);flex-shrink:0;">${d.name}</span>
+      <div style="flex:1;height:8px;background:var(--bg);border-radius:4px;overflow:hidden;">
+        <div style="width:${pct}%;height:100%;background:${color};border-radius:4px;transition:width .5s;"></div>
+      </div>
+      <span style="width:40px;text-align:right;font-weight:600;color:${color};flex-shrink:0;">${score}/${d.max}</span>
+    </div>`;
   });
   improveHTML += '</div>';
 
-  // Highlights
+  // 做得好的
   if (topStrong.length > 0) {
-    improveHTML += '<div style="margin-top:6px;"><b>✨ 做得好的地方</b></div>';
+    improveHTML += '<div style="margin-bottom:8px;"><b>✨ 做得好的地方</b></div>';
     topStrong.forEach(d => {
-      improveHTML += `<div style="font-size:13px;margin:2px 0;color:var(--text-mid);">✦ <b>${d.name}</b>：${dimFeedback[d.id] || ''}</div>`;
+      improveHTML += `<div style="font-size:13px;margin:3px 0;color:var(--text-mid);">✅ ${d.name}：${dimFeedback[d.id] || ''}</div>`;
     });
+    improveHTML += '<div style="margin-bottom:12px;"></div>';
   }
 
-  // --- Section 3: 你可以尝试换一种方式沟通 ---
-  if (tryHTML) improveHTML += tryHTML;
-
-  // Improvements (brief)
+  // 需要改进 + 建议
   if (topWeak.length > 0) {
-    improveHTML += '<div style="margin-top:10px;"><b>⚡ 需要注意</b></div>';
+    improveHTML += '<div style="margin-bottom:8px;"><b>⚡ 需要注意</b></div>';
     topWeak.forEach(d => {
-      improveHTML += `<div style="font-size:13px;margin:2px 0;color:var(--text-mid);">⚡ <b>${d.name}</b>：${dimFeedback[d.id] || ''}</div>`;
+      improveHTML += `<div style="font-size:13px;margin:3px 0;color:var(--text-mid);">⚡ ${d.name}（${dimScores[d.id]}/${d.max}）：${dimFeedback[d.id] || ''}</div>`;
     });
+    improveHTML += '<div style="margin-top:12px;padding:12px 14px;background:rgba(244,151,142,0.08);border-radius:12px;border-left:3px solid var(--coral);">';
+    improveHTML += '<div style="font-size:13px;font-weight:600;margin-bottom:8px;color:var(--text-dark);">💡 你可以试试</div>';
+    const w = topWeak[0];
+    const tips = trySuggestions[w.id] || ['多练习，下次会更好！'];
+    tips.forEach(t => { improveHTML += `<div style="font-size:12px;margin:4px 0;color:var(--text-mid);line-height:1.7;">${t}</div>`; });
+    improveHTML += '</div>';
   }
 
-  // Fallback
-  if (!topStrong.length && !topWeak.length) {
-    improveHTML = '✦ 完成了一轮完整练习，已经很棒了<br>⚡ 下次试试更主动地表达自己';
-  }
+  // 加油
+  improveHTML += `<div style="margin-top:16px;padding:12px 16px;text-align:center;background:linear-gradient(135deg,var(--mint-pale),var(--lavender-pale));border-radius:12px;font-size:15px;font-weight:700;color:var(--mint);">🚀 每一次练习，都在让沟通变好 ✨</div>`;
 
-  // --- Section 4: 加油试试吧！ ---
-  improveHTML += `<div style="margin-top:16px;padding:12px 16px;text-align:center;background:linear-gradient(135deg,var(--mint-pale),var(--lavender-pale));border-radius:12px;font-size:16px;font-weight:700;color:var(--mint);">🚀 加油试试吧！每一次练习都在变好 ✨</div>`;
-
-  // ===== Phrase suggestions (below, in sum-phrases card) =====
-  const persKey = S.emotion || 'blame';
-  const suggMap = {
-    blame:  [`💬 "我知道你生气了，我想跟你说说我是怎么想的。"`, `💬 "你先说完，我听着。"`, `💬 "我们能不能换个方式说话？我也有不对的地方。"`],
-    avoid:  [`💬 "我其实有很多话想说，但有点不知道怎么开口……"`, `💬 "你能不能多问问我？我想让你了解我。"`, `💬 "我需要一点时间想想，等会儿回来跟你聊。"`],
-    please: [`💬 "我也有我的想法，希望你能听我说完。"`, `💬 "你不用忍着的，说出来我们才能一起解决。"`, `💬 "我理解你的苦衷，但我也有我自己的感受。"`],
+  // 话术建议
+  const suggMapParent = {
+    blame:  [`💬 "我知道你生气了，我想跟你说说我的想法。"`, `💬 "你先说完，我认真听着。"`, `💬 "我们能不能换个方式说话？我也有不对的地方。"`],
+    avoid:  [`💬 "孩子其实有很多话想说，只是不知道怎么开口。"`, `💬 "多问孩子几句'你是怎么想的？'，让孩子感到被重视。"`, `💬 "孩子需要的不一定是解决方案，有时候只是需要被听见。"`],
+    please: [`💬 "我也有我的想法，希望你能听我说完。"`, `💬 "你不用忍着，说出来我们才能一起解决。"`, `💬 "我理解你的苦衷，但我也有我的感受。"`],
+    analyze:[`💬 "孩子情绪大时，先不分析，陪他坐五分钟。"`, `💬 "说'我理解你为什么这么想'，比分析错在哪更有效。"`, `💬 "先连接情绪，再解决问题。"`],
+  };
+  const suggMapChild = {
+    blame:  [`💬 "妈/爸，我知道你生气了，我想跟你说说是怎么想的。"`, `💬 "你先说完，我听着。"`, `💬 "我们能不能换个方式说话？"`],
+    avoid:  [`💬 "我其实有很多话想说，但有点不知道怎么开口……"`", `💬 "你能不能多问问我？我想让你了解我。"`, `💬 "我需要一点时间想想，等会儿回来跟你聊。"`],
+    please: [`💬 "我也有我的想法，希望你能听我说完。"`, `💬 "你不用忍着，说出来我们才能一起解决。"`, `💬 "我理解你的苦衷，但我也有我的感受。"`],
     analyze:[`💬 "我现在情绪有点大，你能不能先不分析，陪我坐五分钟？"`, `💬 "你说得对，我确实有逃避的部分——我想改。"`, `💬 "我们先不急着找原因，你让我先说感受好吗？"`],
   };
+  const suggMap = isParentUser ? suggMapParent : suggMapChild;
+  const persKey = S.emotion || 'blame';
   const sugg = suggMap[persKey] || suggMap['blame'];
 
   document.getElementById('sum-turns').textContent = turnCount;
