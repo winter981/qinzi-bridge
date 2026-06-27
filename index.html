@@ -288,6 +288,43 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 
 /* ===== M3 SETUP ===== */
 .setup-step{font-size:12px;color:var(--mint);font-weight:700;letter-spacing:.5px;margin-bottom:5px;}
+
+/* ===== SETTINGS / AI TOGGLE ===== */
+.gear-btn{position:fixed;top:20px;right:20px;width:44px;height:44px;border-radius:50%;
+  background:var(--card);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:20px;box-shadow:0 2px 12px rgba(0,0,0,.08);z-index:100;transition:all .2s;}
+.gear-btn:hover{transform:rotate(30deg);box-shadow:0 4px 18px rgba(0,0,0,.12);}
+.gear-btn.inline{position:static;margin-left:auto;box-shadow:none;background:transparent;}
+.ai-badge{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;font-size:10px;padding:2px 8px;border-radius:10px;
+  font-weight:600;letter-spacing:.3px;display:inline-block;margin-left:6px;}
+.settings-card{background:var(--card);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);margin-bottom:14px;
+  border-left:3px solid #a855f7;}
+.toggle-wrap{display:flex;align-items:center;gap:12px;cursor:pointer;padding:6px 0;}
+.toggle-track{width:48px;height:28px;border-radius:14px;background:var(--mint-pale);
+  position:relative;transition:background .25s;flex-shrink:0;}
+.toggle-track.on{background:linear-gradient(135deg,#7c3aed,#a855f7);}
+.toggle-thumb{width:22px;height:22px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;
+  transition:transform .25s;box-shadow:0 1px 4px rgba(0,0,0,.15);}
+.toggle-track.on .toggle-thumb{transform:translateX(20px);}
+.toggle-label{font-size:14px;font-weight:600;user-select:none;}
+.toggle-desc{font-size:12px;color:var(--text-soft);margin-top:3px;}
+.api-field{margin-bottom:12px;}
+.api-field label{display:block;font-size:12px;font-weight:600;color:var(--text-mid);margin-bottom:5px;}
+.api-field input{width:100%;border:2px solid var(--mint-pale);border-radius:10px;padding:10px 14px;
+  font-size:13px;font-family:inherit;outline:none;transition:border-color .2s;color:var(--text-dark);}
+.api-field input:focus{border-color:#a855f7;}
+.api-status{font-size:12px;padding:8px 14px;border-radius:10px;margin-top:8px;text-align:center;}
+.api-status.ok{background:var(--mint-pale);color:var(--mint);}
+.api-status.err{background:var(--coral-pale);color:#b34c42;}
+.api-status.pending{background:var(--sun-pale);color:#b08020;}
+.ai-loading{display:flex;align-items:center;gap:8px;font-size:12px;color:#a855f7;padding:8px 0;}
+.ai-loading .spinner{width:16px;height:16px;border:2px solid #e0d0f0;border-top-color:#a855f7;
+  border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ai-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#a855f7;margin-left:2px;
+  animation:aiPulse 1.2s infinite;}
+.ai-dot:nth-child(2){animation-delay:.2s}.ai-dot:nth-child(3){animation-delay:.4s}
+@keyframes aiPulse{0%,60%,100%{opacity:.3}30%{opacity:1}}
 </style>
 </head>
 <body>
@@ -784,7 +821,66 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 <!-- Toast -->
 <div id="toast" class="toast"></div>
 
+<!-- ===================== SETTINGS ===================== -->
+<div id="s-settings" class="screen">
+  <div class="hdr">
+    <button class="back" onclick="closeSettings()">←</button>
+    <span class="hdr-title">⚙️ 设置</span>
+    <span class="hdr-sub">AI &amp; 偏好</span>
+  </div>
+
+  <div class="settings-card mb14">
+    <div class="toggle-wrap" onclick="toggleAI()">
+      <div class="toggle-track" id="ai-toggle-track">
+        <div class="toggle-thumb"></div>
+      </div>
+      <div>
+        <div class="toggle-label">🤖 使用真实 AI 驱动</div>
+        <div class="toggle-desc">接入 Dify.AI，让对话更真实、更智能</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--text-soft);margin-top:8px;line-height:1.5;">
+      ⚠️ 关闭后自动回退到内置脚本模式，不影响使用
+    </div>
+  </div>
+
+  <div id="api-config" style="display:none;">
+    <div class="settings-card mb14">
+      <div class="api-field">
+        <label>🔗 API Endpoint</label>
+        <input type="url" id="api-endpoint" placeholder="https://api.dify.ai/v1" value="https://api.dify.ai/v1">
+      </div>
+      <div class="api-field">
+        <label>🔑 API Key</label>
+        <input type="password" id="api-key" placeholder="app-xxxxxxxxxxxxx" value="">
+      </div>
+      <div id="api-status"></div>
+      <div style="display:flex;gap:10px;margin-top:10px;">
+        <button class="btn btn-g btn-sm" onclick="testAPIConnection()" style="flex:1;">🧪 测试连接</button>
+        <button class="btn btn-o btn-sm" onclick="saveAPISettings()" style="flex:1;">💾 保存</button>
+      </div>
+    </div>
+
+    <div class="card" style="border-left:3px solid var(--sky);">
+      <div style="font-size:13px;color:var(--text-mid);line-height:1.7;">
+        <b>💡 提示</b><br>
+        1️⃣ 去 <a href="https://dify.ai" style="color:var(--sky);" target="_blank">dify.ai</a> 注册账号<br>
+        2️⃣ 创建"聊天助手"应用<br>
+        3️⃣ 在应用设置 → "访问API" 中获取密钥<br>
+        4️⃣ 在本页填入即可使用
+      </div>
+    </div>
+  </div>
+
+  <div class="card mt">
+    <button class="btn btn-o" onclick="closeSettings()" style="width:auto;margin:0 auto;display:block;">完成</button>
+  </div>
+</div>
+
 </div><!-- .app -->
+
+<!-- Fixed gear button -->
+<button class="gear-btn" id="gear-btn" onclick="openSettings()" title="设置">⚙️</button>
 
 <script>
 // ==================== STATE ====================
@@ -806,9 +902,168 @@ const S = {
   partnerDescs: [],     // 4-char style descriptors (multi-select)
   m3LastUserMsg: '',    // for adaptive AI
   m3ConvLen: 0,         // conversation length tracker
+  // ===== AI Settings =====
+  aiEnabled: false,       // toggle AI mode
+  difyEndpoint: '',       // Dify API endpoint
+  difyKey: '',            // Dify API key
+  difyConvId: '',         // Dify conversation ID (for Mode 3 sessions)
 };
 function isParent() { return S.identity === 'parent'; }
 function isChild() { return S.identity === 'child'; }
+
+// ==================== AI SETTINGS ====================
+(function initAISettings() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('qinzi_ai_settings') || '{}');
+    if (saved.difyEndpoint) S.difyEndpoint = saved.difyEndpoint;
+    if (saved.difyKey) S.difyKey = saved.difyKey;
+    if (typeof saved.aiEnabled === 'boolean') S.aiEnabled = saved.aiEnabled;
+  } catch(e) { /* ignore corrupt storage */ }
+  // Sync UI
+  document.getElementById('api-endpoint').value = S.difyEndpoint || 'https://api.dify.ai/v1';
+  document.getElementById('api-key').value = S.difyKey || '';
+  syncAIToggleUI();
+})();
+
+function openSettings() {
+  syncAIToggleUI();
+  if (S.aiEnabled) {
+    document.getElementById('api-config').style.display = '';
+    document.getElementById('api-endpoint').value = S.difyEndpoint || 'https://api.dify.ai/v1';
+    document.getElementById('api-key').value = S.difyKey || '';
+  } else {
+    document.getElementById('api-config').style.display = 'none';
+  }
+  document.getElementById('api-status').innerHTML = '';
+  go('s-settings');
+}
+
+function closeSettings() {
+  saveAPISettings();
+  go('s-dashboard');
+}
+
+function toggleAI() {
+  S.aiEnabled = !S.aiEnabled;
+  syncAIToggleUI();
+  const configDiv = document.getElementById('api-config');
+  if (S.aiEnabled) {
+    configDiv.style.display = '';
+    document.getElementById('api-endpoint').value = S.difyEndpoint || 'https://api.dify.ai/v1';
+  } else {
+    configDiv.style.display = 'none';
+  }
+  saveAPISettingsToStorage();
+}
+
+function syncAIToggleUI() {
+  const track = document.getElementById('ai-toggle-track');
+  if (S.aiEnabled) track.classList.add('on');
+  else track.classList.remove('on');
+}
+
+function saveAPISettings() {
+  S.difyEndpoint = document.getElementById('api-endpoint').value.trim();
+  S.difyKey = document.getElementById('api-key').value.trim();
+  saveAPISettingsToStorage();
+  toast('设置已保存 ✓');
+}
+
+function saveAPISettingsToStorage() {
+  localStorage.setItem('qinzi_ai_settings', JSON.stringify({
+    aiEnabled: S.aiEnabled,
+    difyEndpoint: S.difyEndpoint,
+    difyKey: S.difyKey,
+  }));
+}
+
+async function testAPIConnection() {
+  const endpoint = document.getElementById('api-endpoint').value.trim().replace(/\/$/, '');
+  const key = document.getElementById('api-key').value.trim();
+  const statusEl = document.getElementById('api-status');
+
+  if (!key || !endpoint) {
+    statusEl.innerHTML = '⚠️ 请先填入 Endpoint 和 API Key';
+    statusEl.className = 'api-status err';
+    return;
+  }
+
+  statusEl.innerHTML = '<span class="ai-loading"><span class="spinner"></span> 正在测试连接……</span>';
+  statusEl.className = 'api-status pending';
+
+  try {
+    const resp = await fetch(`${endpoint}/chat-messages`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${key}`,
+      },
+      body: JSON.stringify({
+        inputs: {},
+        query: '你好',
+        response_mode: 'blocking',
+        user: 'qinzi-bridge-test',
+      }),
+    });
+
+    if (resp.ok) {
+      S.difyEndpoint = endpoint;
+      S.difyKey = key;
+      statusEl.innerHTML = '✅ 连接成功！API 已就绪';
+      statusEl.className = 'api-status ok';
+      saveAPISettingsToStorage();
+    } else {
+      const errData = await resp.json().catch(() => ({}));
+      const msg = errData.message || `HTTP ${resp.status}`;
+      statusEl.innerHTML = `❌ 连接失败：${msg}`;
+      statusEl.className = 'api-status err';
+    }
+  } catch(e) {
+    statusEl.innerHTML = `❌ 网络错误：${e.message}`;
+    statusEl.className = 'api-status err';
+  }
+}
+
+// ==================== DIFY API CORE ====================
+function isAIReady() {
+  return S.aiEnabled && !!S.difyEndpoint && !!S.difyKey;
+}
+
+async function callDifyAPI(query, conversationId) {
+  const endpoint = S.difyEndpoint.replace(/\/$/, '');
+  const body = {
+    inputs: {
+      user_role: isChild() ? '孩子' : '家长',
+      personality: S.emotion || 'blame',
+      partner: getPartnerName() || (isChild() ? '爸妈' : '孩子'),
+      partner_descs: (S.partnerDescs || []).join('、') || '未设置',
+    },
+    query: query,
+    response_mode: 'blocking',
+    user: 'qinzi-bridge-user',
+  };
+  if (conversationId) body.conversation_id = conversationId;
+
+  const resp = await fetch(`${endpoint}/chat-messages`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${S.difyKey}`,
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!resp.ok) {
+    const errData = await resp.json().catch(() => ({}));
+    throw new Error(errData.message || `API error ${resp.status}`);
+  }
+
+  const data = await resp.json();
+  return {
+    answer: data.answer || '',
+    conversationId: data.conversation_id || '',
+  };
+}
 
 // ==================== PERSONALITIES ====================
 const PERS = {
@@ -876,6 +1131,17 @@ const M2_CHALS = {
         text:'你就只想着自己！从来不体谅家里人！你是我见过最自私的孩子！' },
       { scene:'否定计划', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么回她？',
         text:'你那个计划根本不现实！我说你一句你有十句还回来！你是觉得你比我聪明？！' },
+      // ===== 青春期新增场景 =====
+      { scene:'早恋被发现', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么解释？',
+        text:'你们老师给我打电话了！说你跟那个谁"走得太近"！你是不是谈恋爱了？！说！' },
+      { scene:'外表批评', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么表达你的穿衣自由？',
+        text:'你看看你穿的什么！头发染成这样像个什么样子！别人看到还以为我没有家教！' },
+      { scene:'偷偷翻你手机', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么表达隐私被侵犯？',
+        text:'我看了你的聊天记录——那个人是谁？你们聊的都是些什么？我关心你才看的！' },
+      { scene:'逼你选专业', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么表达自己的人生自己做主？',
+        text:'你必须报理科！别跟我说什么美术音乐——那东西能当饭吃吗？！我这是为你好！' },
+      { scene:'威胁不给钱', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么不炸回去？',
+        text:'你再这样我就不给你生活费了！你爱怎么样怎么样！你这么厉害自己挣去！' },
     ],
     avoid: [
       { scene:'家长主动聊天', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么开口说点什么？',
@@ -908,6 +1174,17 @@ const M2_CHALS = {
         text:'你有没有什么烦恼？学习的，朋友的，什么都行——你跟爸说说。' },
       { scene:'家长主动道歉', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么接住这个道歉？',
         text:'宝贝，上次我对你发脾气——我错了。我想说对不起。你愿意跟我说说你当时的感受吗？' },
+      // ===== 青春期新增场景 =====
+      { scene:'发现你闷闷不乐', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么说出一个真实的烦恼？',
+        text:'（小心地坐到你旁边）宝贝，你最近不怎么笑了。是不是遇到喜欢的人了？' },
+      { scene:'晚上不睡觉偷偷刷手机', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么解释你需要空间？',
+        text:'（半夜发现你房间灯亮着）……你还没睡。我不是骂你——你最近有什么睡不着的事吗？' },
+      { scene:'问你想去哪里上大学', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么说出你对未来的迷茫？',
+        text:'（翻着报考指南）你想去哪个城市？妈妈不想给你压力……你心里有想法吗？' },
+      { scene:'看你一个人哭', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么愿意分享你的情绪？',
+        text:'（手足无措地站在门口）……你哭了。爸不知道该说什么——但你愿意跟我说说吗？' },
+      { scene:'发现你在减肥', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么跟他们说你对自己的感受？',
+        text:'（看着你只吃几口）你是不是在减肥？谁说你胖了？你别听别人乱说……你是不是心里有事？' },
     ],
     please: [
       { scene:'家长安排课外班', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么表达你真实的想法？',
@@ -940,6 +1217,17 @@ const M2_CHALS = {
         text:'你这个月用了多少钱？我看了一下，比上个月多了好多！你钱都花哪儿了？！' },
       { scene:'家长叫你别发脾气', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么表达你真正需要什么？',
         text:'你这性格要改！脾气这么大干什么？家里人都被你弄得不开心！你去冷静一下！' },
+      // ===== 青春期新增场景 =====
+      { scene:'被说早恋', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么温和表达你的真实感受？',
+        text:'老师说你跟一个异性同学走太近——我不想追究。但你得知道，现在不是分心的时候。' },
+      { scene:'嫌你品味差', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么不压抑自己？',
+        text:'你这衣服哪里买的？穿出去不怕人笑话！我明天带你去买几件像样的。' },
+      { scene:'强行给你规划人生', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么说出你的想法？',
+        text:'我把你未来五年都规划好了——你只管按我说的做。听我的不会错。' },
+      { scene:'不准你出门', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么争取一点自由？',
+        text:'周末哪都不准去！就你那些朋友我看了都不靠谱。乖乖在家学习。' },
+      { scene:'嘲笑你的梦想', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么坚持但有礼貌？',
+        text:'你想当电竞选手？！我养你这么大你就想打游戏？！别跟我开玩笑！' },
     ],
     analyze: [
       { scene:'家长情绪崩溃', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么先回应情绪，不是道理？',
@@ -972,6 +1260,17 @@ const M2_CHALS = {
         text:'你能做到的不只这些！你要求自己高一点！我对你要求高，是因为我知道你有能力！' },
       { scene:'家长偷看了你的日记', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么表达感受而不爆发？',
         text:'我担心你所以看了你的日记……我知道这样不对。但你能跟我说说里面写的是什么吗？' },
+      // ===== 青春期新增场景 =====
+      { scene:'怀疑你恋爱', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么不马上防御，先说说发生了什么？',
+        text:'我注意到你最近老是看手机还笑。你跟谁聊天呢？是不是有人？我不反对——但我想知道。' },
+      { scene:'批评你交的朋友', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么理性分析朋友对你的意义？',
+        text:'你最近跟那几个朋友混得好不好我不知道——但我听说了些不太好的事。你跟我说说？' },
+      { scene:'指使你放弃兴趣', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么用事实支持你的选择？',
+        text:'你不学理科以后别后悔！你们老师都说你理科学得好——你非要选文科，理由是什么？' },
+      { scene:'嫌你社交太多', ava:'🧑', role:'妈妈', hint:'你（孩子）怎么分析社交对你心理的意义？',
+        text:'你最近天天往外跑，我说不行你还不高兴——你到底觉得社交比学习重要在哪里？' },
+      { scene:'质疑你的价值观', ava:'🧑', role:'爸爸', hint:'你（孩子）怎么不辩论，先分享你的成长体会？',
+        text:'你最近说话跟以前不一样了。我觉得你在变——你跟我说说，你最近在思考什么？' },
     ],
   },
   parent: {
@@ -1006,6 +1305,17 @@ const M2_CHALS = {
         text:'（把书本扔到地上）我不念了！就这样！你来打我啊！打啊！' },
       { scene:'孩子说宁愿没生在这个家', ava:'👦', role:'儿子（16岁）', hint:'你（家长）怎么不失控？',
         text:'我真希望我不是生在这个家里！你们一点都不理解我！这个家让我窒息！' },
+      // ===== 青春期新增场景 =====
+      { scene:'孩子早恋被发现', ava:'👧', role:'女儿（16岁）', hint:'你（家长）怎么不炸？',
+        text:'（慌慌张张藏手机）你别管！我就是跟朋友聊天！你没权利管我跟谁好！' },
+      { scene:'染头发被训', ava:'👦', role:'儿子（15岁）', hint:'你（家长）怎么不人身攻击？',
+        text:'我染个头发怎么了？！你穿的那是什么年代的衣服！你有资格说我吗？！' },
+      { scene:'半夜被发现在打游戏', ava:'👧', role:'女儿（17岁）', hint:'你（家长）怎么不摔东西？',
+        text:'（凌晨一点还在玩）你进来也不敲门！这是我的房间！你管我几点睡！' },
+      { scene:'说不想选你定的专业', ava:'👦', role:'儿子（17岁）', hint:'你（家长）怎么接受他的决定？',
+        text:'凭什么你说学医我就得学医？！你的人生是你的人生，不是我的！我不去！' },
+      { scene:'说你控制他朋友', ava:'👧', role:'女儿（15岁）', hint:'你（家长）怎么解释你是担心？',
+        text:'你就是想控制我的一切！连我交什么朋友都要管！以后我不回来了行了吧！' },
     ],
     avoid: [
       { scene:'孩子说心里话', ava:'👦', role:'儿子（15岁）', hint:'你（家长）怎么接住这个机会？',
@@ -1038,6 +1348,17 @@ const M2_CHALS = {
         text:'妈，你有没有觉得，你有些事做了会后悔？你现在有什么遗憾吗？' },
       { scene:'孩子说谢谢', ava:'👦', role:'儿子（15岁）', hint:'你（家长）怎么接住这份感谢？',
         text:'（突然）爸，谢谢你。我知道你挺不容易的。谢谢你一直支持我。……你能抱我一下吗？' },
+      // ===== 青春期新增场景 =====
+      { scene:'孩子说他喜欢上别人了', ava:'👧', role:'女儿（17岁）', hint:'你（家长）怎么不打击她？',
+        text:'（犹豫很久）妈……我喜欢一个人。是认真的那种。你答应我别生气。' },
+      { scene:'孩子说他不喜欢自己', ava:'👦', role:'儿子（15岁）', hint:'你（家长）怎么陪他说？',
+        text:'（看着镜子）爸，我觉得自己好丑。别人都比我好看。我不喜欢我自己。' },
+      { scene:'孩子说他压力太大', ava:'👧', role:'女儿（16岁）', hint:'你（家长）怎么不说"有什么压力"？',
+        text:'（熄灯以后）妈，你睡了吗？……我最近晚上老是睡不着，脑子好乱。' },
+      { scene:'孩子说他讨厌现在的学校', ava:'👦', role:'儿子（14岁）', hint:'你（家长）怎么不急着解决问题？',
+        text:'（声音发抖）爸……我想转学。我说真的。我每天去学校都想哭。' },
+      { scene:'孩子说他想去很远的地方上大学', ava:'👧', role:'女儿（17岁）', hint:'你（家长）怎么支持她的独立？',
+        text:'（翻着地图）妈，我想去很远很远的地方读大学。不是想离开你——是想看看外面的世界。' },
     ],
     please: [
       { scene:'孩子不尊重你', ava:'👦', role:'儿子（15岁）', hint:'你（家长）怎么温和说出你的感受？',
@@ -1070,6 +1391,17 @@ const M2_CHALS = {
         text:'你看别的爸妈——他们不管这么多！就你们管！真的烦透了！' },
       { scene:'孩子说你偏心', ava:'👦', role:'儿子（16岁）', hint:'你（家长）怎么认真听他的感受？',
         text:'你就是偏心弟弟！什么都给他！你有没有想过我也是你孩子！' },
+      // ===== 青春期新增场景 =====
+      { scene:'孩子交了个你看不上的朋友', ava:'👧', role:'女儿（16岁）', hint:'你（家长）怎么不立刻否定？',
+        text:'你凭什么不让我跟小雅玩？！她是我最好的朋友！你说她不好，那你给我找个朋友啊！' },
+      { scene:'孩子坚持要去外地上大学', ava:'👦', role:'儿子（17岁）', hint:'你（家长）怎么松手不放？',
+        text:'我就是要去外省！你不要老把我绑在你身边！我有我自己的人生！' },
+      { scene:'说你从来不关心他心里', ava:'👧', role:'女儿（15岁）', hint:'你（家长）怎么承认疏忽？',
+        text:'你只关心我考多少分！你问过我快不快乐吗？你问过我有没有人欺负我吗？！' },
+      { scene:'嫌你当着同学面让他丢人', ava:'👦', role:'儿子（16岁）', hint:'你（家长）怎么道歉？',
+        text:'你今天在我们班群发了什么？你让我在同学面前丢死人了！你根本不管我的面子！' },
+      { scene:'说你限制他自由', ava:'👧', role:'女儿（17岁）', hint:'你（家长）怎么不被激怒？',
+        text:'你是全世界最控制狂的妈！等我成年了第一件事就是搬出去！你等着！' },
     ],
     analyze: [
       { scene:'孩子突然崩溃', ava:'👦', role:'儿子（14岁）', hint:'你（家长）怎么不立刻分析？',
@@ -1102,6 +1434,17 @@ const M2_CHALS = {
         text:'妈，我最近晚上老是睡不着。脑子里乱乱的。我试过很多方法，但没用。你怎么看？' },
       { scene:'孩子说他不知道你爱不爱他', ava:'👦', role:'儿子（14岁）', hint:'你（家长）怎么直接表达爱而不分析为什么爱他？',
         text:'爸，我有时候真的搞不懂，你是爱我的吗？你有没有为我骄傲过？你能告诉我吗？' },
+      // ===== 青春期新增场景 =====
+      { scene:'孩子说你逻辑有问题', ava:'👧', role:'女儿（16岁）', hint:'你（家长）怎么不只讲逻辑？',
+        text:'你每次都用逻辑压我！你觉得你分析的都是对的是吧？你知道感受是什么吗？感受不需要逻辑！' },
+      { scene:'孩子烦躁地拒绝了你的分析', ava:'👦', role:'儿子（15岁）', hint:'你（家长）怎么不继续分析了？',
+        text:'别分析了！分析分析分析！你一天到晚分析我！我累了！你能不能就陪我坐五分钟！' },
+      { scene:'孩子说你不会听人话', ava:'👧', role:'女儿（17岁）', hint:'你（家长）怎么证明你在听？',
+        text:'我说了那么多你一个字都没听进去！你只是在想下一句怎么分析我！你根本不是真的在听！' },
+      { scene:'孩子说他不需要答案', ava:'👦', role:'儿子（16岁）', hint:'你（家长）怎么不说"不分析怎么解决"？',
+        text:'你不要给我出方案！我不是来找你解决问题的！我就是想有个人听着——你能不能就当那个人？' },
+      { scene:'孩子说你的道理他不是不懂', ava:'👧', role:'女儿（17岁）', hint:'你（家长）怎么尊重她也有自己的智慧？',
+        text:'你讲的每一条我都懂！我又不是三岁小孩！你以为我不知道学习重要吗？我就是累了好吗！' },
     ],
   }
 };
@@ -1150,6 +1493,23 @@ const M3_DATA = {
       { role:'sys', text:'【场景铺垫】孩子回来就把自己关屋里。你在外面分析了一下——可能是成绩的事……' },
       { role:'ai', ava:'👦', name:'儿子（AI）', text:'（门里传来）你别进来！我现在不想说话！' },
     ],
+    // ===== 青春期专场：用户是家长 → AI 扮演孩子 =====
+    init_blame_teen: [
+      { role:'sys', text:'【青春期专场】女儿从学校回来，你发现她染了头发，还涂了口红……' },
+      { role:'ai', ava:'👧', name:'女儿（17岁·AI）', text:'（把书包丢在沙发上）怎么了，我好看吗？不好看也是我自己选的。你别告诉我不行。' },
+    ],
+    init_avoid_teen: [
+      { role:'sys', text:'【青春期专场】儿子最近不太跟你说话了，吃饭也很快吃完就回房间……' },
+      { role:'ai', ava:'👦', name:'儿子（16岁·AI）', text:'（吃完最后一口，站起来）爸，我吃完了。（转身要走）' },
+    ],
+    init_please_teen: [
+      { role:'sys', text:'【青春期专场】女儿让你去参加家长会，但暗示你"别跟我说太多"……' },
+      { role:'ai', ava:'👧', name:'女儿（15岁·AI）', text:'妈，明天家长会你别穿那件大衣。还有——别在老师面前说太多，行不？求你了。' },
+    ],
+    init_analyze_teen: [
+      { role:'sys', text:'【青春期专场】儿子提出了一个"计划"——大学想gap一年去旅行……' },
+      { role:'ai', ava:'👦', name:'儿子（18岁·AI）', text:'（拿出手机打开地图）你看这个路线——我算过预算，做过计划。我是认真的，不是一时冲动。' },
+    ],
   },
   child: {
     init_blame: [
@@ -1167,6 +1527,24 @@ const M3_DATA = {
     init_analyze: [
       { role:'sys', text:'【场景铺垫】你考砸了，坐在桌前发呆。妈妈进来，开始跟你分析原因……' },
       { role:'ai', ava:'🧑', name:'妈妈（AI）', text:'来，我们看看卷子。你这道题为什么错？是知识点没掌握还是粗心？' },
+    ],
+    // ===== 青春期专场（13-18岁）=====
+    // 用户是孩子 → AI 扮演家长，场景更贴近青春期冲突
+    init_blame_teen: [
+      { role:'sys', text:'【青春期专场】高一期末，你染了头发回家。妈妈在客厅等着你……' },
+      { role:'ai', ava:'🧑', name:'妈妈（AI）', text:'（一眼看到你的头发，手里的杯子差点掉了）你这头发怎么回事？！你什么时候弄的？！' },
+    ],
+    init_avoid_teen: [
+      { role:'sys', text:'【青春期专场】你最近不太爱说话，把自己关在房间里。爸爸敲门进来了……' },
+      { role:'ai', ava:'🧑', name:'爸爸（AI）', text:'（轻轻敲门）……你最近不太一样。是不是遇到什么让你烦心的事了？你不说我也没法知道。' },
+    ],
+    init_please_teen: [
+      { role:'sys', text:'【青春期专场】同学约你周末出去，妈妈不太放心但也没直接拒绝……' },
+      { role:'ai', ava:'🧑', name:'妈妈（AI）', text:'你那个同学……是男的还是女的？不是我管你，我就是想知道你跟谁在一起。' },
+    ],
+    init_analyze_teen: [
+      { role:'sys', text:'【青春期专场】你告诉爸妈你想放弃理科，选艺术。爸爸开始跟你"分析"……' },
+      { role:'ai', ava:'🧑', name:'爸爸（AI）', text:'（放下报纸）你这个想法——我们得好好聊聊。首先，艺术这条路你能走多远？第二——' },
     ],
   }
 };
@@ -1645,8 +2023,9 @@ function getM3Lines() {
   const d = M3_DATA[role];
   const initKey = `init_${persKey}`;
   const aiKey = `ai_${persKey}`;
-  // Use personality-specific if available, otherwise fall back to blame
-  const init = d[initKey] || d.init_blame;
+  // 30% chance of teenage variant if available
+  const useTeen = Math.random() < 0.3 && d[initKey + '_teen'];
+  const init = useTeen ? d[initKey + '_teen'] : (d[initKey] || d.init_blame);
   const ai = d[aiKey] || d.ai_blame;
   return { init, ai };
 }
@@ -2514,11 +2893,63 @@ function nextChal() {
   document.getElementById('m2-resp').value = '';
 }
 
-function submitM2() {
+async function submitM2() {
   const val = document.getElementById('m2-resp').value.trim();
   if (!val) { toast('先敲几个字再发……'); return; }
-  const fb = M2_FB[Math.floor(Math.random() * M2_FB.length)];
+
   const fbEl = document.getElementById('m2-fb');
+  fbEl.style.display = '';
+  document.getElementById('m2-input').style.display = 'none';
+
+  // Show loading state
+  fbEl.innerHTML = `<div class="fb-box mb14"><div class="ai-loading"><span class="spinner"></span> AI 正在分析你的回复……</div></div>`;
+
+  if (isAIReady()) {
+    try {
+      // Get current challenge text
+      const chals = getChals();
+      const c = chals[S.m2ChalIdx % chals.length];
+      const userRole = isChild() ? '孩子' : '家长';
+      const aiRole = isChild() ? '家长' : '孩子';
+      const prompt = `你正在扮演一个亲子沟通教练。当前场景：【${c.scene}】。${aiRole}（${c.role}）说："${c.text}"。${userRole}回复："${val}"。请评分(0-100)并给出详细反馈和一个更好的替代说法。用JSON格式返回：{"score": 数字, "lbl": "一句话评价", "detail": "详细分析", "better": "换一种更有效的说法"}`;
+
+      const result = await callDifyAPI(prompt);
+      let fb;
+      try {
+        // Try to parse JSON from the answer
+        const jsonMatch = result.answer.match(/\{[\s\S]*\}/);
+        fb = jsonMatch ? JSON.parse(jsonMatch[0]) : null;
+      } catch(e) { fb = null; }
+
+      if (fb && fb.score !== undefined) {
+        fbEl.innerHTML = `
+          <div class="fb-box mb14">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+              <span class="ai-badge">AI</span>
+              <span style="font-size:11px;color:var(--text-soft);">实时分析</span>
+            </div>
+            <div class="score-row">
+              <div class="score-c">${fb.score}</div>
+              <div>
+                <div style="font-size:15px;font-weight:700;margin-bottom:3px;">${fb.lbl || '收到你的回复'}</div>
+                <div style="font-size:13px;color:var(--text-mid);">${fb.detail || '继续加油！'}</div>
+              </div>
+            </div>
+            <div class="better-box">
+              <div style="font-size:12px;color:var(--mint);font-weight:600;margin-bottom:6px;">💡 换个说法试试</div>
+              <div style="font-size:14px;color:var(--text-dark);line-height:1.65;">${fb.better || '可以试试更温和地表达你的想法'}</div>
+            </div>
+            <button class="btn btn-g" style="margin-top:14px;" onclick="nextChal()">再来一题 →</button>
+          </div>`;
+        return;
+      }
+    } catch(e) {
+      console.warn('AI feedback failed, falling back:', e.message);
+    }
+  }
+
+  // Fallback: original random scoring
+  const fb = M2_FB[Math.floor(Math.random() * M2_FB.length)];
   fbEl.innerHTML = `
     <div class="fb-box mb14">
       <div class="score-row">
@@ -2534,8 +2965,6 @@ function submitM2() {
       </div>
       <button class="btn btn-g" style="margin-top:14px;" onclick="nextChal()">再来一题 →</button>
     </div>`;
-  fbEl.style.display = '';
-  document.getElementById('m2-input').style.display = 'none';
 }
 
 // ==================== RESET PROFILE ====================
@@ -2655,6 +3084,7 @@ function showMode3() {
   S.m3LastUserMsg = '';
   S.m3History = [];
   S.m3RecentReplies = [];
+  S.difyConvId = '';
   clearInterval(S.timerInt);
 
   const chat = document.getElementById('m3-chat');
@@ -2755,7 +3185,7 @@ function appendM3Msg(msg) {
   chat.scrollTop = chat.scrollHeight;
 }
 
-function sendM3() {
+async function sendM3() {
   const inp = document.getElementById('m3-input');
   const val = inp.value.trim();
   if (!val) return;
@@ -2774,13 +3204,43 @@ function sendM3() {
   chat.appendChild(typing);
   chat.scrollTop = chat.scrollHeight;
 
+  // Try AI mode first
+  let reply = null;
+  if (isAIReady()) {
+    try {
+      const persName = (S.personality || PERS['blame']).name;
+      const partner = getPartnerName();
+      const partnerDescs = (S.partnerDescs || []).join('、') || '未设置';
+      const phaseNames = ['暖场铺垫', '正面交锋', '收尾和解'];
+      const phaseName = phaseNames[S.m3Phase] || '对话中';
+
+      // Build system prompt in the first message
+      let aiQuery = val;
+      if (!S.difyConvId) {
+        aiQuery = `【角色设定】你现在扮演一个${persName}类型的${partner}（${partnerDescs}）。当前对话阶段：${phaseName}。你面对的是${isChild() ? '家长' : '孩子'}。请用真实自然的语气回应，不要过于完美——保留一点点人性化的倔强、委屈或犹豫。如果对方说的话有攻击性，你可以表现受伤但不升级冲突。如果对方软化，你也可以跟着软化。回复要简短（1-3句话），用口语化的中文。\n\n对方说："${val}"\n\n请以${partner}的身份回复：`;
+      }
+
+      const result = await callDifyAPI(aiQuery, S.difyConvId || undefined);
+      reply = result.answer || '';
+      if (result.conversationId && !S.difyConvId) {
+        S.difyConvId = result.conversationId;
+      }
+    } catch(e) {
+      console.warn('AI mode3 failed, falling back to script:', e.message);
+    }
+  }
+
   setTimeout(() => {
     const t = document.getElementById('typing-ind');
     if (t) t.remove();
-    // Use smart reply instead of old adaptive reply
-    const reply = getM3ReplyWithPhase(val);
+
+    // Fallback to script if AI didn't produce a reply
+    if (!reply) {
+      reply = getM3ReplyWithPhase(val);
+    }
+
     S.m3AiIdx++;
-    const aiName = getPartnerName() + '（AI）';
+    const aiName = getPartnerName() + (isAIReady() ? '（AI' + (S.difyEndpoint.includes('dify.ai') ? '·云' : '') + '）' : '（AI）');
     appendM3Msg({ role:'ai', ava:aiAva, name:aiName, text: reply });
     // Log AI reply to history
     S.m3History.push({ role:'ai', text: reply, time: S.timerSec });
@@ -2812,88 +3272,274 @@ function endM3() {
   clearInterval(S.timerInt);
   const history = S.m3History || [];
   const userMsgs = history.filter(m => m.role === 'user');
-
-  // ===== Real scoring =====
-  let score = 50; // base score
-  let highlights = [];
-  let improvements = [];
-
-  if (userMsgs.length === 0) {
-    score = 30;
-    improvements.push('练习时注意多发言，沉默越多练习效果越差');
-  } else {
-    // 1. "我" statements (good) vs "你" accusations (needs work)
-    let iCount = 0, youBlameCount = 0;
-    userMsgs.forEach(m => {
-      const t = m.text;
-      if (/^我|我觉得|我认为|我的/.test(t)) iCount++;
-      if (/你(怎么|为什么|总是|又不|别|能不能)/.test(t) && !/你能|你可以/.test(t)) youBlameCount++;
-    });
-    const iRatio = iCount / userMsgs.length;
-    const youRatio = youBlameCount / userMsgs.length;
-    if (iRatio > 0.4) { score += 12; highlights.push('有 ' + Math.round(iRatio*100) + '% 的发言以"我"开头，学会了表达自己'); }
-    if (youRatio > 0.5) { score -= 10; improvements.push('指责式发言偏多（"你又……"），下次试着换成"我觉得……"'); }
-    if (youRatio <= 0.2 && userMsgs.length >= 3) { score += 8; highlights.push('很少指责对方，沟通姿态不错'); }
-
-    // 2. Asks questions (engagement)
-    const qCount = userMsgs.filter(m => /[?？]/.test(m.text)).length;
-    if (qCount >= 2) { score += 10; highlights.push('主动提了 ' + qCount + ' 次问题，说明在努力理解对方'); }
-    if (qCount === 0 && userMsgs.length >= 3) { improvements.push('全程没有提问，下次试着多问"你怎么想"'); }
-
-    // 3. Apologies (growth / vulnerability)
-    const apCount = userMsgs.filter(m => /对不起|抱歉|我错了/.test(m.text)).length;
-    if (apCount >= 1) { score += 8; highlights.push('愿意说"对不起"，这是很有勇气的沟通姿态'); }
-
-    // 4. Message length trend (opening up?)
-    if (userMsgs.length >= 3) {
-      const earlyAvg = userMsgs.slice(0,2).reduce((s,m) => s+m.text.length,0)/2;
-      const lateAvg = userMsgs.slice(-2).reduce((s,m) => s+m.text.length,0)/2;
-      if (lateAvg > earlyAvg * 1.5) { score += 8; highlights.push('后半段发言比前半段更详细，说明越来越放开了'); }
-      if (lateAvg < earlyAvg * 0.5 && earlyAvg > 10) { improvements.push('后半段发言变短了，可能是累了或挫败，下次注意坚持'); }
-    }
-
-    // 5. Engagement: responded to AI's questions
-    let respondedToQ = 0;
-    for (let i = 1; i < history.length; i++) {
-      if (history[i-1].role === 'ai' && /[?？]/.test(history[i-1].text) && history[i].role === 'user' && history[i].text.length > 5) {
-        respondedToQ++;
-      }
-    }
-    if (respondedToQ >= 2) { score += 8; highlights.push('AI提问后你都认真回答了，互动质量很高'); }
-
-    // 6. Penalize very short responses throughout
-    const avgLen = userMsgs.reduce((s,m) => s+m.text.length,0) / userMsgs.length;
-    if (avgLen < 8) { score -= 8; improvements.push('回复普遍偏短，下次试着多说两句，让对方感受到你在参与'); }
-  }
-
-  // Clamp score
-  score = Math.max(20, Math.min(98, Math.round(score)));
-
-  // ===== Build feedback HTML =====
   const turnCount = userMsgs.length + 2;
+
+  // ===== 8-dimension scoring (each 0-10, raw total 0-80 → mapped 20-98) =====
+  // Dim names, max scores, and feedback labels
+  const DIMS = [
+    { id:'listen',    name:'倾听与回应',   max:10 },
+    { id:'clarity',   name:'表达清晰度',   max:10 },
+    { id:'emotion',   name:'情绪管理',     max:10 },
+    { id:'respect',   name:'尊重与礼貌',   max:10 },
+    { id:'cooperate', name:'合作意愿',     max:10 },
+    { id:'empathy',   name:'换位思考',     max:10 },
+    { id:'reflect',   name:'道歉与反思',   max:10 },
+    { id:'build',     name:'话题建设性',   max:10 },
+  ];
+
+  // ----- Pre-analysis of all user messages -----
+  const allText = userMsgs.map(m => m.text).join(' ');
+  const msgCount = userMsgs.length;
+  const avgLen = msgCount ? userMsgs.reduce((s,m) => s + m.text.length, 0) / msgCount : 0;
+
+  // Count patterns
+  let iCount = 0, youBlame = 0, qCount = 0, apCount = 0, rudeCount = 0;
+  let exclCount = 0, okayCount = 0, coopCount = 0, reflectCount = 0;
+  let empCount = 0;
+  userMsgs.forEach(m => {
+    const t = m.text;
+    if (/^我|我觉得|我认为|我的|我想/.test(t)) iCount++;
+    if (/你(怎么|为什么|总是|又不|别|能不能|就不|从来)/.test(t) && !/你能|你可以|你觉|你想/.test(t)) youBlame++;
+    if (/[?？]/.test(t)) qCount++;
+    if (/对不起|抱歉|我错了|是我不好|我没想/.test(t)) apCount++;
+    if (/滚|去死|傻逼|有病|神经|烦死了|你有完没完/.test(t)) rudeCount++;
+    if (/！{2,}|[?!]{3,}/.test(t)) exclCount++;
+    if (/好吧|行吧|算了|随便|你说了算/.test(t)) okayCount++;
+    if (/好的|行|可以|那我|我试|我保证|我答应|我们一起|要不/.test(t)) coopCount++;
+    if (/你说得对|我知道你|我理解|我懂|你也不容易|你也有/.test(t)) empCount++;
+    if (/我会|我以后|下次|改正|注意|不再|反省/.test(t)) reflectCount++;
+  });
+
+  // Responded to AI's questions
+  let respondedQ = 0;
+  for (let i = 1; i < history.length; i++) {
+    if (history[i-1].role === 'ai' && /[?？]/.test(history[i-1].text) &&
+        history[i].role === 'user' && history[i].text.length > 5) respondedQ++;
+  }
+
+  // Message length trend (early vs late)
+  let lengthTrend = 0; // -1 shrinking, 0 same, 1 growing
+  if (msgCount >= 3) {
+    const earlyAvg = userMsgs.slice(0, Math.ceil(msgCount/3)).reduce((s,m) => s + m.text.length, 0) / Math.ceil(msgCount/3);
+    const lateAvg = userMsgs.slice(-Math.ceil(msgCount/3)).reduce((s,m) => s + m.text.length, 0) / Math.ceil(msgCount/3);
+    if (lateAvg > earlyAvg * 1.3) lengthTrend = 1;
+    else if (lateAvg < earlyAvg * 0.7 && earlyAvg > 10) lengthTrend = -1;
+  }
+
+  const aiAskCount = history.filter(m => m.role === 'ai' && /[?？]/.test(m.text)).length;
+
+  // ===== Score each dimension =====
+  const dimScores = {};
+  const dimFeedback = {};
+
+  // 1. 倾听与回应 — did they listen and respond?
+  if (msgCount === 0) dimScores.listen = 0;
+  else {
+    const respRatio = aiAskCount > 0 ? Math.min(1, respondedQ / aiAskCount) : 0.5;
+    dimScores.listen = Math.round(respRatio * 10);
+    if (dimScores.listen >= 8) dimFeedback.listen = '对方每次提问你都用心回答了，听得进去';
+    else if (dimScores.listen >= 5) dimFeedback.listen = '大部分问题回应了，有时候可以再认真一点';
+    else dimFeedback.listen = '对方问了好几次你都没正面回应，像是没在听';
+  }
+
+  // 2. 表达清晰度 — message length + detail
+  {
+    if (avgLen < 6 && msgCount > 0) dimScores.clarity = 2;
+    else if (avgLen < 12) dimScores.clarity = 5;
+    else if (avgLen < 25) dimScores.clarity = 7;
+    else dimScores.clarity = 9;
+    const iRatio = msgCount > 0 ? iCount / msgCount : 0;
+    if (iRatio > 0.3) dimScores.clarity = Math.min(10, dimScores.clarity + 1);
+    if (dimScores.clarity >= 8) dimFeedback.clarity = '把自己的想法说得很清楚，对方能准确理解你';
+    else if (dimScores.clarity >= 5) dimFeedback.clarity = '基本表达清楚了，下次可以多说两句细节';
+    else dimFeedback.clarity = '回复太短了，对方根本不知道你在想什么';
+  }
+
+  // 3. 情绪管理 — hostility detection
+  {
+    let emo = 10;
+    if (rudeCount >= 2) emo -= 5;
+    else if (rudeCount >= 1) emo -= 3;
+    if (exclCount >= 3) emo -= 3;
+    else if (exclCount >= 1) emo -= 1;
+    if (youBlame > msgCount * 0.5) emo -= 2;
+    dimScores.emotion = Math.max(0, emo);
+    if (dimScores.emotion >= 9) dimFeedback.emotion = '全程保持冷静，没有情绪化的语言，很难得';
+    else if (dimScores.emotion >= 6) dimFeedback.emotion = '基本稳住了，有一两处有点激动但可以理解';
+    else dimFeedback.emotion = '情绪比较激动，出现了攻击性语言，需要练习情绪控制';
+  }
+
+  // 4. 尊重与礼貌
+  {
+    let resp = 10;
+    if (rudeCount >= 2) resp -= 5; else if (rudeCount >= 1) resp -= 3;
+    if (youBlame > msgCount * 0.6 && msgCount >= 2) resp -= 3;
+    else if (youBlame > msgCount * 0.3) resp -= 1;
+    dimScores.respect = Math.max(0, resp);
+    if (dimScores.respect >= 9) dimFeedback.respect = '说话很有礼貌，即使有分歧也没有人身攻击';
+    else if (dimScores.respect >= 6) dimFeedback.respect = '整体还算客气，但有些话可以换个说法更温和';
+    else dimFeedback.respect = '语言比较冲，伤害对方的话说出来就收不回了';
+  }
+
+  // 5. 合作意愿
+  {
+    let coop = 5;
+    if (coopCount >= 3) coop = 9;
+    else if (coopCount >= 1) coop = 7;
+    if (okayCount > coopCount && msgCount >= 2) coop -= 2;
+    if (lengthTrend === 1) coop += 1;
+    dimScores.cooperate = Math.min(10, Math.max(0, coop));
+    if (dimScores.cooperate >= 8) dimFeedback.cooperate = '积极尝试配合对方，愿意一起找解决方案';
+    else if (dimScores.cooperate >= 5) dimFeedback.cooperate = '有一定配合，但有时候还是各说各的';
+    else dimFeedback.cooperate = '比较抗拒合作，"行吧/随便"这种话说出来等于拒绝沟通';
+  }
+
+  // 6. 换位思考
+  {
+    let emp = 5;
+    if (empCount >= 3) emp = 10;
+    else if (empCount >= 1) emp = 8;
+    else if (qCount >= 1) emp = 6;
+    if (youBlame > msgCount * 0.4 && msgCount >= 2) emp -= 2;
+    dimScores.empathy = Math.min(10, Math.max(0, emp));
+    if (dimScores.empathy >= 8) dimFeedback.empathy = '能够试着从对方角度看问题，这是最难的能力';
+    else if (dimScores.empathy >= 5) dimFeedback.empathy = '偶尔会关心对方的感受，还可以更多一些';
+    else dimFeedback.empathy = '全程只从自己的角度说话，没有尝试理解对方';
+  }
+
+  // 7. 道歉与反思
+  {
+    let ref = 5;
+    if (apCount >= 2) ref = 10;
+    else if (apCount >= 1) ref = 8;
+    if (reflectCount >= 2) ref = Math.min(10, ref + 2);
+    else if (reflectCount >= 1) ref = Math.min(10, ref + 1);
+    if (apCount === 0 && reflectCount === 0 && msgCount >= 3) ref = 3;
+    dimScores.reflect = ref;
+    if (dimScores.reflect >= 8) dimFeedback.reflect = '愿意承认自己的问题并反思改进，非常有勇气';
+    else if (dimScores.reflect >= 5) dimFeedback.reflect = '有一定的自省意识，下次可以更大方地承认';
+    else dimFeedback.reflect = '没有道歉也没有反思，沟通僵在这里就很难往前走了';
+  }
+
+  // 8. 话题建设性 — moving conversation forward vs stuck
+  {
+    let build = 5;
+    if (qCount >= 3) build = 9;
+    else if (qCount >= 1) build = 7;
+    if (lengthTrend === 1) build += 1;
+    if (lengthTrend === -1) build -= 2;
+    if (dimScores.cooperate >= 7) build += 1;
+    if (dimScores.listen >= 7) build += 1;
+    dimScores.build = Math.min(10, Math.max(0, build));
+    if (dimScores.build >= 8) dimFeedback.build = '话题在往前推进，对话有建设性的方向';
+    else if (dimScores.build >= 5) dimFeedback.build = '对话有一定推进，但有些地方卡住了';
+    else dimFeedback.build = '对话在原地打转，双方都没能让话题往前走';
+  }
+
+  // ===== Compile score =====
+  const rawTotal = DIMS.reduce((s, d) => s + dimScores[d.id], 0);
+  // Map raw 0-80 → final 20-98
+  const finalScore = Math.round(20 + (rawTotal / 80) * 78);
+
+  // ===== Detect communication style =====
+  let styleLabel = '沟通型';
+  let styleDesc = '你有表达、有倾听，整体是在交流而不是对抗。';
+  if (youBlame > msgCount * 0.5 && rudeCount >= 1) {
+    styleLabel = '对抗型'; styleDesc = '你的发言里指责和攻击较多，容易让对方防御，沟通就很难继续了。';
+  } else if (youBlame > msgCount * 0.5) {
+    styleLabel = '指责型'; styleDesc = '你倾向于指出对方的问题，但很少谈自己的感受。试着反过来——先说"我觉得……"。';
+  } else if (avgLen < 8 && msgCount > 0) {
+    styleLabel = '沉默型'; styleDesc = '你说话很少，对方猜不透你在想什么。沉默不等于安全，有时候反而是最大的对抗。';
+  } else if (dimScores.cooperate < 5) {
+    styleLabel = '回避型'; styleDesc = '你用"随便/行吧"来结束话题，问题其实没有解决，只是被搁置了。';
+  } else if (qCount >= 2 && empCount >= 1) {
+    styleLabel = '探索型'; styleDesc = '你善于提问和换位思考，这在亲子沟通里是非常宝贵的品质。';
+  }
+
+  // ===== Build feedback =====
+  const ranked = DIMS.map(d => ({ ...d, score: dimScores[d.id] })).sort((a, b) => a.score - b.score);
+  const topWeak = ranked.slice(0, Math.min(3, ranked.filter(d => d.score < 6).length));
+  const topStrong = [...ranked].reverse().slice(0, Math.min(3, ranked.filter(d => d.score >= 7).length));
+
+  // ---- Dynamic "try this" suggestions based on weakest dimension ----
+  const partnerLabel = isChild() ? '你的父母' : '你的孩子';
+  const trySuggestions = {
+    listen:    [`试着跟${partnerLabel}说："你刚才说的我听到了——你是觉得……对吗？"`, `下次对方说话时，先憋住三秒再回，用"你是说……"开头复述一遍。`],
+    clarity:   [`试着跟${partnerLabel}说："我的意思其实是……我想说的是……"`, `下次把想说的话多写两句——哪怕啰嗦一点，也比对方猜好。`],
+    emotion:   [`试着跟${partnerLabel}说："我现在有点激动，能不能让我冷静一下再说？"`, `情绪快上来的时候，先深呼吸三次，再说"我觉得……"而不是"你总是……"`],
+    respect:   [`试着跟${partnerLabel}说："我不同意你说的，但我想听听你为什么这么想。"`, `把"你又来了"换成"这件事让我觉得不太舒服"，对方更容易接受。`],
+    cooperate: [`试着跟${partnerLabel}说："我们一起想想办法，好不好？"`, `把"随便你"换成"我有不同的想法，你听听看——"，姿态先主动放下来。`],
+    empathy:   [`试着跟${partnerLabel}说："如果我是你，我可能也会这么想。"`, `下次对方说完，先问一句"你当时是什么感受？"，不急着反驳。`],
+    reflect:   [`试着跟${partnerLabel}说："对不起，我刚才那句话说得太重了。"`, `承认错误不是示弱——"我反思了一下，我确实有做得不好的地方。"`],
+    build:     [`试着跟${partnerLabel}说："那我们下一步怎么办？你有什么建议？"`, `谈话卡住的时候，主动抛出一个具体的下一步——"那周六我们试试XX，你看行吗？"`],
+  };
+
+  let tryHTML = '';
+  if (topWeak.length > 0) {
+    const w = topWeak[0].id;
+    tryHTML = `<div style="margin-top:14px;padding:14px;background:rgba(244,151,142,0.08);border-radius:12px;border-left:3px solid var(--coral);">`;
+    tryHTML += `<div style="font-size:13px;font-weight:600;margin-bottom:8px;color:var(--text-dark);">💡 你可以尝试换一种方式沟通</div>`;
+    const ts = trySuggestions[w] || trySuggestions['clarity'];
+    ts.forEach(t => { tryHTML += `<div style="font-size:13px;margin:5px 0;color:var(--text-mid);line-height:1.7;">${t}</div>`; });
+    tryHTML += `</div>`;
+  }
+
   let improveHTML = '';
-  if (highlights.length > 0) {
-    improveHTML += highlights.map(h => `✦ ${h}<br>`).join('');
+
+  // --- Section 1: 你当前的说话模式 ---
+  improveHTML += `<div style="margin-bottom:10px;"><b>🗣️ 你当前的说话模式：${styleLabel}</b></div>`;
+  improveHTML += `<div style="margin-bottom:16px;color:var(--text-mid);font-size:13px;line-height:1.7;">${styleDesc}</div>`;
+
+  // --- Section 2: 你现在的状况（8维雷达简表） ---
+  improveHTML += '<div style="margin-bottom:6px;"><b>📊 你现在的状况</b></div>';
+  improveHTML += '<div style="margin-bottom:12px;display:grid;grid-template-columns:1fr 1fr;gap:5px 14px;">';
+  DIMS.forEach(d => {
+    const pct = Math.round(dimScores[d.id] / d.max * 100);
+    const color = pct >= 70 ? 'var(--mint)' : pct >= 40 ? 'var(--sun)' : 'var(--coral)';
+    const bar = '▓'.repeat(Math.round(dimScores[d.id]/2)) + '░'.repeat(5 - Math.round(dimScores[d.id]/2));
+    improveHTML += `<div style="font-size:12px;"><span style="display:inline-block;width:70px;color:var(--text-mid);">${d.name}</span> <span style="color:${color};font-weight:600;">${bar} ${dimScores[d.id]}/10</span></div>`;
+  });
+  improveHTML += '</div>';
+
+  // Highlights
+  if (topStrong.length > 0) {
+    improveHTML += '<div style="margin-top:6px;"><b>✨ 做得好的地方</b></div>';
+    topStrong.forEach(d => {
+      improveHTML += `<div style="font-size:13px;margin:2px 0;color:var(--text-mid);">✦ <b>${d.name}</b>：${dimFeedback[d.id] || ''}</div>`;
+    });
   }
-  if (improvements.length > 0) {
-    improveHTML += improvements.slice(0,2).map(im => `⚡ ${im}<br>`).join('');
+
+  // --- Section 3: 你可以尝试换一种方式沟通 ---
+  if (tryHTML) improveHTML += tryHTML;
+
+  // Improvements (brief)
+  if (topWeak.length > 0) {
+    improveHTML += '<div style="margin-top:10px;"><b>⚡ 需要注意</b></div>';
+    topWeak.forEach(d => {
+      improveHTML += `<div style="font-size:13px;margin:2px 0;color:var(--text-mid);">⚡ <b>${d.name}</b>：${dimFeedback[d.id] || ''}</div>`;
+    });
   }
-  if (!improveHTML) {
+
+  // Fallback
+  if (!topStrong.length && !topWeak.length) {
     improveHTML = '✦ 完成了一轮完整练习，已经很棒了<br>⚡ 下次试试更主动地表达自己';
   }
 
-  // Phrase suggestions based on personality
+  // --- Section 4: 加油试试吧！ ---
+  improveHTML += `<div style="margin-top:16px;padding:12px 16px;text-align:center;background:linear-gradient(135deg,var(--mint-pale),var(--lavender-pale));border-radius:12px;font-size:16px;font-weight:700;color:var(--mint);">🚀 加油试试吧！每一次练习都在变好 ✨</div>`;
+
+  // ===== Phrase suggestions (below, in sum-phrases card) =====
   const persKey = S.emotion || 'blame';
   const suggMap = {
-    blame: [`💬 "我知道你很生气。我想跟你说说是怎么了。"`, `💬 "你先说，我在听。"`, `💬 "我们能不能不吵架，好好说？"`],
-    avoid: [`💬 "我其实有点难受，但不知道怎么说……你帮我一下？"`, `💬 "你能不能主动问问我？我很想跟你说。"`, `💬 "我需要一点时间想想，等下找你聊。"`],
-    please: [`💬 "我有我的想法，我希望你能听听。"`, `💬 "你不用忍着，说出来我们一起解决。"`, `💬 "我也有需要，你能不能也考虑一下？"`],
-    analyze: [`💬 "我现在情绪有点大，你能不能先不分析，陪我坐会儿？"`, `💬 "你这么说我有点受伤，但不是针对你。"`, `💬 "我们先不找原因，我想先让你知道我的感受。"`],
+    blame:  [`💬 "我知道你生气了，我想跟你说说我是怎么想的。"`, `💬 "你先说完，我听着。"`, `💬 "我们能不能换个方式说话？我也有不对的地方。"`],
+    avoid:  [`💬 "我其实有很多话想说，但有点不知道怎么开口……"`, `💬 "你能不能多问问我？我想让你了解我。"`, `💬 "我需要一点时间想想，等会儿回来跟你聊。"`],
+    please: [`💬 "我也有我的想法，希望你能听我说完。"`, `💬 "你不用忍着的，说出来我们才能一起解决。"`, `💬 "我理解你的苦衷，但我也有我自己的感受。"`],
+    analyze:[`💬 "我现在情绪有点大，你能不能先不分析，陪我坐五分钟？"`, `💬 "你说得对，我确实有逃避的部分——我想改。"`, `💬 "我们先不急着找原因，你让我先说感受好吗？"`],
   };
   const sugg = suggMap[persKey] || suggMap['blame'];
 
   document.getElementById('sum-turns').textContent = turnCount;
-  document.getElementById('sum-score').textContent = score;
+  document.getElementById('sum-score').textContent = finalScore;
   document.getElementById('sum-improve').innerHTML = improveHTML;
   document.getElementById('sum-phrases').innerHTML = sugg.map(s => s + '<br>').join('');
   go('s-summary');
