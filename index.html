@@ -3353,6 +3353,7 @@ function endM3() {
   let annoyedCount = 0;   // 带着烦躁怒气
   let yellCount = 0;      // 大声争吵吼叫
   let harshCount = 0;     // 决裂狠话/断绝关系
+  let hostileCount = 0;   // 对抗排斥（"你管我呢""要你管"等排斥型表达）
 
   // 知错和解 / 认错和解
   let noApology = 0;      // 明明说错拒不认错
@@ -3373,16 +3374,24 @@ function endM3() {
     if (/你看人家|别人家的|你看看谁|你比/.test(t)) mockCount++;
     // 辱骂
     if (/滚|去死|傻逼|有病|神经|废物|猪/.test(t)) rudeCount++;
+    // 对抗排斥（热门口语化对抗表达 — 新增）
+    // 覆盖"你管我呢""要你管""关你屁事""你谁啊""滚蛋""别管我""少管我""跟你没关系"等
+    if (/你管我呢|你管我|要你管|少管我|别管我|别管|关你屁事|关你什么事|关我什么事|跟你没关系|跟你无关|你谁啊|你算老几|你管得着|管好你自己/.test(t)) {
+      hostileCount++;
+      confrontCount++;
+    }
     // 冷淡
-    if (/烦不烦|够了|你有完没完|别烦我/.test(t)) coldCount++;
+    if (/烦不烦|够了|你有完没完|有完没完|别烦我|烦死了|真烦/.test(t)) coldCount++;
     // 抬杠
-    if (/才不是|胡说|你懂什么|你行你/.test(t)) confrontCount++;
+    if (/才不是|胡说|你懂什么|你行你|你行你上|凭什么|要你讲|要你说|要你教/.test(t)) confrontCount++;
+    // 滚蛋/驱赶类（强烈对抗）
+    if (/滚蛋|滚开|走开|离我远点|出去/.test(t)) { hostileCount++; coldCount++; confrontCount++; }
     // 否定
-    if (/不行|不可以|不许|不能|别想/.test(t) && !/能不能/.test(t)) negateCount++;
+    if (/不行|不可以|不许|不能|别想|凭什么不行|就不/.test(t) && !/能不能/.test(t)) negateCount++;
     // 轻视
-    if (/小题大做|矫情|至于吗|想太多/.test(t)) dismissCount++;
+    if (/小题大做|矫情|至于吗|想太多|没那么严重|大惊小怪/.test(t)) dismissCount++;
     // 不许讨论
-    if (/我说了算|你别管|关你什么事/.test(t)) noDiscussCount++;
+    if (/我说了算|你别管|关你什么事|你别说了|不想听|没什么好说/.test(t)) noDiscussCount++;
     // 催/嫌啰嗦
     if (/快点说|别废话|啰嗦|烦死了/.test(t)) rushCount++;
     // 拒绝沟通
@@ -3413,7 +3422,14 @@ function endM3() {
 
   // ===== 特殊判定：全程沉默/只发句号/无有效对话 =====
   const allGarbage = msgCount === 0 ||
-    (msgCount > 0 && userMsgs.every(m => m.text.trim().length <= 2 || /^。|\.|,|，$/.test(m.text.trim())));
+    (msgCount > 0 && userMsgs.every(m => {
+      const trimmed = m.text.trim();
+      // 纯标点符号或空白
+      if (/^[。，.?!？！、；;：:\s]+$/.test(trimmed)) return true;
+      // 极短内容（<=2字符且不含中文/字母/数字/有意义内容）
+      if (trimmed.length <= 2 && !/[\u4e00-\u9fa5a-zA-Z0-9]/.test(trimmed)) return true;
+      return false;
+    }));
   if (allGarbage) {
     // 直接记 10 分
     const finalScore = 10;
@@ -3430,6 +3446,50 @@ function endM3() {
     document.getElementById('sum-score').textContent = finalScore;
     document.getElementById('sum-improve').innerHTML = improveHTML;
     document.getElementById('sum-phrases').innerHTML = `💬 "我今天不太想聊，但我坐这儿陪你。"<br>💬 "我先冷静一下，等会儿跟你说。"<br>💬 "你在吗？我有点事想跟你说。"`;
+    go('s-summary');
+    return;
+  }
+
+  // ===== 对抗性强制降分：检测到排斥型对抗表达 =====
+  // "你管我呢""要你管""关你屁事""滚蛋""你谁啊"等主动推开沟通的话
+  // 如果占支配地位且毫无缓和，直接判低分，避免被常规评分误判为"很棒"
+  if (hostileCount >= 2 && apologyCount === 0 && coopCount === 0) {
+    const finalScore = 12;
+    const improveHTML = `<div style="text-align:center;padding:20px 0;">
+      <div style="font-size:48px;margin-bottom:12px;">😤</div>
+      <div style="font-size:16px;font-weight:700;color:var(--coral);margin-bottom:8px;">对话充满排斥和对抗</div>
+      <div style="font-size:13px;color:var(--text-mid);line-height:1.7;">
+        你多次使用了"你管我呢""要你管""别管我"这类排斥性表达。<br>
+        这些话说出来就是在推开对方——不是沟通，是对抗。<br>
+        <b>得分：12分</b>（恶性沟通，长期对抗式对话）<br>
+        💡 试试换成："我现在有点烦，能不能先停一下等会儿再说？"
+      </div>
+    </div>`;
+    document.getElementById('sum-turns').textContent = turnCount;
+    document.getElementById('sum-score').textContent = finalScore;
+    document.getElementById('sum-improve').innerHTML = improveHTML;
+    document.getElementById('sum-phrases').innerHTML = `💬 "我现在有点烦，能不能先停一下？"<br>💬 "你说得对，我刚才态度不好。"<br>💬 "我不想吵，咱们能不能换个方式说？"`;
+    go('s-summary');
+    return;
+  }
+
+  if (hostileCount === 1 && apologyCount === 0 && coopCount === 0) {
+    // 有一句排斥性表达且完全无缓和 → 直接给 25 分
+    const finalScore = 25;
+    const improveHTML = `<div style="text-align:center;padding:20px 0;">
+      <div style="font-size:48px;margin-bottom:12px;">😟</div>
+      <div style="font-size:16px;font-weight:700;color:var(--coral);margin-bottom:8px;">使用了排斥性表达</div>
+      <div style="font-size:13px;color:var(--text-mid);line-height:1.7;">
+        你说了"你管我呢""要你管"这类推开对方的话。<br>
+        这句话一说出来，对方会觉得你在拒绝沟通。<br>
+        <b>得分：25分</b>（恶性沟通边缘，需要改变表达方式）<br>
+        💡 真想表达不同意见，可以换成："我有不同的想法，你听我说说？"
+      </div>
+    </div>`;
+    document.getElementById('sum-turns').textContent = turnCount;
+    document.getElementById('sum-score').textContent = finalScore;
+    document.getElementById('sum-improve').innerHTML = improveHTML;
+    document.getElementById('sum-phrases').innerHTML = `💬 "我其实想说的不是这个，让我重新说。"<br>💬 "我不同意，但我能听听你为什么这么说。"<br>💬 "我有点激动，先冷静一下再跟你说。"`;
     go('s-summary');
     return;
   }
